@@ -179,10 +179,10 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
  </section>
  <section class="voice-assistant" id="voiceAssistant" data-screen="today" hidden aria-label="Assistente por voz">
   <div class="voice-head"><div><span class="eyebrow-dark">AURORA IA</span><h2>Fale com suas finanças</h2></div><button type="button" class="voice-close" id="voiceClose" aria-label="Fechar assistente">×</button></div>
-  <p class="voice-help">Diga o que entrou, o que você pagou ou qual conta deseja alterar. A fala vira texto no navegador e o Gemini interpreta o comando. Nada é salvo sem sua confirmação.</p>
+  <p class="voice-help">Diga o que entrou, o que você pagou ou qual conta deseja alterar. A fala vira texto no navegador e a assistente entende o comando. Nada é salvo sem sua confirmação.</p>
   <div class="voice-recorder"><button type="button" class="voice-record" id="voiceStart">🎙 Começar a falar</button><span id="voiceStatus" role="status">Pronto para ouvir.</span></div>
   <label class="field voice-transcript-label"><span>O que você falou (você também pode digitar)</span><textarea id="voiceTranscript" rows="3" maxlength="3000" placeholder="Ex.: Paguei 120 reais de internet hoje."></textarea></label>
-  <div class="voice-actions"><button type="button" class="btn primary" id="voiceAnalyze">Interpretar com Gemini</button></div>
+  <div class="voice-actions"><button type="button" class="btn primary" id="voiceAnalyze">Entender comando</button></div>
   <div class="voice-preview" id="voicePreview" hidden><p id="voiceAssistantMessage"></p><div id="voicePreviewItems"></div><div class="voice-actions"><button type="button" class="btn secondary" id="voiceEdit">Editar comando</button><button type="button" class="btn primary" id="voiceApply">Confirmar e salvar</button></div></div>
  </section>
  <section class="change-center" id="changeCenter" data-screen="settings" aria-label="Central de melhorias">
@@ -221,7 +221,7 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
    <div class="sectionhead"><h2>Resumo do mês</h2></div><div class="card" id="summary"></div><div class="actions report-actions"><button class="btn secondary" id="exportBtn">↓ Exportar CSV</button></div>
   </details></aside>
  </div>
- <div class="foot">Controle do apartamento · Aportes, contas, pagamentos e saldo acumulado. Seus dados ficam sincronizados com sua conta.</div>
+ <div class="foot">AURORA · Controle financeiro pessoal. Seus dados ficam sincronizados com sua conta.</div>
 </main>
 <nav class="aurora-bottom-nav" id="auroraBottomNav" aria-label="Navegação principal">
  <button type="button" class="nav-item active" data-screen-target="today" aria-current="page"><span class="nav-icon">⌂</span><span>Hoje</span></button>
@@ -248,7 +248,7 @@ const STORAGE_KEY='sb-dqhyiggxcxczdcopdyec-auth-token';
 const LOCAL_DATA_KEY='mcf_transactions_v1';
 const $=id=>document.getElementById(id);
 let categories={income:['Aporte','Outros'],expense:['Aluguel','Água','Luz','Condomínio','IPTU','IPVA','Gás','Caução','Cartão','Faculdade','Seguro','Internet','MP','Itaú','Mercado','Transporte','Saúde','Lazer','Outros']};
-const statusLabels={paid:'Pago / recebido',pending:'Pendente',planned:'Previsão',recorded:'Registrado'};
+const statusLabels={paid:'Pago / recebido',pending:'A pagar / a receber',planned:'A pagar / a receber',recorded:'Pago / recebido'};
 let supabaseClient=null,entries=[],currentUser=null,currentType='expense',installPrompt=null,activeUserId=null,entriesLoadedForUser=null,loadingPromise=null,saveInProgress=false,openingBalance=0,editingEntryId=null,projectionMode='month',undoRecord=null,undoTimer=null;
 
 function localDateString(date=new Date()){
@@ -421,7 +421,7 @@ function openProjectionMonth(key){const select=$('projectionMonthFilter');select
  const totals=categories.expense.map(category=>({name:category,value:list.filter(e=>e.type==='expense'&&e.category===category).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
  $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(total(list,'expense')||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">As contas aparecerão aqui.</div>';
  const allIncome=total(list,'income'),allExpense=total(list,'expense'),pendingCount=list.filter(e=>e.status==='pending').length,plannedCount=list.filter(e=>e.status==='planned').length;
- $('summary').innerHTML='<div class="summaryrow"><span>Movimentações</span><strong>'+list.length+'</strong></div><div class="summaryrow"><span>Resultado realizado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div><div class="summaryrow"><span>Resultado previsto</span><strong class="'+(allIncome-allExpense>=0?'income':'expense')+'">'+money(allIncome-allExpense)+'</strong></div><div class="summaryrow"><span>Contas pendentes</span><strong>'+pendingCount+'</strong></div><div class="summaryrow"><span>Previsões</span><strong>'+plannedCount+'</strong></div>';renderQuickChips();renderReviewPanel();
+ $('summary').innerHTML='<div class="summaryrow"><span>Movimentações</span><strong>'+list.length+'</strong></div><div class="summaryrow"><span>Resultado realizado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div><div class="summaryrow"><span>Resultado estimado</span><strong class="'+(allIncome-allExpense>=0?'income':'expense')+'">'+money(allIncome-allExpense)+'</strong></div><div class="summaryrow"><span>Contas pendentes</span><strong>'+pendingCount+'</strong></div><div class="summaryrow"><span>A pagar</span><strong>'+plannedCount+'</strong></div>';renderQuickChips();renderReviewPanel();
 }
 async function saveOpeningBalance(){
  if(!currentUser)return;const value=Math.round(Number($('openingBalance').value)*100)/100;
@@ -619,7 +619,7 @@ async function analyzeVoiceCommand(){
  const transcript=$('voiceTranscript').value.trim();
  if(!transcript){$('voiceStatus').textContent='Fale ou digite um comando primeiro.';return}
  if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
- const button=$('voiceAnalyze');button.disabled=true;button.textContent='Analisando…';$('voiceStatus').textContent='AURORA está interpretando seu comando…';$('voicePreview').hidden=true;
+ const button=$('voiceAnalyze');button.disabled=true;button.textContent='Analisando…';$('voiceStatus').textContent='Entendendo seu comando…';$('voicePreview').hidden=true;
  try{
   const {data,error}=await supabaseClient.functions.invoke('aurora-assistant',{body:{transcript,today:localDateString(),categories,existingEntries:entries.map(e=>({id:e.id,type:e.type,description:e.description,amount:e.amount,category:e.category,date:e.date,status:e.status}))}});
   if(error)throw error;if(data?.error)throw new Error(data.error);
@@ -635,7 +635,7 @@ async function analyzeVoiceCommand(){
   }else if(/api key|unauthorized|permission denied|403/.test(normalized)){
    message='A integração com a IA precisa de uma verificação de acesso. Nenhum lançamento foi salvo.';
   }else{
-   message='Não foi possível interpretar agora. Seu texto continua preenchido; tente novamente em instantes. Detalhe: '+message;
+   message='Não foi possível interpretar agora. Seu texto continua preenchido; tente novamente em instantes. ;
   }
   $('voiceStatus').textContent=message;setMessage('Assistente: '+message,'error');
  }finally{button.disabled=false;button.textContent='Interpretar com Gemini'}
@@ -812,7 +812,7 @@ function initializeApp(){
  $('authForm').addEventListener('submit',handleAuthForm);$('resetBtn').addEventListener('click',requestPasswordReset);
  $('logoutBtn').addEventListener('click',logout);$('addIncome').addEventListener('click',()=>openModal('income'));$('addExpense').addEventListener('click',()=>openModal('expense'));
  $('cancelBtn').addEventListener('click',()=>$('modal').classList.remove('open'));$('entryForm').addEventListener('submit',saveEntry);
- $('transactions').addEventListener('click',event=>{const payButton=event.target.closest('[data-paid]');if(payButton){updateEntryStatus(payButton.dataset.paid,payButton);return}const edit=event.target.closest('[data-edit]');if(edit){const e=entries.find(x=>x.id===edit.dataset.edit);if(e)openModal(e.type,e.id);return}const button=event.target.closest('[data-delete]');if(button)deleteEntry(button.dataset.delete,button)});$('projectionAccountRows').addEventListener('click',event=>{const payButton=event.target.closest('[data-projection-paid]');if(payButton){updateEntryStatus(payButton.dataset.projectionPaid,payButton);return}const edit=event.target.closest('[data-projection-edit]');if(edit){const e=entries.find(x=>x.id===edit.dataset.projectionEdit);if(e)openModal(e.type,e.id)}});
+ $('reminderList').addEventListener('click',event=>{const b=event.target.closest('[data-paid]');if(b)updateEntryStatus(b.dataset.paid,b)});$('transactions').addEventListener('click',event=>{const payButton=event.target.closest('[data-paid]');if(payButton){updateEntryStatus(payButton.dataset.paid,payButton);return}const edit=event.target.closest('[data-edit]');if(edit){const e=entries.find(x=>x.id===edit.dataset.edit);if(e)openModal(e.type,e.id);return}const button=event.target.closest('[data-delete]');if(button)deleteEntry(button.dataset.delete,button)});$('projectionAccountRows').addEventListener('click',event=>{const payButton=event.target.closest('[data-projection-paid]');if(payButton){updateEntryStatus(payButton.dataset.projectionPaid,payButton);return}const edit=event.target.closest('[data-projection-edit]');if(edit){const e=entries.find(x=>x.id===edit.dataset.projectionEdit);if(e)openModal(e.type,e.id)}});
  $('typeFilter').addEventListener('change',render);$('statusFilter').addEventListener('change',render);$('projectionBalanceBtn').addEventListener('click',()=>setProjectionMode('balance'));$('projectionAccountsBtn').addEventListener('click',()=>setProjectionMode('accounts'));$('projectionMonthFilter').addEventListener('change',()=>renderProjectionAccounts(projectionMonths().map(m=>({...m}))));$('projectionMonths').addEventListener('click',event=>{const row=event.target.closest('[data-month-open]');if(!row)return;openProjectionMonth(row.dataset.monthOpen)});$('projectionMonths').addEventListener('keydown',event=>{if(event.key!=='Enter'&&event.key!==' ')return;const row=event.target.closest('[data-month-open]');if(!row)return;event.preventDefault();openProjectionMonth(row.dataset.monthOpen)});$('projectionBackBtn').addEventListener('click',()=>setProjectionMode('balance'));$('monthPicker').addEventListener('change',render);$('saveOpeningBalance').addEventListener('click',saveOpeningBalance);
  $('prevMonth').addEventListener('click',()=>shiftMonth(-1));$('nextMonth').addEventListener('click',()=>shiftMonth(1));$('exportBtn').addEventListener('click',exportCsv);
  setProjectionMode('balance');setupAuroraNavigation();const projectionHead=document.querySelector('.projection-head');if(projectionHead&&$('projectionMonthFilter'))projectionHead.appendChild($('projectionMonthFilter'));setupVoiceAssistant();setupChangeCenter();setupPasswordFeedback();setupInstallPrompt();setupServiceWorker();initializeSupabase();
