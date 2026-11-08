@@ -296,7 +296,7 @@ function localDateString(date=new Date()){
 }
 function money(value){return Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
 function setMessage(message,state='info',error=null){
- const box=$('authMessage');if(box){box.textContent=message;box.dataset.state=state}const boot=$('bootMessage');if(boot&&!$('dashboard').hidden)boot.textContent=message;
+ const box=$('authMessage');if(box){box.textContent=message;box.dataset.state=state}const boot=$('bootMessage');if(boot&&$('dashboard').hidden)boot.textContent=message;
  const notice=$('appNotice');
  if(notice&&!$('dashboard').hidden){notice.hidden=false;$('appNoticeMessage').textContent=message;$('appNoticeMessage').dataset.state=state}
  const debug=$('authDebug');
