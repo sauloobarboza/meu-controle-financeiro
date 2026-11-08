@@ -251,7 +251,7 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
   <label class="field"><span>Valor (R$)</span><input id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="0,00"></label>
   <label class="field"><span>Descrição (opcional)</span><input id="description" maxlength="70" placeholder="Ex.: Mercado, internet..."></label>
   <label class="field"><span>Categoria</span><select id="category" required></select></label>
-  <label class="field"><span>Data</span><input id="date" type="date" required></label><label class="quick-paid"><input id="entryPaid" type="checkbox"><span id="entryPaidLabel">Já paguei</span></label><label class="field"><span>Repetição</span><select id="seriesMode"><option value="none">Não repetir</option><option value="repeat">Todo mês</option><option value="installments">Parcelado</option></select></label><label class="field" id="seriesCountWrap" hidden><span id="seriesCountLabel">Quantidade de meses</span><input id="seriesCount" type="number" min="2" max="36" value="12" inputmode="numeric"></label><label class="field" id="editScopeWrap" hidden><span>Aplicar edição</span><select id="editScope"><option value="one">Só este mês</option><option value="future">Este e os próximos</option></select></label><div id="entryValidation" class="field-error" role="alert"></div><button type="button" id="deleteFromForm" class="btn danger" hidden>Excluir lançamento</button>
+  <label class="field"><span>Data</span><input id="date" type="date"></label><label class="quick-paid"><input id="entryPaid" type="checkbox"><span id="entryPaidLabel">Já paguei</span></label><label class="field"><span>Repetição</span><select id="seriesMode"><option value="none">Não repetir</option><option value="repeat">Todo mês</option><option value="installments">Parcelado</option></select></label><label class="field" id="seriesCountWrap" hidden><span id="seriesCountLabel">Quantidade de meses</span><input id="seriesCount" type="number" min="2" max="36" value="12" inputmode="numeric"></label><label class="field" id="editScopeWrap" hidden><span>Aplicar edição</span><select id="editScope"><option value="one">Só este mês</option><option value="future">Este e os próximos</option></select></label><div id="entryValidation" class="field-error" role="alert"></div><button type="button" id="deleteFromForm" class="btn danger" hidden>Excluir lançamento</button>
   <div class="formactions"><button type="button" class="btn secondary" id="cancelBtn">Cancelar</button><button class="btn primary" type="submit">Salvar lançamento</button></div>
  </form>
 </div>
@@ -485,8 +485,8 @@ function saveUndo(record){
 }
 async function saveEntry(event){
  event.preventDefault();if(saveInProgress)return;if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
- const amount=Calc.round(Number($('amount').value)),date=$('date').value,category=$('category').value||'Outros',description=$('description').value.trim()||category,paid=$('entryPaid').checked;
- if(!Number.isFinite(amount)||amount<=0||!date){$('entryValidation').textContent='Informe um valor válido e confira a data.';return}
+ const amount=Calc.round(Number($('amount').value)),date=$('date').value||localDateString(),category=$('category').value||'Outros',description=$('description').value.trim()||category,paid=$('entryPaid').checked;
+ if(!Number.isFinite(amount)||amount<=0){$('entryValidation').textContent='Informe um valor válido.';return}
  const needsReview=category==='Outros'||!$('description').value.trim(),status=paid?'paid':'pending',button=$('entryForm').querySelector('button[type="submit"]');
  saveInProgress=true;button.disabled=true;button.textContent='Salvando…';$('entryValidation').textContent='';
  try{
