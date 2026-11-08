@@ -604,7 +604,7 @@ function startVoiceCapture(){
  recognition.onresult=event=>{const text=event.results?.[0]?.[0]?.transcript||'';$('voiceTranscript').value=($('voiceTranscript').value.trim()?$('voiceTranscript').value.trim()+' ':'')+text;$('voiceStatus').textContent='Transcrição concluída. Confira o texto e toque em Entender comando.'};
  recognition.onerror=event=>{$('voiceStatus').textContent=event.error==='not-allowed'?'Permita o acesso ao microfone nas configurações do navegador.':'Não consegui captar sua fala. Tente novamente ou digite o comando.'};
  recognition.onend=()=>{$('voiceStart').classList.remove('listening');$('voiceStart').textContent='Começar a falar';voiceRecognition=null;if($('voiceTranscript').value.trim()){ $('voiceStatus').textContent='Entendendo…';analyzeVoiceCommand() }else $('voiceStatus').textContent='Pronto para ouvir.'};
- try{recognition.start()}catch(error){$('voiceStatus').textContent='Não foi possível iniciar o microfone. Tente novamente.';$('voiceStart').classList.remove('listening');$('voiceStart').textContent='🎙 Começar a falar';voiceRecognition=null}
+ try{recognition.start()}catch(error){$('voiceStatus').textContent='Não foi possível iniciar o microfone. Tente novamente.';$('voiceStart').classList.remove('listening');$('voiceStart').textContent='Começar a falar';voiceRecognition=null}
 }
 function voiceActionCard(action,index){
  const type=action.type==='income'?'Entrada':'Despesa';
@@ -704,7 +704,7 @@ function renderChangeRequests(){
  if(!changeRequests.length){list.innerHTML='<div class="change-empty">Você ainda não enviou nenhuma solicitação. Sua primeira ideia pode começar aqui.</div>';return}
  list.innerHTML=changeRequests.map(item=>{
   const date=new Date(item.created_at).toLocaleDateString('pt-BR');
-  const link=item.github_issue_url?'<a href="'+escapeHtml(item.github_issue_url)+'" target="_blank" rel="noopener noreferrer">Acompanhar no GitHub ↗</a>':'';
+  const link=item.github_issue_url?'<a href="'+escapeHtml(item.github_issue_url)+'" target="_blank" rel="noopener noreferrer">Acompanhar no GitHub</a>':'';
   return '<article class="change-item"><div class="change-item-top"><strong>'+escapeHtml(item.title)+'</strong><span class="change-status '+escapeHtml(item.status)+'">'+escapeHtml(changeStatusLabels[item.status]||item.status)+'</span></div><p>'+escapeHtml(item.description)+'</p><div class="change-meta"><span>'+escapeHtml(item.area)+'</span><span>·</span><span>Enviada em '+date+'</span>'+link+'</div></article>';
  }).join('');
 }
