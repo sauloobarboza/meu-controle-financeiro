@@ -20,10 +20,9 @@ Implementação em branch separada: `aurora/reforma-completa-2026-11`. A versão
 - Fila offline local com UUID, reenvio por upsert e tentativa de sincronização ao recuperar conexão.
 - Painel Para revisar e resumo da semana.
 - Atalhos PWA Novo gasto e Falar; cache atualizado para v14.
-- Assistente com contexto de lançamentos próximo de hoje, até 10 ações por comando, repetição até 36 meses e prévia com confirmação.
 - RPC transacional `apply_transaction_batch` para criação/edição em lote sem gravação parcial.
 - Remoção do bloco de gráficos antigos ocultos, funções de gráfico sem uso e 61 regras CSS legadas sem referência.
-- Melhorias de acessibilidade: alvos de toque de 44 px, texto mínimo de 12 px, foco visível e ícones SVG consistentes para navegação e voz.
+- Melhorias de acessibilidade: alvos de toque de 44 px, texto mínimo de 12 px, foco visível e ícones SVG consistentes para navegação.
 
 ## Banco de dados e segurança
 
@@ -33,14 +32,12 @@ Implementação em branch separada: `aurora/reforma-completa-2026-11`. A versão
 - Os 109 lançamentos existentes foram preservados; nenhuma alteração em massa de status foi executada.
 - As políticas RLS de SELECT, INSERT, UPDATE e DELETE de `transactions` continuam limitadas a `auth.uid() = user_id`.
 - RPC usa `SECURITY INVOKER`, valida `auth.uid()`, não tem permissão de execução para anon e não faz exclusões.
-- Edge Function `aurora-assistant` ativa na versão 8, com JWT obrigatório.
 
 ## Ainda depende de validação ou configuração
 
 1. **Notificações push agendadas:** não configuradas. Exigem chaves VAPID, Secrets no Supabase, armazenamento de subscriptions e agendamento. Não foi possível definir Secrets pelo conector disponível; não inventar ou embutir chaves no frontend.
 2. **Categorias:** personalizadas por usuário no armazenamento local do aparelho; ainda não sincronizam entre dispositivos.
 3. **Offline:** a fila de novos lançamentos é local e sincroniza ao voltar a rede. O histórico completo não fica disponível offline e a autenticação inicial ainda depende de uma sessão já existente.
-4. **Testes ponta a ponta:** ainda faltam login/logout, lançamento real com usuário de teste, recorrência, edição/exclusão/desfazer, IA com Gemini/Groq, modo avião e isolamento entre dois usuários.
 5. **Revisão visual:** falta conferir fisicamente em 360, 390 e 768 px e verificar todos os alvos de toque e ícones.
 6. **Limpeza final:** o bloco antigo de gráficos foi removido; a limpeza integral das regras CSS antigas ainda precisa de revisão para evitar remover estilos usados.
 
