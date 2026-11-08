@@ -149,6 +149,7 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
 .home-mini-card>span{font-size:12px;font-weight:700}.home-mini-bars{display:flex;align-items:end;gap:8px;height:48px;margin-top:8px}.home-mini-bars span{flex:1;min-width:10px;border-radius:5px 5px 0 0;background:#8fd7c2}.home-mini-bars span.negative{background:#ff9ca7}.home-mini-card small{display:block;text-align:right;font-size:11px;margin-top:4px;color:#d7e9f4}
 .week-summary{margin:12px 0;padding:12px 15px;border:1px solid var(--line);border-radius:13px;background:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:12px}.week-summary span{color:var(--muted)}.week-summary strong{color:var(--ink)}.week-summary small{color:var(--muted)}
 
+.series-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}.series-row:last-child{border-bottom:0}.series-row small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.series-row button{min-height:42px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -220,7 +221,7 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
    <div class="card transactions" id="transactions"></div>
   </section>
   <aside class="advanced-details" data-screen="settings"><details open><summary>Mais opções e resumo</summary>
-   <div class="sectionhead"><h2>Contas por tipo</h2></div><div class="card" id="categories"></div><div class="sectionhead"><h2>Editar categorias</h2></div><div class="card"><p class="chart-subtitle">Separe as categorias por vírgula. Elas serão usadas nos próximos lançamentos e no assistente.</p><label class="field"><span>Despesas</span><textarea id="categoryListInput" rows="3"></textarea></label><button type="button" class="btn secondary" id="saveCategories">Salvar categorias</button><span id="categorySaveMessage" role="status"></span></div>
+   <div class="sectionhead"><h2>Contas por tipo</h2></div><div class="card" id="categories"></div><div class="sectionhead"><h2>Contas que se repetem</h2></div><div class="card" id="seriesSettings"></div><div class="sectionhead"><h2>Editar categorias</h2></div><div class="card"><p class="chart-subtitle">Separe as categorias por vírgula. Elas serão usadas nos próximos lançamentos e no assistente.</p><label class="field"><span>Despesas</span><textarea id="categoryListInput" rows="3"></textarea></label><button type="button" class="btn secondary" id="saveCategories">Salvar categorias</button><span id="categorySaveMessage" role="status"></span></div>
    <div class="sectionhead"><h2>Saldo de partida</h2></div>
    <div class="card opening-card"><p>Informe quanto já havia disponível no início do controle. Esse valor entra no saldo acumulado, mas não é contado como aporte do mês.</p><label class="field"><span>Saldo inicial (R$)</span><input id="openingBalance" type="number" min="0" step="0.01" inputmode="decimal" value="0"></label><button class="btn secondary" id="saveOpeningBalance">Salvar saldo inicial</button></div>
    <div class="sectionhead"><h2>Resumo do mês</h2></div><div class="card" id="summary"></div><div class="actions report-actions"><button class="btn secondary" id="exportBtn">↓ Exportar CSV</button></div>
@@ -426,7 +427,7 @@ function openProjectionMonth(key){const select=$('projectionMonthFilter');select
  const totals=categories.expense.map(category=>({name:category,value:list.filter(e=>e.type==='expense'&&e.category===category).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
  $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(total(list,'expense')||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">As contas aparecerão aqui.</div>';
  const allIncome=total(list,'income'),allExpense=total(list,'expense'),pendingCount=list.filter(e=>e.status==='pending').length,plannedCount=list.filter(e=>e.status==='planned').length;
- $('summary').innerHTML='<div class="summaryrow"><span>Movimentações</span><strong>'+list.length+'</strong></div><div class="summaryrow"><span>Resultado realizado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div><div class="summaryrow"><span>Resultado estimado</span><strong class="'+(allIncome-allExpense>=0?'income':'expense')+'">'+money(allIncome-allExpense)+'</strong></div><div class="summaryrow"><span>Contas pendentes</span><strong>'+pendingCount+'</strong></div><div class="summaryrow"><span>A pagar</span><strong>'+plannedCount+'</strong></div>';renderQuickChips();renderReviewPanel();renderHomeMiniChart();renderWeeklySummary();
+ $('summary').innerHTML='<div class="summaryrow"><span>Movimentações</span><strong>'+list.length+'</strong></div><div class="summaryrow"><span>Resultado realizado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div><div class="summaryrow"><span>Resultado estimado</span><strong class="'+(allIncome-allExpense>=0?'income':'expense')+'">'+money(allIncome-allExpense)+'</strong></div><div class="summaryrow"><span>Contas pendentes</span><strong>'+pendingCount+'</strong></div><div class="summaryrow"><span>A pagar</span><strong>'+plannedCount+'</strong></div>';renderQuickChips();renderReviewPanel();renderHomeMiniChart();renderWeeklySummary();renderSeriesSettings();
 }
 async function saveOpeningBalance(){
  if(!currentUser)return;const value=Math.round(Number($('openingBalance').value)*100)/100;
@@ -481,9 +482,16 @@ function openModal(type,id=null){
  $('modal').classList.add('open');$('amount').focus();
 }
 function makeSeriesDate(baseDate,offset){const [y,m,d]=baseDate.split('-').map(Number),target=m-1+offset,year=y+Math.floor(target/12),month=((target%12)+12)%12,day=Math.min(d,new Date(year,month+1,0).getDate());return year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0')}
-function saveUndo(record){undoRecord=record;const toast=$('undoToast');if(!toast)return;toast.hidden=false;toast.innerHTML='<span>'+escapeHtml(record.message||'Salvo.')+'</span><button type="button" id="undoAction">Desfazer</button>';$('undoAction').onclick=async()=>{if(!undoRecord)return;const r=undoRecord;try{if(r.kind==='insert'){const ids=r.rows.map(x=>x.id);const {error}=await supabaseClient.from('transactions').delete().in('id',ids).eq('user_id',currentUser.id);if(error)throw error;entries=entries.filter(e=>!ids.includes(e.id))}else{const {data,error}=await supabaseClient.from('transactions').insert(r.row).select().single();if(error)throw error;entries.unshift({...r.entry,id:data.id})}render();toast.hidden=true;undoRecord=null;setMessage('Ação desfeita.','success')}catch(error){setMessage('Não foi possível desfazer: '+friendlyError(error),'error',error)}};if(undoTimer)clearTimeout(undoTimer);undoTimer=setTimeout(()=>{toast.hidden=true;undoRecord=null},6000)}
-
-async function saveEntry(event){
+function saveUndo(record){
+ undoRecord=record;const toast=$('undoToast');if(!toast)return;toast.hidden=false;toast.innerHTML='<span>'+escapeHtml(record.message||'Salvo.')+'</span><button type="button" id="undoAction">Desfazer</button>';
+ $('undoAction').onclick=async()=>{if(!undoRecord)return;const r=undoRecord;try{
+  if(r.kind==='insert'){const ids=r.rows.map(x=>x.id);const {error}=await supabaseClient.from('transactions').delete().in('id',ids).eq('user_id',currentUser.id);if(error)throw error;entries=entries.filter(e=>!ids.includes(e.id))}
+  else{const {data,error}=await supabaseClient.from('transactions').insert(r.rows||[r.row]).select();if(error)throw error;(data||[]).forEach(x=>entries.unshift({id:x.id,type:x.type,description:x.description,amount:Number(x.amount),category:x.category,date:x.transaction_date,status:x.status,series_id:x.series_id,needs_review:x.needs_review}))}
+  render();toast.hidden=true;undoRecord=null;setMessage('Ação desfeita.','success')
+ }catch(error){setMessage('Não foi possível desfazer: '+friendlyError(error),'error',error)}};
+ if(undoTimer)clearTimeout(undoTimer);undoTimer=setTimeout(()=>{toast.hidden=true;undoRecord=null},6000);
+}
+function saveEntry(event){
  event.preventDefault();if(saveInProgress)return;if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
  const amount=Calc.round(Number($('amount').value)),date=$('date').value,category=$('category').value||'Outros',description=$('description').value.trim()||category,paid=$('entryPaid').checked;
  if(!Number.isFinite(amount)||amount<=0||!date){$('entryValidation').textContent='Informe um valor válido e confira a data.';return}
@@ -509,13 +517,20 @@ async function saveEntry(event){
  finally{saveInProgress=false;button.disabled=false;button.textContent='Salvar lançamento'}
 }
 
-async function deleteEntry(id,button){
+async async function deleteEntry(id,button){
  if(!currentUser||!id)return;const entry=entries.find(e=>e.id===id);if(!entry)return;if(button)button.disabled=true;
- try{const {error}=await supabaseClient.from('transactions').delete().eq('id',id).eq('user_id',currentUser.id);if(error)throw error;entries=entries.filter(e=>e.id!==id);saveUndo({kind:'delete',row:{user_id:currentUser.id,type:entry.type,description:entry.description,amount:entry.amount,category:entry.category,transaction_date:entry.date,status:entry.status,series_id:entry.series_id,needs_review:entry.needs_review},entry,message:'Lançamento excluído.'});$('modal').classList.remove('open');render();setMessage('Lançamento excluído. Você pode desfazer em 6 segundos.','success')}
- catch(error){if(button)button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}
+ const targets=entry.series_id&&$('editScope').value==='future'?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry];
+ try{
+  let query=supabaseClient.from('transactions').delete().eq('user_id',currentUser.id);
+  if(entry.series_id&&$('editScope').value==='future')query=query.eq('series_id',entry.series_id).gte('transaction_date',entry.date);else query=query.eq('id',id);
+  const {error}=await query;if(error)throw error;
+  const ids=targets.map(e=>e.id);entries=entries.filter(e=>!ids.includes(e.id));
+  const rows=targets.map(e=>({id:e.id,user_id:currentUser.id,type:e.type,description:e.description,amount:e.amount,category:e.category,transaction_date:e.date,status:e.status,series_id:e.series_id,needs_review:e.needs_review}));
+  saveUndo({kind:'deleteMany',rows,message:targets.length>1?targets.length+' lançamentos da série excluídos.':'Lançamento excluído.'});
+  $('modal').classList.remove('open');render();setMessage('Excluído. Você pode desfazer em 6 segundos.','success');
+ }catch(error){if(button)button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}
 }
-
-async function logout(){
+function logout(){
  if(!supabaseClient)return;$('logoutBtn').disabled=true;
  try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;resetUserData();showDashboard(null);setMessage('Você saiu da sua conta.','success')}
  catch(error){setMessage('Não foi possível sair: '+friendlyError(error),'error',error)}
@@ -714,6 +729,23 @@ async function submitChangeRequest(event){
  }catch(error){message.textContent='Não foi possível enviar: '+friendlyError(error);console.error('Erro ao registrar melhoria:',error)}
  finally{button.disabled=false;button.textContent='Enviar solicitação'}
 }
+async function extendSeries(seriesId){
+ if(!currentUser||!seriesId)return;const group=entries.filter(e=>e.series_id===seriesId).sort((a,b)=>a.date.localeCompare(b.date));if(!group.length)return;
+ const last=group[group.length-1],existing=new Set(group.map(e=>e.date)),rows=[];
+ for(let i=1;i<=12;i++){const date=makeSeriesDate(last.date,i);if(existing.has(date))continue;rows.push({id:crypto.randomUUID(),user_id:currentUser.id,type:last.type,description:last.description,amount:last.amount,category:last.category,transaction_date:date,status:'pending',series_id:seriesId,needs_review:false})}
+ if(!rows.length){setMessage('Esta série já está estendida.','info');return}
+ const {data,error}=await supabaseClient.from('transactions').insert(rows).select('id,type,description,amount,category,transaction_date,status,series_id,needs_review');if(error){setMessage('Não foi possível estender a série: '+friendlyError(error),'error',error);return}
+ (data||[]).forEach(r=>entries.push({id:r.id,type:r.type,description:r.description,amount:Number(r.amount),category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review}));render();setMessage('Série estendida por mais 12 meses.','success');
+}
+function renderSeriesSettings(){
+ const host=$('seriesSettings');if(!host)return;const groups=new Map();
+ entries.filter(e=>e.series_id).forEach(e=>{const g=groups.get(e.series_id)||[];g.push(e);groups.set(e.series_id,g)});
+ if(!groups.size){host.innerHTML='<div class="empty">Nenhuma conta recorrente cadastrada.</div>';return}
+ host.innerHTML=[...groups.entries()].map(([id,rows])=>{rows.sort((a,b)=>a.date.localeCompare(b.date));const last=rows[rows.length-1],first=rows[0];return '<div class="series-row"><div><strong>'+escapeHtml(first.description)+'</strong><small>'+money(first.amount)+' · dia '+first.date.slice(8,10)+' · até '+new Date(last.date+'T12:00:00').toLocaleDateString('pt-BR')+'</small></div><button type="button" class="btn secondary" data-extend-series="'+escapeHtml(id)+'">Estender por 12 meses</button></div>'}).join('');
+ const today=localDateString(),warnKey='aurora_series_warning_'+currentUser.id+'_'+today;
+ const soon=[...groups.values()].some(rows=>{const last=rows.sort((a,b)=>a.date.localeCompare(b.date)).at(-1);const days=(new Date(last.date+'T12:00:00')-new Date(today+'T12:00:00'))/86400000;return days>=0&&days<=90});
+ if(soon&&!localStorage.getItem(warnKey)){localStorage.setItem(warnKey,'1');setMessage('Uma conta recorrente termina em menos de 3 meses. Você pode estendê-la em Ajustes.','info')}
+}
 function loadUserCategories(userId){
  try{const saved=JSON.parse(localStorage.getItem('aurora_categories_'+userId)||'null');if(saved&&Array.isArray(saved.expense)&&saved.expense.length)categories.expense=[...new Set(saved.expense.map(x=>String(x).trim()).filter(Boolean))].slice(0,40)}catch{}
  const input=$('categoryListInput');if(input)input.value=categories.expense.join(', ');
@@ -724,7 +756,7 @@ function saveUserCategories(){
  categories.expense=unique.slice(0,40);localStorage.setItem('aurora_categories_'+currentUser.id,JSON.stringify(categories));$('categorySaveMessage').textContent='Categorias atualizadas neste aparelho.';render();
 }
 function setupChangeCenter(){
- $('changeRequestForm').addEventListener('submit',submitChangeRequest);$('saveCategories').addEventListener('click',saveUserCategories);
+ $('changeRequestForm').addEventListener('submit',submitChangeRequest);$('saveCategories').addEventListener('click',saveUserCategories);$('seriesSettings').addEventListener('click',event=>{const b=event.target.closest('[data-extend-series]');if(b)extendSeries(b.dataset.extendSeries)});
  $('refreshChangeRequests').addEventListener('click',async()=>{try{await loadChangeRequests();$('changeRequestMessage').textContent='Lista atualizada.'}catch(error){$('changeRequestMessage').textContent='Falha ao atualizar: '+friendlyError(error)}});
 }
 
