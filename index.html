@@ -304,7 +304,11 @@ async function activateUser(user){
  showDashboard(user);
  if(activeUserId===user.id&&entriesLoadedForUser===user.id){syncOfflineQueue();handlePwaShortcut();return}
  if(activeUserId===user.id&&loadingPromise)return loadingPromise;
- activeUserId=user.id;loadingPromise=(async()=>{await loadEntries(user.id);await loadChangeRequests();await syncOfflineQueue()})();
+ activeUserId=user.id;loadingPromise=(async()=>{
+  try{await loadEntries(user.id)}catch(error){entries=[];await syncOfflineQueue();setMessage('Sem conexão com o servidor. Novos lançamentos ficam guardados neste aparelho até a internet voltar.','info');return}
+  try{await loadChangeRequests()}catch(error){console.warn('Central de melhorias indisponível offline:',error)}
+  await syncOfflineQueue()
+ })();
  try{await loadingPromise;entriesLoadedForUser=user.id;handlePwaShortcut()}finally{loadingPromise=null}
 }
 async function createAccount(email,password){
