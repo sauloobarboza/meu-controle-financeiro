@@ -514,7 +514,7 @@ async function saveEntry(event){
    const key='aurora_offline_queue_'+currentUser.id;let queue=[];try{queue=JSON.parse(localStorage.getItem(key)||'[]')}catch{}
    queue.push(...pendingRowsForOffline);localStorage.setItem(key,JSON.stringify(queue));
    pendingRowsForOffline.forEach(r=>entries.unshift({id:r.id,type:r.type,description:r.description,amount:r.amount,category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review,offline:true}));
-   $('entryForm').reset();$('date').value=localDateString();$('category').value='Outros';$('entryPaid').checked=true;$('amount').focus();render();setMessage('Sem conexão. Seu lançamento ficou salvo neste aparelho e será enviado quando a internet voltar.','success');
+   $('entryForm').reset();$('date').value=localDateString();$('category').value='Outros';$('entryPaid').checked=true;$('seriesMode').value='none';$('seriesCountWrap').hidden=true;$('seriesUntilWrap').hidden=true;$('amount').focus();render();setMessage('Sem conexão. Seu lançamento ficou salvo neste aparelho e será enviado quando a internet voltar.','success');
   }else{$('entryValidation').textContent='Não foi possível salvar: '+friendlyError(error);setMessage('Seu lançamento não foi salvo. '+friendlyError(error),'error',error)}
  }
  finally{saveInProgress=false;button.disabled=false;button.textContent='Salvar lançamento'}
