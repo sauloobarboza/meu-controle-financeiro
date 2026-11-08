@@ -68,24 +68,6 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
 #home-section,#projection-section,#bills-section{scroll-margin-top:16px}
 @media(max-width:700px){.apartment-metrics{grid-template-columns:1fr 1fr}.apartment-metrics .simple-metric:last-child{grid-column:1/-1}.simple-metric strong{font-size:18px}.simple-months{padding:12px}.simple-projection-table th,.simple-projection-table td{padding:10px 5px;font-size:10px}.simple-projection-table th:nth-child(2),.simple-projection-table td:nth-child(2),.simple-projection-table th:nth-child(3),.simple-projection-table td:nth-child(3){text-align:right}.simple-detail-head{align-items:flex-start}.simple-detail-head .btn{white-space:nowrap}.layout{grid-template-columns:1fr}}
 
-/* Assistente de voz com confirmação antes de alterar os lançamentos */
-.voice-launch{border:1px solid rgba(255,255,255,.35)!important}
-.voice-assistant{background:#fff;border:1px solid #e3eaf1;border-radius:20px;padding:18px;margin:14px 0 20px;box-shadow:0 12px 34px rgba(20,38,65,.08)}
-.voice-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.voice-head h2{font-size:19px;margin:4px 0 0;color:#142b49}
-.voice-close{width:34px;height:34px;border:0;border-radius:50%;background:#edf2f7;color:#263d58;font-size:23px;cursor:pointer}
-.voice-help{color:#66758a;font-size:13px;line-height:1.5;margin:9px 0 14px}
-.voice-recorder{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 13px}
-.voice-record{border:0;border-radius:999px;background:#eaf5ef;color:#176b4c;padding:11px 17px;font-weight:750;cursor:pointer}
-.voice-record.listening{background:#fff0f0;color:#bd3445;box-shadow:0 0 0 4px rgba(189,52,69,.08)}
-#voiceStatus{font-size:12px;color:#69788d}
-.voice-transcript-label textarea{width:100%;resize:vertical;min-height:76px;border:1px solid #dce4ed;border-radius:12px;padding:12px;font:inherit;font-size:14px;color:#1b2e47;background:#fbfcfe}
-.voice-actions{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
-.voice-preview{border-top:1px solid #e8edf2;margin-top:16px;padding-top:14px}.voice-preview>p{font-size:13px;color:#34445a}
-.voice-preview-item{border:1px solid #e8edf2;border-radius:12px;padding:12px;margin:8px 0;background:#fbfcfe}
-.voice-preview-item strong{display:block;color:#1a2f4a;font-size:13px}.voice-preview-item small{display:block;color:#6b7b90;margin-top:4px;font-size:11px}
-.voice-preview-item .voice-value{font-weight:750;color:#176b4c;margin-top:5px;font-size:14px}
-@media(max-width:700px){.voice-assistant{padding:14px}.voice-actions .btn{flex:1}.hero-actions{flex-wrap:wrap}.voice-launch{flex-basis:100%}}
-
 /* Central de melhorias do AURORA */
 .change-center{margin:18px 0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 28px #17203308}
 .change-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
@@ -148,10 +130,10 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
 .review-category{display:block;color:#d4e7f3;font-size:12px;margin-top:3px}
 .year-account-row{width:100%;display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:10px;padding:10px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;color:var(--ink)}.year-account-bar{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.year-account-bar i{display:block;height:100%;background:var(--blue);border-radius:99px}.year-detail-row{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--line)}
 .projected-end-line{font-size:12px;color:#d8e6f1;margin:8px 0 0}.projected-end-line strong{color:#fff;font-size:14px}
-.nav-icon svg,.aurora-command button svg,.voice-record svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}.nav-icon svg{display:block;margin:auto}.aurora-command button svg{display:block;margin:auto}.voice-record{display:inline-flex;align-items:center;gap:8px}
+.nav-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}.nav-icon svg{display:block;margin:auto}.voice-record{display:inline-flex;align-items:center;gap:8px}
 
 /* Texto mínimo de 12 px em todos os rótulos auxiliares */
-.eyebrow-dark,.metric small,.status-tile small,.tx-status,.tx-action,.chart-subtitle,.chart-legend,.donut-center,.donut-legend,.visual-top,.eyebrow,.live-dot,.preview-label,.preview-foot,.visual-bottom,.password-meter small,.remember,.text-button,.auth-privacy,.projection-kpi small,.projection-table th,.projection-account small,.reminder-item small,.hero-kicker,.hero-period span,.hero-balance-label,.hero-balance small,.hero-trend small,.metric span,.txmeta,.nav-item,.hero-period strong,.simple-metric small,.simple-projection-table th,.simple-projection-table td,.simple-detail-head .btn,.voice-preview-item small,.change-meta,.change-status,.change-refresh,.projection-pay-toggle,.quick-chip,.projection-row-main small,.home-mini-card small,.series-row small{font-size:12px!important}
+.eyebrow-dark,.metric small,.status-tile small,.tx-status,.tx-action,.chart-subtitle,.chart-legend,.donut-center,.donut-legend,.visual-top,.eyebrow,.live-dot,.preview-label,.preview-foot,.visual-bottom,.password-meter small,.remember,.text-button,.auth-privacy,.projection-kpi small,.projection-table th,.projection-account small,.reminder-item small,.hero-kicker,.hero-period span,.hero-balance-label,.hero-balance small,.hero-trend small,.metric span,.txmeta,.nav-item,.hero-period strong,.simple-metric small,.simple-projection-table th,.simple-projection-table td,.simple-detail-head .btn,.change-meta,.change-status,.change-refresh,.projection-pay-toggle,.quick-chip,.projection-row-main small,.home-mini-card small,.series-row small{font-size:12px!important}
 </style>
 </head>
 <body>
@@ -183,16 +165,9 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
  <section class="aurora-hero" id="home-section" data-screen="today">
   <div class="hero-topline"><div><span class="hero-kicker">CONTROLE FINANCEIRO</span><h1>Seu dinheiro, em ordem</h1><p>Seu planejamento, com clareza em cada decisão.</p></div><div class="hero-period"><span>VISÃO DO MÊS</span><strong id="monthReadable"></strong></div></div>
   <div class="hero-balance"><div><span class="hero-balance-label">SALDO REAL DISPONÍVEL</span><strong id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + valores efetivamente recebidos − pagos</small><p class="projected-end-line">Previsto para o fim do mês: <strong id="projectedMonthEnd">R$ 0,00</strong></p></div></div>
-  <div class="hero-actions"><button class="hero-action-main" id="addExpense">＋ Lançar gasto</button><button class="hero-action-light" id="addIncome">＋ Novo recebimento</button></div><div class="aurora-command"><input id="quickCommand" type="text" autocomplete="off" placeholder="Ex.: Paguei 120 de internet hoje"><button type="button" id="quickVoice" aria-label="Falar comando"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/></svg></button><button type="button" id="openVoiceAssistant" class="voice-launch">Enviar</button></div><div class="quick-chips" id="quickChips" aria-label="Lançamentos frequentes"></div><div class="review-panel" id="reviewPanel" hidden></div><button type="button" class="home-mini-card" id="homeMiniProjection"><span>Saldo previsto · próximos 6 meses</span><div id="homeMiniChart"></div></button><div class="week-summary" id="weekSummary"></div>
+  <div class="hero-actions"><button class="hero-action-main" id="addExpense">＋ Lançar gasto</button><button class="hero-action-light" id="addIncome">＋ Novo recebimento</button></div><div class="quick-chips" id="quickChips" aria-label="Lançamentos frequentes"></div><div class="review-panel" id="reviewPanel" hidden></div><button type="button" class="home-mini-card" id="homeMiniProjection"><span>Saldo previsto · próximos 6 meses</span><div id="homeMiniChart"></div></button><div class="week-summary" id="weekSummary"></div>
  </section>
- <section class="voice-assistant" id="voiceAssistant" data-screen="today" hidden aria-label="Assistente por voz">
-  <div class="voice-head"><div><span class="eyebrow-dark">AURORA IA</span><h2>Fale com suas finanças</h2></div><button type="button" class="voice-close" id="voiceClose" aria-label="Fechar assistente">×</button></div>
-  <p class="voice-help">Diga o que entrou, o que você pagou ou qual conta deseja alterar. A fala vira texto no navegador e a assistente entende o comando. Nada é salvo sem sua confirmação.</p>
-  <div class="voice-recorder"><button type="button" class="voice-record" id="voiceStart"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/></svg> Começar a falar</button><span id="voiceStatus" role="status">Pronto para ouvir.</span></div>
-  <label class="field voice-transcript-label"><span>O que você falou (você também pode digitar)</span><textarea id="voiceTranscript" rows="3" maxlength="3000" placeholder="Ex.: Paguei 120 reais de internet hoje."></textarea></label>
-  <div class="voice-actions"><button type="button" class="btn primary" id="voiceAnalyze">Entender comando</button></div>
-  <div class="voice-preview" id="voicePreview" hidden><p id="voiceAssistantMessage"></p><div id="voicePreviewItems"></div><div class="voice-actions"><button type="button" class="btn secondary" id="voiceEdit">Editar comando</button><button type="button" class="btn primary" id="voiceApply">Confirmar e salvar</button></div></div>
- </section>
+ 
  <section class="change-center" id="changeCenter" data-screen="settings" aria-label="Central de melhorias">
   <div class="change-head"><div><span class="eyebrow-dark">EVOLUÇÃO DO AURORA</span><h2>Central de melhorias</h2><p>Peça mudanças de layout, gráficos, correções ou novas funcionalidades. Suas solicitações ficam registradas na sua conta.</p></div><button class="change-refresh" type="button" id="refreshChangeRequests">↻ Atualizar</button></div>
   <form class="change-form" id="changeRequestForm">
@@ -587,110 +562,7 @@ function initializeSupabase(){
  setMessage('Autenticação pronta. Entre ou crie sua conta.','success');
 }
 
-let voiceRecognition=null,voiceActions=[];
-function openVoiceAssistant(){
- if(!currentUser){setMessage('Entre na sua conta para usar o assistente.','error');return}
- $('voiceAssistant').hidden=false;$('voiceAssistant').scrollIntoView({behavior:'smooth',block:'center'});
- $('voiceTranscript').focus();
-}
-function startVoiceCapture(){
- const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!Speech){$('voiceStatus').textContent='Reconhecimento de voz não disponível neste navegador. Digite seu comando no campo abaixo.';$('voiceTranscript').focus();return}
- if(voiceRecognition){try{voiceRecognition.stop()}catch{}voiceRecognition=null}
- const recognition=new Speech();voiceRecognition=recognition;recognition.lang='pt-BR';recognition.interimResults=false;recognition.maxAlternatives=1;
- $('voiceStart').classList.add('listening');$('voiceStart').textContent='■ Parar de ouvir';$('voiceStatus').textContent='Estou ouvindo… fale seu comando.';
- recognition.onresult=event=>{const text=event.results?.[0]?.[0]?.transcript||'';$('voiceTranscript').value=($('voiceTranscript').value.trim()?$('voiceTranscript').value.trim()+' ':'')+text;$('voiceStatus').textContent='Transcrição concluída. Confira o texto e toque em Entender comando.'};
- recognition.onerror=event=>{$('voiceStatus').textContent=event.error==='not-allowed'?'Permita o acesso ao microfone nas configurações do navegador.':'Não consegui captar sua fala. Tente novamente ou digite o comando.'};
- recognition.onend=()=>{$('voiceStart').classList.remove('listening');$('voiceStart').textContent='Começar a falar';voiceRecognition=null;if($('voiceTranscript').value.trim()){ $('voiceStatus').textContent='Entendendo…';analyzeVoiceCommand() }else $('voiceStatus').textContent='Pronto para ouvir.'};
- try{recognition.start()}catch(error){$('voiceStatus').textContent='Não foi possível iniciar o microfone. Tente novamente.';$('voiceStart').classList.remove('listening');$('voiceStart').textContent='Começar a falar';voiceRecognition=null}
-}
-function voiceActionCard(action,index){
- const type=action.type==='income'?'Entrada':'Despesa';
- const title=action.action==='create'?'Novo lançamento':action.action==='update'?'Alterar lançamento':action.action==='mark_paid'?'Marcar como pago':action.action==='clarify'?'Preciso confirmar um detalhe':'Sem alteração';
- const entry=action.target_id?entries.find(e=>e.id===action.target_id):null;
- const description=action.description||entry?.description||'Lançamento';
- const amount=Number(action.amount||entry?.amount||0);
- const date=action.transaction_date||entry?.date||'';
- const status=statusLabels[action.status]||statusLabels[entry?.status]||'';
- const details=[type,action.category||entry?.category,date,status].filter(Boolean).join(' · ');
- const value=amount>0?money(amount):'';
- return '<article class="voice-preview-item"><strong>'+escapeHtml((index+1)+'. '+title+' — '+description)+'</strong><small>'+escapeHtml(details)+'</small>'+(value?'<div class="voice-value">'+escapeHtml(value)+'</div>':'')+(action.note?'<small>'+escapeHtml(action.note)+'</small>':'')+'</article>';
-}
-function showVoicePreview(result){
- voiceActions=Array.isArray(result.actions)?result.actions:[];
- $('voiceAssistantMessage').textContent=result.assistant_message||'Confira a interpretação abaixo.';
- $('voicePreviewItems').innerHTML=voiceActions.length?voiceActions.map(voiceActionCard).join(''):'<p>Nenhuma alteração foi identificada.</p>';
- $('voicePreview').hidden=false;
- const hasWork=voiceActions.some(a=>['create','update','mark_paid'].includes(a.action));
- const needsClarification=voiceActions.some(a=>['clarify','none'].includes(a.action));
- $('voiceApply').hidden=!hasWork;$('voiceApply').disabled=!hasWork||needsClarification;
-}
-async function analyzeVoiceCommand(){
- const transcript=$('voiceTranscript').value.trim();if(!transcript){$('voiceStatus').textContent='Fale ou digite um comando primeiro.';return}
- if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
- const today=localDateString(),now=new Date(),start=localDateString(new Date(now.getFullYear(),now.getMonth()-1,1)),end=localDateString(new Date(now.getFullYear(),now.getMonth()+2,0));
- const relevant=entries.filter(e=>(e.date>=start&&e.date<=end)||(['pending','planned'].includes(e.status)&&e.date<today)).sort((a,b)=>Math.abs(new Date(a.date+'T12:00:00')-now)-Math.abs(new Date(b.date+'T12:00:00')-now)).slice(0,150);
- const button=$('voiceAnalyze');button.disabled=true;button.textContent='Entendendo…';$('voiceStatus').textContent='Entendendo…';$('voicePreview').hidden=true;
- try{
-  const {data,error}=await supabaseClient.functions.invoke('aurora-assistant',{body:{transcript,today,categories,existingEntries:relevant.map(e=>({id:e.id,type:e.type,description:e.description,amount:e.amount,category:e.category,date:e.date,status:e.status}))}});
-  if(error)throw error;if(data?.error)throw new Error(data.error);showVoicePreview(data||{});$('voiceStatus').textContent='Interpretação pronta. Revise antes de salvar.';
- }catch(error){
-  let message=error?.message||'Não foi possível interpretar o comando.';
-  if(error?.context&&typeof error.context.json==='function'){try{const body=await error.context.json();if(body?.error)message=body.error}catch{}}
-  const normalized=String(message).toLowerCase();
-  if(/alta demanda|high demand|overloaded|resource_exhausted|temporarily unavailable|tempo limite|timed out|timeout|worker_resource_limit|http 546/.test(normalized))message='A assistente está temporariamente indisponível. Seu lançamento não foi salvo. Tente novamente em instantes.';
-  else if(/quota|rate.?limit|429/.test(normalized))message='O limite temporário da assistente foi atingido. Seu lançamento não foi salvo. Tente novamente em instantes.';
-  else if(/api key|unauthorized|permission denied|403/.test(normalized))message='A integração precisa de uma verificação de acesso. Nenhum lançamento foi salvo.';
-  else message='Não foi possível interpretar agora. Seu texto continua preenchido. Tente novamente.';
-  $('voiceStatus').textContent=message;setMessage(message,'error');
- }finally{button.disabled=false;button.textContent='Entender comando'}
-}
-function validVoiceDate(value){
- if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||'')))return false;
- const date=new Date(value+'T12:00:00');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;
-}
-function prepareVoiceActions(){
- if(!Array.isArray(voiceActions)||!voiceActions.length)throw new Error('Não há alterações para salvar.');
- if(voiceActions.length>10)throw new Error('O limite é de 10 lançamentos por comando.');
- if(voiceActions.some(a=>['clarify','none'].includes(a.action)))throw new Error('Ainda há uma informação para esclarecer. Ajuste o comando antes de salvar.');
- const prepared=[],updatedIds=new Set();
- for(const action of voiceActions){
-  if(action.action==='create'){
-   const type=action.type,category=categories[type]?.includes(action.category)?action.category:'Outros',description=String(action.description||category).trim(),amount=Calc.round(Number(action.amount)),date=String(action.transaction_date||''),status=action.status,repeat=Math.min(36,Math.max(0,Number(action.repeat_months)||0)),count=repeat>0?repeat:1,seriesId=count>1?crypto.randomUUID():null;
-   if(!['income','expense'].includes(type)||!description||!Number.isFinite(amount)||amount<=0||!validVoiceDate(date)||!['paid','pending'].includes(status))throw new Error('Um lançamento veio incompleto ou inválido. Ajuste o comando e tente novamente.');
-   const rows=[];for(let i=0;i<count;i++){const suffix=repeat>0&&/parcel/i.test(String(action.note||''))?' ('+(i+1)+'/'+count+')':'';rows.push({id:crypto.randomUUID(),type,description:description+suffix,amount,category,transaction_date:makeSeriesDate(date,i),status:i===0?status:'pending',series_id:seriesId,needs_review:false})}
-   prepared.push({kind:'create',rows});
-  }else if(action.action==='update'||action.action==='mark_paid'){
-   const target=entries.find(e=>e.id===action.target_id);if(!target)throw new Error('Não encontrei o lançamento que a assistente tentou alterar. Nenhuma alteração foi salva.');
-   if(updatedIds.has(target.id))throw new Error('O mesmo lançamento apareceu mais de uma vez na alteração.');updatedIds.add(target.id);
-   const payload={};if(action.action==='mark_paid')payload.status='paid';else{
-    const fields=Array.isArray(action.fields)?action.fields:[];
-    if(fields.includes('type')){if(!['income','expense'].includes(action.type))throw new Error('Tipo inválido.');payload.type=action.type}
-    if(fields.includes('description')){const value=String(action.description||'').trim();if(!value)throw new Error('A descrição não pode ficar vazia.');payload.description=value}
-    if(fields.includes('amount')){const value=Calc.round(Number(action.amount));if(!Number.isFinite(value)||value<=0)throw new Error('O valor precisa ser maior que zero.');payload.amount=value}
-    if(fields.includes('category'))payload.category=String(action.category||'');
-    if(fields.includes('transaction_date')){if(!validVoiceDate(action.transaction_date))throw new Error('A data informada é inválida.');payload.transaction_date=action.transaction_date}
-    if(fields.includes('status')){if(!['paid','pending'].includes(action.status))throw new Error('Situação inválida.');payload.status=action.status}
-    if(!Object.keys(payload).length)throw new Error('Não identifiquei quais campos devem ser alterados.');
-    const nextType=payload.type||target.type,nextCategory=payload.category||target.category;if(!categories[nextType].includes(nextCategory))throw new Error('A categoria não corresponde ao tipo de lançamento.');
-   }
-   prepared.push({kind:'update',id:target.id,payload});
-  }else throw new Error('A assistente retornou uma ação que não é permitida.');
- }
- return prepared;
-}
-async function applyVoiceActions(){
- if(saveInProgress||!currentUser)return;let operations;try{operations=prepareVoiceActions()}catch(error){$('voiceStatus').textContent=error.message;return}
- const creates=operations.filter(x=>x.kind==='create').flatMap(x=>x.rows),updates=operations.filter(x=>x.kind==='update').map(x=>({id:x.id,payload:x.payload}));
- const button=$('voiceApply');button.disabled=true;button.textContent='Salvando…';saveInProgress=true;
- try{
-  const {data,error}=await supabaseClient.rpc('apply_transaction_batch',{p_creates:creates,p_updates:updates});if(error)throw error;
-  await loadEntries(currentUser.id);entriesLoadedForUser=currentUser.id;render();$('voiceAssistant').hidden=true;$('voicePreview').hidden=true;$('voiceTranscript').value='';voiceActions=[];$('quickCommand').value='';$('voiceStatus').textContent='Pronto para ouvir.';
-  const created=Number(data?.created||0),updated=Number(data?.updated||0);setMessage(created+' lançamento(s) criado(s) e '+updated+' atualizado(s), em uma única operação.','success');
- }catch(error){const message='Nenhuma alteração foi salva. '+friendlyError(error);$('voiceStatus').textContent=message;setMessage(message,'error',error)}
- finally{saveInProgress=false;button.disabled=false;button.textContent='Confirmar e salvar'}
-}
-async function loadChangeRequests(){
+function loadChangeRequests(){
  if(!supabaseClient||!currentUser?.id)return;
  const list=$('changeRequestList');if(list)list.innerHTML='<div class="change-empty">Carregando solicitações...</div>';
  const {data,error}=await supabaseClient.from('app_change_requests').select('id,title,description,area,status,github_issue_url,created_at,updated_at,completed_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
@@ -752,15 +624,7 @@ function setupChangeCenter(){
  $('refreshChangeRequests').addEventListener('click',async()=>{try{await loadChangeRequests();$('changeRequestMessage').textContent='Lista atualizada.'}catch(error){$('changeRequestMessage').textContent='Falha ao atualizar: '+friendlyError(error)}});
 }
 
-function setupVoiceAssistant(){
- $('openVoiceAssistant').addEventListener('click',openVoiceAssistant);
- $('voiceClose').addEventListener('click',()=>{$('voiceAssistant').hidden=true;if(voiceRecognition){try{voiceRecognition.stop()}catch{}}});
- $('voiceStart').addEventListener('click',()=>voiceRecognition?voiceRecognition.stop():startVoiceCapture());
- $('voiceAnalyze').addEventListener('click',analyzeVoiceCommand);
- $('voiceEdit').addEventListener('click',()=>{$('voicePreview').hidden=true;$('voiceTranscript').focus()});
- $('voiceApply').addEventListener('click',applyVoiceActions);
-}
-function handlePwaShortcut(){const action=new URLSearchParams(location.search).get('action');if(!action)return;history.replaceState({},'',location.pathname);setScreen('today');if(action==='new-expense')openModal('expense');if(action==='voice'){openVoiceAssistant();startVoiceCapture()}}
+function handlePwaShortcut(){const action=new URLSearchParams(location.search).get('action');if(!action)return;history.replaceState({},'',location.pathname);setScreen('today');if(action==='new-expense')openModal('expense')}
 function setScreen(screen){
  const allowed=['today','months','settings'];if(!allowed.includes(screen))screen='today';
  document.body.classList.remove('aurora-screen-today','aurora-screen-months','aurora-screen-settings');document.body.classList.add('aurora-screen-'+screen);
@@ -828,14 +692,11 @@ function setupAuroraNavigation(){
  document.querySelectorAll('.simple-metric[data-target]').forEach(b=>b.addEventListener('click',()=>setScreen('today')));
  document.querySelectorAll('[data-projection-mode]').forEach(b=>b.addEventListener('click',()=>setProjectionView(b.dataset.projectionMode)));$('projectionYearView').addEventListener('click',event=>{const b=event.target.closest('[data-year-account]');if(b)renderProjectionYearDetail(b.dataset.yearAccount)});
  const projectionHead=document.querySelector('.projection-head');if(projectionHead&&$('projectionMonthFilter'))projectionHead.appendChild($('projectionMonthFilter'));
- $('quickCommand').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();$('openVoiceAssistant').click()}});
  $('quickChips').addEventListener('click',event=>{const b=event.target.closest('[data-chip]');if(!b)return;const e=entries.find(x=>x.id===b.dataset.chip);if(e){openModal(e.type);$('description').value=e.description;$('amount').value=Number(e.amount).toFixed(2);$('category').value=e.category;$('entryPaid').checked=true}});$('description').addEventListener('input',()=>{const value=$('description').value.trim().toLowerCase();const match=entries.find(e=>e.description.trim().toLowerCase()===value);if(match){$('amount').value=Number(match.amount).toFixed(2);$('category').value=match.category}});$('homeMiniProjection').addEventListener('click',()=>{setScreen('months');setProjectionView('accumulated')});
  $('reviewPanel').addEventListener('click',event=>{const confirm=event.target.closest('[data-review-confirm]');if(confirm){confirmReview(confirm.dataset.reviewConfirm);return}const edit=event.target.closest('[data-review-edit]');if(edit){const e=entries.find(x=>x.id===edit.dataset.reviewEdit);if(e)openModal(e.type,e.id);return}if(event.target.id==='confirmAllReview')confirmAllReview()});
  $('seriesMode').addEventListener('change',()=>{const mode=$('seriesMode').value;$('seriesCountWrap').hidden=mode!=='installments';$('seriesUntilWrap').hidden=mode!=='repeat'});
  $('entryPaid').addEventListener('change',()=>{$('entryPaidLabel').textContent=currentType==='income'?'Já recebi':'Já paguei'});
  $('deleteFromForm').addEventListener('click',()=>{if(editingEntryId)deleteEntry(editingEntryId,null)});
- $('quickVoice').addEventListener('click',()=>{openVoiceAssistant();startVoiceCapture()});
- $('openVoiceAssistant').addEventListener('click',()=>{const value=$('quickCommand').value.trim();if(value)$('voiceTranscript').value=value;openVoiceAssistant();if(value)analyzeVoiceCommand()});
  window.addEventListener('online',syncOfflineQueue);setScreen('today');setProjectionView('month');
 }
 function initializeApp(){
@@ -846,7 +707,7 @@ function initializeApp(){
  $('reminderList').addEventListener('click',event=>{const b=event.target.closest('[data-paid]');if(b)updateEntryStatus(b.dataset.paid,b)});$('transactions').addEventListener('click',event=>{const payButton=event.target.closest('[data-paid]');if(payButton){updateEntryStatus(payButton.dataset.paid,payButton);return}const edit=event.target.closest('[data-edit]');if(edit){const e=entries.find(x=>x.id===edit.dataset.edit);if(e)openModal(e.type,e.id);return}const button=event.target.closest('[data-delete]');if(button)deleteEntry(button.dataset.delete,button)});$('projectionAccountRows').addEventListener('click',event=>{const payButton=event.target.closest('[data-projection-paid]');if(payButton){updateEntryStatus(payButton.dataset.projectionPaid,payButton);return}const edit=event.target.closest('[data-projection-edit]');if(edit){const e=entries.find(x=>x.id===edit.dataset.projectionEdit);if(e)openModal(e.type,e.id)}});
  $('typeFilter').addEventListener('change',render);$('statusFilter').addEventListener('change',render);$('projectionMonthFilter').addEventListener('change',()=>renderProjectionAccounts(projectionMonths().map(m=>({...m}))));$('projectionMonths').addEventListener('click',event=>{const row=event.target.closest('[data-month-open]');if(!row)return;openProjectionMonth(row.dataset.monthOpen)});$('projectionMonths').addEventListener('keydown',event=>{if(event.key!=='Enter'&&event.key!==' ')return;const row=event.target.closest('[data-month-open]');if(!row)return;event.preventDefault();openProjectionMonth(row.dataset.monthOpen)});$('projectionBackBtn').addEventListener('click',()=>setProjectionMode('balance'));$('monthPicker').addEventListener('change',render);$('saveOpeningBalance').addEventListener('click',saveOpeningBalance);
  $('prevMonth').addEventListener('click',()=>shiftMonth(-1));$('nextMonth').addEventListener('click',()=>shiftMonth(1));$('exportBtn').addEventListener('click',exportCsv);
- setProjectionMode('balance');setupAuroraNavigation();const projectionHead=document.querySelector('.projection-head');if(projectionHead&&$('projectionMonthFilter'))projectionHead.appendChild($('projectionMonthFilter'));setupVoiceAssistant();setupChangeCenter();setupPasswordFeedback();setupInstallPrompt();setupServiceWorker();initializeSupabase();
+ setProjectionMode('balance');setupAuroraNavigation();const projectionHead=document.querySelector('.projection-head');if(projectionHead&&$('projectionMonthFilter'))projectionHead.appendChild($('projectionMonthFilter'));setupChangeCenter();setupPasswordFeedback();setupInstallPrompt();setupServiceWorker();initializeSupabase();
  window.addEventListener('error',event=>console.error('Erro JavaScript:',event.error||event.message));
  window.addEventListener('unhandledrejection',event=>{console.error('Falha assíncrona:',event.reason);setMessage('Uma operação não foi concluída: '+friendlyError(event.reason),'error',event.reason)});
 }
