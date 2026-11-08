@@ -27,18 +27,6 @@
           "sizes": "any"
         }
       ]
-    },
-    {
-      "name": "Falar",
-      "short_name": "Falar",
-      "description": "Abrir o assistente por voz",
-      "url": "./?action=voice",
-      "icons": [
-        {
-          "src": "icons/icon.svg",
-          "sizes": "any"
-        }
-      ]
     }
   ]
 }
