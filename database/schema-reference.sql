@@ -1,0 +1,24 @@
+-- AURORA schema reference — not a migration; do not execute as a full schema.
+-- Current transactions table includes the original columns plus:
+--   series_id uuid NULL
+--   needs_review boolean NOT NULL DEFAULT false
+--
+-- Supporting index:
+--   transactions_series_idx (user_id, series_id, transaction_date)
+--   WHERE series_id IS NOT NULL
+--
+-- Existing status CHECK is intentionally preserved:
+--   paid, pending, planned, recorded
+-- UI maps those four database values into paid / pending / overdue.
+--
+-- Batch RPC:
+--   public.apply_transaction_batch(p_creates jsonb, p_updates jsonb)
+--   SECURITY INVOKER; auth.uid() required; RLS remains active.
+--
+-- Tables in public:
+--   transactions
+--   apartment_settings
+--   app_change_requests
+--
+-- All three tables have RLS enabled. See migrations and Supabase dashboard
+-- for authoritative table definitions and policies.
