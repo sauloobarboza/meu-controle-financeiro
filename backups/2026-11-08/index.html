@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="description" content="Controle suas receitas, despesas e saldo mensal.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<title>Controle do Apartamento</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--ink:#172033;--muted:#6b7280;--line:#e7eaf0;--green:#16845b;--red:#d94b58;--blue:#3457d5;--navy:#111827}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 1080px)/2)) 26px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:750;font-size:20px}.month{display:flex;align-items:center;gap:8px;margin-top:20px}.month button{background:#293449;color:#fff;border:0;border-radius:9px;padding:8px 12px}.month input{background:#293449;color:white;border:0;border-radius:9px;padding:8px}.wrap{max-width:1080px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.introline{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:5px 0 18px}.introline h1{font-size:25px;letter-spacing:-.7px;margin:3px 0}.introline p{color:var(--muted);margin:0;font-size:13px}.eyebrow-dark{font-size:10px;letter-spacing:1.4px;color:var(--blue);font-weight:800}.month-label{font-size:12px;color:var(--muted);text-align:right}.month-label strong{display:block;color:var(--ink);font-size:15px;margin-top:3px}
+.apartment-metrics .metric{min-width:0}.metric small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.accumulated-card{border-color:#cbd6fb;background:#f8f9ff}
+.status-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:13px 0 17px}.status-tile{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:10px}.status-tile small{display:block;color:var(--muted);font-size:11px}.status-tile strong{display:block;font-size:16px;margin-top:2px}.status-dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}.paid-dot{background:#16845b}.pending-dot{background:#e49a35}.planned-dot{background:#3457d5}
+.opening-card p{font-size:12px;color:var(--muted);margin:0 0 12px}.opening-card .field{margin:0 0 12px}.opening-card input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px}
+.tx-status{font-size:10px;font-weight:700;padding:4px 7px;border-radius:99px;white-space:nowrap;background:#eef1f7;color:#5e6879}.tx-status.paid{background:#e8f7ef;color:#16734d}.tx-status.pending{background:#fff5df;color:#986313}.tx-status.planned{background:#edf0ff;color:#3457d5}.tx-status.recorded{background:#eef1f7;color:#5e6879}
+.tx-actions{display:flex;align-items:center;gap:7px}.tx-action{border:0;background:#edf0ff;color:#2946b4;border-radius:8px;padding:6px 8px;font-size:11px;font-weight:700}.tx-action:disabled{opacity:.5}.summaryrow{display:flex;justify-content:space-between;gap:12px;margin:9px 0;font-size:13px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.tx{align-items:flex-start;flex-direction:column}.tx-actions{width:100%;justify-content:flex-end;flex-wrap:wrap}}
+@media(max-width:700px){.status-overview{grid-template-columns:1fr}.introline{align-items:start;flex-direction:column}.month-label{text-align:left}.month-label strong{display:inline;margin-left:5px}.grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:auto}}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 3px 12px #17203308}.metric span{color:var(--muted);font-size:13px}.metric strong{display:block;font-size:25px;margin-top:6px;letter-spacing:-.6px}.income{color:var(--green)}.expense{color:var(--red)}.balance{color:var(--blue)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin:17px 0}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:650}.primary{background:var(--blue);color:white}.secondary{background:#e9edff;color:#2946b4}.danger{background:#fff0f1;color:#bd3341}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:22px 0 12px}.sectionhead h2{font-size:17px;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters select,.filters input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px;color:var(--ink)}.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}.transactions{padding:0;overflow:hidden}.tx{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 17px;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.txname{font-weight:650}.txmeta{color:var(--muted);font-size:12px;margin-top:3px}.txamount{font-weight:750;white-space:nowrap}.empty{padding:28px 16px;text-align:center;color:var(--muted)}.barrow{display:grid;grid-template-columns:85px 1fr auto;gap:9px;align-items:center;margin:15px 0;font-size:13px}.track{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue)}.modal{position:fixed;inset:0;background:#10182799;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal.open{display:flex}.dialog{width:min(100%,440px);background:#fff;border-radius:18px;padding:21px}.dialog h2{margin:0 0 16px;font-size:19px}.field{display:block;margin:12px 0}.field span{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:white}.formactions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}
+/* Painel de métricas e gráficos */
+.chart-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-top:16px}
+.chart-card{min-width:0;background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 3px 12px #17203308}
+.chart-card h3{font-size:14px;margin:0 0 4px}.chart-subtitle{font-size:11px;color:var(--muted);margin:0 0 14px}
+.chart-svg{display:block;width:100%;height:auto;overflow:visible}.chart-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:10px}.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.donut-wrap{display:flex;align-items:center;justify-content:center;gap:18px;min-height:190px}.donut{width:150px;height:150px;flex:0 0 150px;border-radius:50%;position:relative;background:conic-gradient(#3457d5 0% 100%)}.donut:after{content:"";position:absolute;inset:25%;background:#fff;border-radius:50%}.donut-center{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--muted)}.donut-center strong{font-size:17px;color:var(--ink)}.donut-legend{min-width:0;display:grid;gap:8px;font-size:11px}.donut-legend div{display:flex;align-items:center;justify-content:space-between;gap:8px}.donut-legend span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)}.donut-legend strong{white-space:nowrap}
+.chart-empty{min-height:160px;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(max-width:760px){.chart-grid{grid-template-columns:1fr}.chart-card{padding:14px}.donut-wrap{gap:12px}.donut{width:125px;height:125px;flex-basis:125px}}
+.foot{color:var(--muted);font-size:12px;text-align:center;padding:24px 10px}.install{background:#293449;color:white;border:1px solid #536078;border-radius:9px;padding:8px 11px;display:none}
+@media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:auto}.layout{grid-template-columns:1fr}.top{padding:18px}.wrap{padding:13px}.metric strong{font-size:22px}.brand{font-size:18px}}
+
+.authwrap{max-width:480px;margin:28px auto;padding:18px}.authcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.authcard h1{font-size:22px;margin:0 0 8px}.authcard p{color:var(--muted);margin:0 0 18px}.authcard input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 12px}.authactions{display:flex;gap:8px;flex-wrap:wrap}.password-field{position:relative}.authcard .password-field input{padding-right:52px}.toggle-password{position:absolute;right:7px;top:28px;height:36px;min-width:38px;border:0;border-radius:8px;background:#eef1f7;color:#263247;font-size:19px;display:grid;place-items:center}.toggle-password:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.authmsg{font-size:13px;margin-top:12px;padding:12px;border-radius:10px;background:#eef2ff;color:var(--blue);min-height:20px;white-space:pre-wrap}.authmsg[data-state="error"]{background:#fff0f1;color:#bd3341}.authmsg[data-state="success"]{background:#eaf8f1;color:#14734f}.notice{max-width:1080px;margin:14px auto 0;padding:0 18px}.notice .authmsg{margin:0}.authdebug{margin-top:10px;font-size:12px;color:var(--muted)}.authdebug pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f6f7fa;padding:10px;border-radius:8px}.account{display:flex;align-items:center;gap:8px;color:#fff;font-size:12px}.account button{background:#293449;color:#fff;border:1px solid #536078;border-radius:9px;padding:8px 10px}
+[hidden]{display:none!important}
+
+/* Login redesign — azul */
+body:has(#authPanel:not([hidden])){background:#f4f7ff}
+.authwrap{max-width:1120px;margin:34px auto;padding:0 18px;display:grid;grid-template-columns:1.05fr .95fr;min-height:640px;background:#fff;border:1px solid #e4eaf7;border-radius:28px;overflow:hidden;box-shadow:0 24px 70px #12356b18}
+.authvisual{position:relative;isolation:isolate;overflow:hidden;padding:42px 42px 28px;background:linear-gradient(145deg,#071b49 0%,#0b3d91 52%,#1675db 100%);color:#fff;display:flex;flex-direction:column;justify-content:space-between;min-height:640px}
+.visual-glow{position:absolute;z-index:-1;width:440px;height:440px;border-radius:50%;right:-150px;top:100px;background:radial-gradient(circle,#55b7ff55,transparent 68%);filter:blur(5px);animation:floatGlow 7s ease-in-out infinite alternate}
+@keyframes floatGlow{from{transform:translate(-25px,15px) scale(.9)}to{transform:translate(20px,-20px) scale(1.12)}}
+.visual-top{display:flex;align-items:center;gap:11px;font-size:10px;letter-spacing:2px;font-weight:800;color:#c8e2ff}.visual-mark{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#ffffff20;font-size:19px}
+.visual-copy{margin:38px 0 24px}.eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:#9bcaff}.visual-copy h2{font-size:clamp(34px,4vw,49px);line-height:1.08;letter-spacing:-1.8px;margin:14px 0}.visual-copy h2 em{font-style:normal;color:#7cc8ff}.visual-copy p{max-width:350px;color:#d1e5ff;line-height:1.7;font-size:14px}
+.preview-card{background:#ffffff12;border:1px solid #ffffff35;border-radius:19px;padding:20px;backdrop-filter:blur(12px);box-shadow:0 15px 40px #00133c30;animation:cardFloat 5s ease-in-out infinite alternate}
+@keyframes cardFloat{from{transform:translateY(0)}to{transform:translateY(-7px)}}
+.preview-head,.preview-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}.preview-head{font-size:12px;color:#e4f2ff}.live-dot{font-size:9px;letter-spacing:1px;color:#a8f2d0}.preview-label{font-size:11px;color:#c4dcf7;margin-top:22px}.preview-value{font-size:31px;font-weight:800;letter-spacing:-1px;margin:3px 0 12px}.preview-chart{height:85px;display:flex;align-items:end;gap:8px;border-bottom:1px solid #ffffff30;padding:0 2px}.preview-chart i{display:block;flex:1;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#8dd7ff,#4b9cf0);opacity:.9;animation:chartPulse 2.8s ease-in-out infinite alternate}.preview-chart i:nth-child(2n){animation-delay:.5s}.preview-chart i:nth-child(3n){animation-delay:1s}@keyframes chartPulse{to{filter:brightness(1.25);transform:scaleY(.9);transform-origin:bottom}}.preview-foot{display:grid;grid-template-columns:1fr auto;row-gap:9px;margin-top:15px;font-size:11px;color:#d8eaff}.preview-foot strong{color:#fff}.mini-green{color:#82f0bd}.mini-red{color:#ffb4bd}.visual-bottom{font-size:11px;color:#c7e1ff;margin-top:25px}.visual-bottom span{color:#8ef0c1;margin-right:7px}
+.auth-side{padding:45px clamp(26px,5vw,62px);display:flex;flex-direction:column;justify-content:center}.auth-brand{display:flex;align-items:center;gap:10px;font-size:14px;color:#263c62;font-weight:600;margin-bottom:48px}.brand-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#e8f2ff;color:#1260c5;font-size:21px}.auth-intro{margin-bottom:26px}.blue-eyebrow{color:#2876d2}.auth-intro h1{font-size:29px;letter-spacing:-.8px;color:#122b50;margin:9px 0}.auth-intro p{font-size:13px;color:#71809a;margin:0;line-height:1.6}
+.auth-side .field{margin:17px 0}.auth-side .field span{font-size:12px;font-weight:700;color:#344b6d;margin-bottom:7px}.auth-side .field input{width:100%;padding:13px 14px;border:1px solid #dce5f2;border-radius:11px;background:#fbfdff;color:#152d50;outline:none;transition:border .2s,box-shadow .2s}.auth-side .field input:focus{border-color:#3989e8;box-shadow:0 0 0 4px #2c83e51a}.auth-side .password-field{position:relative}.auth-side .password-field input{padding-right:53px}.auth-side .toggle-password{top:29px;right:7px;background:#edf4fd;color:#2867b0}.password-meter{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:-8px}.password-meter>span{height:4px;flex:1;border-radius:9px;background:#e6ebf3}.password-meter[data-level="1"]>span:nth-child(1){background:#e4a34c}.password-meter[data-level="2"]>span:nth-child(-n+2){background:#3c91dc}.password-meter[data-level="3"]>span{background:#20a878}.password-meter small{width:100%;font-size:10px;color:#8794a8;margin-top:3px}.auth-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:17px 0 20px}.remember{display:flex;align-items:center;gap:7px;font-size:11px;color:#697c98}.remember input{accent-color:#176bd0}.text-button{border:0;background:none;color:#176bd0;font-size:11px;font-weight:700;padding:4px}.auth-side .authactions{display:grid;gap:10px}.auth-submit{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;background:linear-gradient(100deg,#1457b8,#197ee4);box-shadow:0 8px 18px #176bd033}.auth-submit span{font-size:18px;transition:transform .2s}.auth-submit:hover span{transform:translateX(4px)}.auth-signup{width:100%;padding:13px;background:#edf5ff;color:#185db2;border:1px solid #d7e8fc}.auth-side .authmsg{margin-top:16px;font-size:12px}.auth-privacy{margin-top:25px;text-align:center;font-size:10px;color:#8b9ab0}.auth-privacy span{color:#2475ce;margin-right:5px}
+@media(max-width:760px){.authwrap{display:flex;flex-direction:column;margin:12px auto;padding:0;border-radius:21px;min-height:0}.authvisual{min-height:0;padding:22px 23px 20px}.visual-top{font-size:9px}.visual-copy{margin:25px 0 17px}.visual-copy h2{font-size:34px}.visual-copy p{font-size:12px;margin-bottom:0}.preview-card{padding:15px}.preview-value{font-size:26px}.preview-chart{height:55px}.visual-bottom{margin-top:15px}.auth-side{padding:29px 24px 25px}.auth-brand{margin-bottom:27px}.auth-intro h1{font-size:25px}}
+@media(prefers-reduced-motion:reduce){.visual-glow,.preview-card,.preview-chart i{animation:none}}
+
+.projection-shell{margin:18px 0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 28px #17203308}.projection-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}.projection-head h2{font-size:19px;margin:0}.projection-head p{margin:4px 0 0;color:var(--muted);font-size:12px}.projection-switch{display:flex;gap:5px;padding:4px;background:#f0f3f8;border-radius:11px}.projection-switch button{border:0;border-radius:8px;padding:9px 12px;background:transparent;color:#5d6879;font-size:12px;font-weight:750}.projection-switch button.active{background:#14263b;color:#fff}.projection-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.projection-kpi{background:#f5f7fa;border:1px solid #edf0f4;border-radius:12px;padding:12px;min-width:0}.projection-kpi small{display:block;color:var(--muted);font-size:11px}.projection-kpi strong{display:block;font-size:17px;margin-top:4px;overflow-wrap:anywhere}.projection-chart{min-height:210px;margin:6px 0 16px}.projection-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}.projection-table{width:100%;border-collapse:collapse;min-width:650px;font-size:12px}.projection-table th{text-align:left;background:#f7f8fb;color:#667085;font-size:10px;letter-spacing:.5px;padding:11px 12px;white-space:nowrap}.projection-table td{padding:11px 12px;border-top:1px solid #edf0f4;vertical-align:middle}.projection-table td.num,.projection-table th.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.projection-account{display:flex;flex-direction:column;gap:3px}.projection-account small{color:var(--muted);font-size:10px}.projection-empty{padding:24px;text-align:center;color:var(--muted);font-size:12px}.reminder-panel{margin:16px 0;border:1px solid #f1dfb9;background:#fffaf0;border-radius:15px;padding:15px}.reminder-panel h3{margin:0 0 10px;font-size:14px}.reminder-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid #f1e8d7}.reminder-item:first-of-type{border-top:0}.reminder-item strong{font-size:12px}.reminder-item small{display:block;color:var(--muted);font-size:11px;margin-top:2px}.reminder-empty{color:#287653;font-size:12px}.tx-status.overdue{background:#fff0f1;color:#bd3341}@media(max-width:620px){.projection-shell{padding:13px}.projection-kpis{grid-template-columns:1fr 1fr}.projection-kpi:last-child{grid-column:1/-1}.projection-switch{width:100%}.projection-switch button{flex:1;padding:9px 5px}.projection-head{display:block}.projection-head .projection-switch{margin-top:13px}}
+/* AURORA — premium mobile-first financial app */
+:root{--bg:#f4f7fb;--card:#fff;--ink:#15243a;--muted:#758198;--line:#e8edf4;--green:#16845b;--red:#d94b58;--blue:#315fba;--navy:#0d1d34}
+body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
+.top{background:#0d1d34;padding:17px max(20px,calc((100% - 1120px)/2)) 19px;box-shadow:0 8px 28px #10223c20}
+.brand{font-size:17px;letter-spacing:-.3px}.toprow{max-width:1120px;margin:auto}.month{margin-top:14px}.month button,.month input{background:#1b304d;border:1px solid #2d4361;border-radius:11px}.month input{padding:9px 12px}
+.wrap{max-width:1120px;padding:24px 22px 34px}.aurora-hero{position:relative;overflow:hidden;border-radius:25px;padding:25px 28px 22px;color:#fff;background:radial-gradient(circle at 88% 5%,#286d6a66,transparent 33%),linear-gradient(120deg,#0c1d34 0%,#122f4b 60%,#174a50 100%);box-shadow:0 18px 40px #122b451f;margin:3px 0 18px}
+.aurora-hero:after{content:"";position:absolute;width:260px;height:260px;border:1px solid #ffffff13;border-radius:50%;right:-80px;bottom:-170px;box-shadow:0 0 0 28px #ffffff08,0 0 0 58px #ffffff05;pointer-events:none}
+.hero-topline{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.hero-kicker{font-size:9px;letter-spacing:2px;font-weight:850;color:#9fc8c4}.hero-topline h1{font-size:25px;letter-spacing:-.8px;margin:5px 0 2px;color:#fff}.hero-topline p{font-size:12px;color:#c3d0dc;margin:0}.hero-period{text-align:right;padding:9px 12px;border:1px solid #ffffff26;background:#ffffff0d;border-radius:12px;min-width:112px}.hero-period span{display:block;font-size:8px;letter-spacing:1.2px;color:#a9c0cc}.hero-period strong{display:block;font-size:13px;color:#fff;margin-top:4px}
+.hero-balance{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin:25px 0 20px}.hero-balance-label{display:block;color:#a9c7c8;font-size:9px;font-weight:800;letter-spacing:1.15px}.hero-balance>div:first-child>strong{display:block;font-size:clamp(34px,5vw,48px);letter-spacing:-1.8px;line-height:1.15;margin:7px 0 5px;color:#fff;font-variant-numeric:tabular-nums}.hero-balance small{font-size:11px;color:#b7c8d2}.hero-trend{display:flex;align-items:center;gap:8px;padding:10px 13px;border-radius:13px;background:#ffffff12;border:1px solid #ffffff20}.hero-trend span{font-size:23px;color:#8de0bd}.hero-trend small{font-size:10px;line-height:1.35;color:#c5d8d9}
+.hero-actions{display:flex;gap:9px;position:relative;z-index:1}.hero-actions button{border-radius:11px;padding:11px 16px;font-size:12px;font-weight:800}.hero-action-main{border:0;background:#a4e3c7;color:#103b35}.hero-action-light{border:1px solid #ffffff42;background:#ffffff12;color:#fff}
+.apartment-metrics{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}.apartment-metrics .card{border:1px solid #e8edf4;border-radius:17px;box-shadow:0 5px 18px #12243a08;padding:17px 18px}.metric span{font-size:11px;font-weight:650;color:#78859a}.metric strong{font-size:23px;letter-spacing:-.7px;margin-top:7px}.metric small{font-size:10px;color:#98a2b2}.income{color:#16845b}.expense{color:#cf5360}.balance{color:#315fba}
+.status-overview{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:13px 0 21px}.status-tile{border-radius:13px;border:1px solid #e8edf4;padding:11px 13px;box-shadow:0 3px 12px #12243a05}.status-tile strong{font-size:14px}
+.chart-grid{gap:13px;margin:18px 0 24px}.chart-card,.projection-shell,.reminder-panel,.layout .card{border:1px solid #e7edf4;border-radius:18px;box-shadow:0 5px 20px #142a4308;background:#fff}.chart-card{padding:19px}.chart-card h3{font-size:14px;letter-spacing:-.2px;color:#1a2d45}.chart-subtitle{color:#8995a8}.projection-shell{padding:21px;margin:20px 0}.projection-head h2{font-size:20px;letter-spacing:-.5px}.projection-switch{background:#f0f4f7;border-radius:12px}.projection-switch button.active{background:#12334a}.projection-kpi{background:#f6f9fb;border-color:#eaf0f3;border-radius:13px}.projection-table-wrap{border-color:#e9eef4}.projection-table th{background:#f7f9fb;color:#7b8798}.reminder-panel{background:#fffaf1;border-color:#f2e7d1;padding:17px}
+.sectionhead{margin:20px 0 12px}.sectionhead h2{font-size:15px;color:#1b2c43}.filters select{border-color:#e3eaf2;border-radius:10px;padding:9px}.transactions{border-radius:17px!important}.tx{padding:15px 17px}.txname{font-size:13px}.txmeta{font-size:10px}.txamount{font-size:13px}.tx-status{font-size:9px}
+.opening-card p{line-height:1.6}.foot{padding:24px 10px 10px}
+.report-actions{justify-content:flex-end;margin:12px 0 0}.report-actions .btn{background:#eef3f8;color:#34516c}
+.aurora-bottom-nav{position:fixed;z-index:20;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(520px,calc(100% - 28px));display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;background:#10243b;border:1px solid #2a4059;border-radius:19px;box-shadow:0 12px 36px #0d1d3440}
+.nav-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:52px;border:0;border-radius:12px;background:transparent;color:#a9b9ca;font-size:9px;font-weight:700;letter-spacing:.1px;transition:background .18s,color .18s}.nav-icon{font-size:20px;line-height:1}.nav-item.active{background:#24445a;color:#a9e8cb}.nav-item:focus-visible{outline:2px solid #a9e8cb;outline-offset:2px}
+#home-section,#projection-section,#bills-section,#reports-section{scroll-margin-top:18px}
+@media(min-width:900px){.aurora-bottom-nav{width:440px;bottom:18px}.wrap{padding-bottom:48px}}
+@media(max-width:700px){body{padding-bottom:105px}.top{padding:15px 16px 16px}.wrap{padding:15px 13px 28px}.aurora-hero{padding:20px 18px 17px;border-radius:21px;margin-top:0}.hero-topline h1{font-size:22px}.hero-period{min-width:95px;padding:8px}.hero-period strong{font-size:11px}.hero-balance{margin:22px 0 17px}.hero-balance>div:first-child>strong{font-size:35px}.hero-trend{padding:8px}.hero-trend small{font-size:9px}.hero-actions button{flex:1;padding:11px 8px}.apartment-metrics{grid-template-columns:1fr 1fr;gap:9px}.apartment-metrics .card{padding:13px}.apartment-metrics .metric:last-child{grid-column:1/-1}.metric strong{font-size:20px}.status-overview{grid-template-columns:1fr 1fr;gap:7px}.status-tile:last-child{grid-column:1/-1}.status-tile{padding:10px}.chart-card{padding:14px}.projection-shell{padding:14px}.projection-head{display:block}.projection-head .projection-switch{margin-top:13px}.projection-kpis{grid-template-columns:1fr 1fr}.projection-kpi:last-child{grid-column:1/-1}.projection-switch button{padding:9px 6px}.layout{grid-template-columns:1fr}.sectionhead{align-items:flex-start;flex-direction:column}.filters{width:100%}.filters select{flex:1;min-width:0}.tx{padding:13px}.tx-actions{justify-content:flex-start}.aurora-bottom-nav{bottom:max(9px,env(safe-area-inset-bottom));width:calc(100% - 22px);border-radius:17px}.nav-item{min-height:49px}}
+
+/* Simplificação: foco no cenário do mês e detalhes sob demanda */
+.chart-grid{display:none!important}.status-overview{display:none!important}.report-actions{display:flex!important}
+.apartment-metrics{grid-template-columns:repeat(3,minmax(0,1fr));margin:0 0 15px}.simple-metric{appearance:none;text-align:left;cursor:pointer;width:100%;font:inherit}.simple-metric:active{transform:scale(.99)}.simple-metric small{font-size:10px}.simple-metric strong{font-size:20px}
+.simple-months{margin:14px 0 18px;padding:17px}.simple-months .projection-head h2{font-size:18px}.simple-months .projection-head p{max-width:440px}.simple-projection-kpi{display:block;margin:12px 0}.simple-projection-kpi .projection-kpi{padding:10px 13px}.simple-projection-kpi .projection-kpi strong{font-size:20px}.simple-projection-table{min-width:0}.simple-projection-table th{font-size:9px;padding:10px 7px}.simple-projection-table td{font-size:11px;padding:12px 7px}.simple-projection-table tbody tr{cursor:pointer;transition:background .15s}.simple-projection-table tbody tr:hover,.simple-projection-table tbody tr:focus{background:#f1f7f5;outline:none}.simple-projection-table tbody tr:after{content:"›";color:#16845b}.simple-detail-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0}.simple-detail-head strong{font-size:14px}.simple-detail-head .btn{padding:8px 11px;font-size:11px}.simple-reminders{padding:13px 15px;margin:12px 0}.simple-reminders h3{font-size:13px}.advanced-details{margin-top:12px}.advanced-details details{border:1px solid #e7edf4;border-radius:14px;background:#fff;padding:13px 15px}.advanced-details summary{cursor:pointer;color:#52637a;font-size:12px;font-weight:700}.advanced-details .sectionhead{margin-top:15px}
+.aurora-bottom-nav{grid-template-columns:repeat(3,1fr);width:min(420px,calc(100% - 28px))}
+#home-section,#projection-section,#bills-section{scroll-margin-top:16px}
+@media(max-width:700px){.apartment-metrics{grid-template-columns:1fr 1fr}.apartment-metrics .simple-metric:last-child{grid-column:1/-1}.simple-metric strong{font-size:18px}.simple-months{padding:12px}.simple-projection-table th,.simple-projection-table td{padding:10px 5px;font-size:10px}.simple-projection-table th:nth-child(2),.simple-projection-table td:nth-child(2),.simple-projection-table th:nth-child(3),.simple-projection-table td:nth-child(3){text-align:right}.simple-detail-head{align-items:flex-start}.simple-detail-head .btn{white-space:nowrap}.layout{grid-template-columns:1fr}}
+
+/* Assistente de voz com confirmação antes de alterar os lançamentos */
+.voice-launch{border:1px solid rgba(255,255,255,.35)!important}
+.voice-assistant{background:#fff;border:1px solid #e3eaf1;border-radius:20px;padding:18px;margin:14px 0 20px;box-shadow:0 12px 34px rgba(20,38,65,.08)}
+.voice-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.voice-head h2{font-size:19px;margin:4px 0 0;color:#142b49}
+.voice-close{width:34px;height:34px;border:0;border-radius:50%;background:#edf2f7;color:#263d58;font-size:23px;cursor:pointer}
+.voice-help{color:#66758a;font-size:13px;line-height:1.5;margin:9px 0 14px}
+.voice-recorder{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0 13px}
+.voice-record{border:0;border-radius:999px;background:#eaf5ef;color:#176b4c;padding:11px 17px;font-weight:750;cursor:pointer}
+.voice-record.listening{background:#fff0f0;color:#bd3445;box-shadow:0 0 0 4px rgba(189,52,69,.08)}
+#voiceStatus{font-size:12px;color:#69788d}
+.voice-transcript-label textarea{width:100%;resize:vertical;min-height:76px;border:1px solid #dce4ed;border-radius:12px;padding:12px;font:inherit;font-size:14px;color:#1b2e47;background:#fbfcfe}
+.voice-actions{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
+.voice-preview{border-top:1px solid #e8edf2;margin-top:16px;padding-top:14px}.voice-preview>p{font-size:13px;color:#34445a}
+.voice-preview-item{border:1px solid #e8edf2;border-radius:12px;padding:12px;margin:8px 0;background:#fbfcfe}
+.voice-preview-item strong{display:block;color:#1a2f4a;font-size:13px}.voice-preview-item small{display:block;color:#6b7b90;margin-top:4px;font-size:11px}
+.voice-preview-item .voice-value{font-weight:750;color:#176b4c;margin-top:5px;font-size:14px}
+@media(max-width:700px){.voice-assistant{padding:14px}.voice-actions .btn{flex:1}.hero-actions{flex-wrap:wrap}.voice-launch{flex-basis:100%}}
+
+/* Central de melhorias do AURORA */
+.change-center{margin:18px 0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 28px #17203308}
+.change-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.change-head h2{font-size:19px;margin:0}.change-head p{font-size:12px;color:var(--muted);margin:5px 0 0}
+.change-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.change-form .field{margin:0}.change-form .field.full{grid-column:1/-1}
+.change-form input,.change-form select,.change-form textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.change-form textarea{min-height:95px;resize:vertical}
+.change-list{display:grid;gap:9px;margin-top:14px}
+.change-item{border:1px solid var(--line);border-radius:12px;padding:13px;display:grid;gap:7px}
+.change-item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.change-item strong{font-size:13px}.change-item p{font-size:12px;color:var(--muted);margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.change-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:10px;color:var(--muted)}
+.change-status{padding:4px 8px;border-radius:99px;font-size:10px;font-weight:750;background:#fff5df;color:#986313}
+.change-status.in_progress{background:#edf3ff;color:#2859ad}.change-status.completed{background:#e8f7ef;color:#16734d}.change-status.rejected{background:#fff0f1;color:#bd3341}
+.change-empty{padding:18px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:12px}
+.change-refresh{border:1px solid var(--line);background:#f7f9fc;border-radius:9px;padding:8px 11px;color:var(--ink);font-size:11px;font-weight:700}
+@media(max-width:600px){.change-center{padding:14px}.change-form{grid-template-columns:1fr}.change-form .field.full{grid-column:auto}.change-item-top{display:grid}}
+.projection-pay-toggle{display:inline-flex;align-items:center;gap:7px;margin-top:7px;padding:6px 9px;border:1px solid #c9d8ef;border-radius:999px;background:#f3f7ff;color:#245ca7;font-size:10px;font-weight:750;white-space:nowrap}.projection-pay-toggle span{width:13px;height:13px;border:1.5px solid #7d9bc5;border-radius:4px;background:#fff;display:inline-block}.projection-pay-toggle:hover{background:#e8f1ff;border-color:#7da6dc}.projection-pay-toggle:disabled{opacity:.55;cursor:wait}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="toprow"><div class="brand">🏠 Controle do Apartamento</div><div class="account"><span id="userEmail"></span><button id="logoutBtn" hidden>Sair</button><button id="installBtn" class="install">Instalar app</button></div></div>
+ <div class="month"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
+</header>
+<div class="notice" id="appNotice" hidden><div class="authmsg" id="appNoticeMessage" role="status" aria-live="polite"></div></div>
+<section class="authwrap" id="authPanel">
+ <div class="authvisual" aria-label="Prévia do controle financeiro">
+  <div class="visual-glow"></div><div class="visual-top"><span class="visual-mark">✦</span><span>SEU DINHEIRO, SOB CONTROLE</span></div>
+  <div class="visual-copy"><span class="eyebrow">PLANEJE · ACOMPANHE · CONQUISTE</span><h2>Mais clareza.<br><em>Mais tranquilidade.</em></h2><p>Uma visão simples e inteligente para cuidar do seu dinheiro todos os meses.</p></div>
+  <div class="preview-card"><div class="preview-head"><span>Visão do mês</span><span class="live-dot">● AO VIVO</span></div><div class="preview-label">Saldo disponível</div><div class="preview-value" id="previewBalance">R$ 4.280,50</div><div class="preview-chart"><i style="height:35%"></i><i style="height:52%"></i><i style="height:43%"></i><i style="height:68%"></i><i style="height:58%"></i><i style="height:82%"></i><i style="height:100%"></i><i style="height:76%"></i><i style="height:91%"></i></div><div class="preview-foot"><span><b class="mini-green">↗</b> Receitas</span><strong>R$ 5.800,00</strong><span><b class="mini-red">↘</b> Despesas</span><strong>R$ 1.519,50</strong></div></div>
+  <div class="visual-bottom"><span>●</span> Seus dados protegidos e sincronizados</div>
+ </div>
+ <div class="auth-side"><div class="auth-brand"><span class="brand-icon">₿</span><span>Meu Controle <b>Financeiro</b></span></div>
+  <div class="auth-intro"><span class="eyebrow blue-eyebrow">BEM-VINDO DE VOLTA</span><h1>Entre na sua conta</h1><p>Acesse seus lançamentos e acompanhe sua vida financeira.</p></div>
+  <form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
+   <label class="field password-field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Digite sua senha"><button class="toggle-password" id="togglePassword" type="button" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></label>
+   <div class="password-meter" id="passwordMeter" aria-live="polite"><span></span><span></span><span></span><small id="passwordHint">Sua senha deve ter ao menos 6 caracteres</small></div>
+   <div class="auth-row"><label class="remember"><input type="checkbox" id="rememberLogin" checked> Manter conectado</label><button class="text-button" type="button" id="resetBtn">Esqueci a senha</button></div>
+   <div class="authactions"><button class="btn primary auth-submit" type="submit" id="loginBtn" data-auth-action="login">Entrar na minha conta <span>→</span></button><button class="btn secondary auth-signup" type="submit" id="signupBtn" data-auth-action="signup">Criar minha conta</button></div>
+  </form>
+  <div class="authmsg" id="authMessage" data-state="info" role="status" aria-live="polite">Carregando autenticação...</div><details class="authdebug" id="authDebug" hidden><summary>Detalhes técnicos do erro</summary><pre id="authDebugText"></pre></details>
+  <div class="auth-privacy"><span>▣</span> Conexão segura · Seus dados são privados</div>
+ </div>
+</section>
+<main class="wrap" id="dashboard" hidden>
+ <section class="aurora-hero" id="home-section">
+  <div class="hero-topline"><div><span class="hero-kicker">AURORA FINANCIAL HOME</span><h1>Finanças da casa</h1><p>Seu planejamento, com clareza em cada decisão.</p></div><div class="hero-period"><span>VISÃO DO MÊS</span><strong id="monthReadable"></strong></div></div>
+  <div class="hero-balance"><div><span class="hero-balance-label">SALDO REAL DISPONÍVEL</span><strong id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + valores efetivamente recebidos − pagos</small></div></div>
+  <div class="hero-actions"><button class="hero-action-main" id="addIncome">＋ Novo aporte</button><button class="hero-action-light" id="addExpense">＋ Adicionar conta</button><button class="hero-action-light voice-launch" id="openVoiceAssistant" type="button">🎙 Falar com Aurora</button></div>
+ </section>
+ <section class="voice-assistant" id="voiceAssistant" hidden aria-label="Assistente por voz">
+  <div class="voice-head"><div><span class="eyebrow-dark">AURORA IA</span><h2>Fale com suas finanças</h2></div><button type="button" class="voice-close" id="voiceClose" aria-label="Fechar assistente">×</button></div>
+  <p class="voice-help">Diga o que entrou, o que você pagou ou qual conta deseja alterar. A fala vira texto no navegador e o Gemini interpreta o comando. Nada é salvo sem sua confirmação.</p>
+  <div class="voice-recorder"><button type="button" class="voice-record" id="voiceStart">🎙 Começar a falar</button><span id="voiceStatus" role="status">Pronto para ouvir.</span></div>
+  <label class="field voice-transcript-label"><span>O que você falou (você também pode digitar)</span><textarea id="voiceTranscript" rows="3" maxlength="3000" placeholder="Ex.: Paguei 120 reais de internet hoje."></textarea></label>
+  <div class="voice-actions"><button type="button" class="btn primary" id="voiceAnalyze">Interpretar com Gemini</button></div>
+  <div class="voice-preview" id="voicePreview" hidden><p id="voiceAssistantMessage"></p><div id="voicePreviewItems"></div><div class="voice-actions"><button type="button" class="btn secondary" id="voiceEdit">Editar comando</button><button type="button" class="btn primary" id="voiceApply">Confirmar e salvar</button></div></div>
+ </section>
+ <section class="change-center" id="changeCenter" aria-label="Central de melhorias">
+  <div class="change-head"><div><span class="eyebrow-dark">EVOLUÇÃO DO AURORA</span><h2>Central de melhorias</h2><p>Peça mudanças de layout, gráficos, correções ou novas funcionalidades. Suas solicitações ficam registradas na sua conta.</p></div><button class="change-refresh" type="button" id="refreshChangeRequests">↻ Atualizar</button></div>
+  <form class="change-form" id="changeRequestForm">
+   <label class="field"><span>O que deseja mudar?</span><input id="changeTitle" maxlength="120" required placeholder="Ex.: Modernizar a tela inicial"></label>
+   <label class="field"><span>Área</span><select id="changeArea"><option>Geral</option><option>Layout</option><option>Dashboard</option><option>Gráficos</option><option>Funcionalidade</option><option>Correção</option><option>Outro</option></select></label>
+   <label class="field full"><span>Descreva como deve funcionar</span><textarea id="changeDescription" maxlength="5000" required placeholder="Conte o que você quer, como imagina a tela e o que precisa acontecer..."></textarea></label>
+   <div class="field full"><button class="btn primary" id="submitChangeRequest" type="submit">Enviar solicitação</button><span id="changeRequestMessage" role="status" style="display:block;margin-top:8px;color:var(--muted);font-size:11px"></span></div>
+  </form>
+  <div class="sectionhead" style="margin-top:8px"><h2>Minhas solicitações</h2></div>
+  <div class="change-list" id="changeRequestList"><div class="change-empty">Carregando solicitações...</div></div>
+ </section>
+ <section class="grid apartment-metrics">
+  <button class="card metric simple-metric" type="button" data-target="bills-section"><span>Entrou no mês</span><strong class="income" id="incomeTotal">R$ 0,00</strong><small>Valores recebidos</small></button>
+  <button class="card metric simple-metric" type="button" data-target="bills-section"><span>Saiu no mês</span><strong class="expense" id="expenseTotal">R$ 0,00</strong><small>Contas pagas</small></button>
+  <button class="card metric simple-metric" type="button" data-target="bills-section"><span>Ainda falta pagar</span><strong class="balance" id="pendingSummary">R$ 0,00</strong><small>Toque para ver as contas</small></button>
+ </section>
+ <section class="projection-shell simple-months" id="projection-section" aria-label="Visão dos próximos meses">
+  <div class="projection-head"><div><span class="eyebrow-dark">PLANEJAMENTO</span><h2>Como ficam os próximos meses?</h2><p>Toque em um mês para abrir os lançamentos e conferir os detalhes.</p></div></div>
+  <div class="projection-kpis simple-projection-kpi"><div class="projection-kpi"><small>Saldo previsto ao fim dos 12 meses</small><strong id="projectionEndBalance">R$ 0,00</strong></div></div>
+  <div id="projectionBalanceView"><div id="projectionChart" hidden></div><div class="projection-table-wrap"><table class="projection-table simple-projection-table"><thead><tr><th>MÊS</th><th class="num">ENTRADAS</th><th class="num">SAÍDAS</th><th class="num">SALDO PREVISTO</th></tr></thead><tbody id="projectionMonths"></tbody></table></div></div>
+  <div id="projectionAccountsView" hidden><div class="simple-detail-head"><strong id="projectionDetailTitle">Detalhes do mês</strong><button type="button" class="btn secondary" id="projectionBackBtn">Voltar aos meses</button></div><div class="projection-table-wrap"><table class="projection-table"><thead><tr><th>CONTA / MOVIMENTAÇÃO</th><th>DATA</th><th class="num">VALOR</th><th>SITUAÇÃO</th><th class="num">SALDO APÓS</th></tr></thead><tbody id="projectionAccountRows"></tbody></table></div><p class="chart-subtitle" style="margin:10px 0 0">O saldo após cada lançamento considera a ordem cronológica, incluindo aportes.</p></div>
+  <div hidden><button id="projectionBalanceBtn" type="button"></button><button id="projectionAccountsBtn" type="button"></button><select id="projectionMonthFilter"></select><span id="projectionIncome"></span><span id="projectionExpense"></span><span id="paidSummary"></span><span id="plannedSummary"></span><div id="monthlyChart"></div><div id="categoryDonut"></div><div id="dailyChart"></div><div id="metricInsights"></div></div>
+ </section>
+ <section class="reminder-panel simple-reminders" id="reminderPanel" aria-live="polite"><h3>Contas próximas do vencimento</h3><div id="reminderList"></div></section>
+ <div class="layout" id="bills-section">
+  <section>
+   <div class="sectionhead"><h2>Movimentações do mês</h2><div class="filters"><select id="typeFilter" aria-label="Filtrar tipo"><option value="all">Todas</option><option value="income">Aportes</option><option value="expense">Contas</option></select><select id="statusFilter" aria-label="Filtrar situação"><option value="all">Todas as situações</option><option value="paid">Pagas / recebidas</option><option value="pending">Pendentes</option><option value="planned">Previsões</option><option value="recorded">Registradas</option></select></div></div>
+   <div class="card transactions" id="transactions"></div>
+  </section>
+  <aside class="advanced-details"><details><summary>Mais opções e resumo</summary>
+   <div class="sectionhead"><h2>Contas por tipo</h2></div><div class="card" id="categories"></div>
+   <div class="sectionhead"><h2>Saldo de partida</h2></div>
+   <div class="card opening-card"><p>Informe quanto já havia disponível no início do controle. Esse valor entra no saldo acumulado, mas não é contado como aporte do mês.</p><label class="field"><span>Saldo inicial (R$)</span><input id="openingBalance" type="number" min="0" step="0.01" inputmode="decimal" value="0"></label><button class="btn secondary" id="saveOpeningBalance">Salvar saldo inicial</button></div>
+   <div class="sectionhead"><h2>Resumo do mês</h2></div><div class="card" id="summary"></div><div class="actions report-actions"><button class="btn secondary" id="exportBtn">↓ Exportar CSV</button></div>
+  </details></aside>
+ </div>
+ <div class="foot">Controle do apartamento · Aportes, contas, pagamentos e saldo acumulado. Seus dados ficam sincronizados com sua conta.</div>
+</main>
+<nav class="aurora-bottom-nav" id="auroraBottomNav" aria-label="Navegação principal">
+ <button type="button" class="nav-item active" data-target="home-section" aria-current="page"><span class="nav-icon">⌂</span><span>Início</span></button>
+ <button type="button" class="nav-item" data-target="projection-section"><span class="nav-icon">▦</span><span>Meses</span></button>
+ <button type="button" class="nav-item" data-target="bills-section"><span class="nav-icon">▤</span><span>Contas</span></button>
+</nav>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <form class="dialog" id="entryForm">
+  <h2 id="modalTitle">Novo lançamento</h2>
+  <label class="field"><span>Descrição</span><input id="description" maxlength="70" required placeholder="Ex.: Salário, mercado..."></label>
+  <label class="field"><span>Valor (R$)</span><input id="amount" type="number" min="0.01" step="0.01" required placeholder="0,00"></label>
+  <label class="field"><span>Categoria</span><select id="category" required></select></label>
+  <label class="field"><span>Data</span><input id="date" type="date" required></label><label class="field"><span>Situação</span><select id="entryStatus" required><option value="paid">Pago / recebido</option><option value="pending">Pendente</option><option value="planned">Previsão</option><option value="recorded">Registrado</option></select></label>
+  <div class="formactions"><button type="button" class="btn secondary" id="cancelBtn">Cancelar</button><button class="btn primary" type="submit">Salvar lançamento</button></div>
+ </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script>
+<script>
+'use strict';
+const SUPABASE_URL='https://dqhyiggxcxczdcopdyec.supabase.co';
+const SUPABASE_KEY='sb_publishable_vM-nl4k5Ilkk0_QUohutFw_2wuweUTP';
+const STORAGE_KEY='sb-dqhyiggxcxczdcopdyec-auth-token';
+const LOCAL_DATA_KEY='mcf_transactions_v1';
+const $=id=>document.getElementById(id);
+const categories={income:['Aporte','Outros'],expense:['Aluguel','Água','Luz','Condomínio','IPTU','IPVA','Gás','Caução','Cartão','Faculdade','Seguro','Internet','MP','Itaú','Outros']};
+const statusLabels={paid:'Pago / recebido',pending:'Pendente',planned:'Previsão',recorded:'Registrado'};
+let supabaseClient=null,entries=[],currentUser=null,currentType='expense',installPrompt=null,activeUserId=null,entriesLoadedForUser=null,loadingPromise=null,saveInProgress=false,openingBalance=0;
+
+function localDateString(date=new Date()){
+ const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');
+ return y+'-'+m+'-'+d;
+}
+function money(value){return Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function setMessage(message,state='info',error=null){
+ const box=$('authMessage');if(box){box.textContent=message;box.dataset.state=state}
+ const notice=$('appNotice');
+ if(notice&&!$('dashboard').hidden){notice.hidden=false;$('appNoticeMessage').textContent=message;$('appNoticeMessage').dataset.state=state}
+ const debug=$('authDebug');
+ if(debug){debug.hidden=!error;if(error)$('authDebugText').textContent=JSON.stringify({name:error.name||null,code:error.code||null,status:error.status||null,message:error.message||String(error),details:error.details||null,hint:error.hint||null},null,2)}
+}
+function friendlyError(error){
+ const code=error?.code||'',msg=String(error?.message||error||'Erro desconhecido');
+ if(code==='email_not_confirmed')return 'Seu e-mail ainda não foi confirmado. Abra o link enviado e tente entrar novamente.';
+ if(code==='email_address_not_authorized')return 'O SMTP padrão do Supabase bloqueou o envio. Configure um provedor SMTP próprio.';
+ if(code==='over_email_send_rate_limit'||code==='over_request_rate_limit'||/rate limit/i.test(msg))return 'O limite de tentativas ou de envio de e-mails foi atingido. Aguarde alguns minutos.';
+ if(code==='user_already_exists'||/already registered|user exists/i.test(msg))return 'Não foi possível criar a conta com esse endereço. Tente entrar ou recuperar a senha.';
+ if(/signup is disabled|signups not allowed/i.test(msg))return 'O cadastro de novos usuários está desativado no Supabase.';
+ if(/invalid login credentials/i.test(msg))return 'E-mail ou senha incorretos. Confira os dados ou recupere sua senha.';
+ if(/failed to fetch|network|load failed|fetch failed/i.test(msg))return 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
+ return msg;
+}
+function setAuthBusy(busy,action=''){
+ $('loginBtn').disabled=busy;$('signupBtn').disabled=busy;$('resetBtn').disabled=busy;
+ $('loginBtn').innerHTML=busy&&action==='login'?'Entrando...':'Entrar na minha conta <span>→</span>';
+ $('signupBtn').textContent=busy&&action==='signup'?'Criando conta...':'Criar minha conta';
+}
+function showDashboard(user){
+ currentUser=user||null;$('authPanel').hidden=!!user;$('dashboard').hidden=!user;$('logoutBtn').hidden=!user;$('userEmail').textContent=user?.email||'';
+ if(!user)$('appNotice').hidden=true;
+}
+function resetUserData(){entries=[];currentUser=null;activeUserId=null;entriesLoadedForUser=null;loadingPromise=null;render()}
+async function activateUser(user){
+ if(!user?.id){showDashboard(null);resetUserData();return}
+ showDashboard(user);
+ if(activeUserId===user.id&&entriesLoadedForUser===user.id)return;
+ if(activeUserId===user.id&&loadingPromise)return loadingPromise;
+ activeUserId=user.id;loadingPromise=(async()=>{await loadEntries(user.id);await loadChangeRequests()})();
+ try{await loadingPromise;entriesLoadedForUser=user.id}finally{loadingPromise=null}
+}
+async function createAccount(email,password){
+ setAuthBusy(true,'signup');setMessage('Enviando seu cadastro com segurança...','info');
+ try{
+  const redirectUrl=new URL('./',window.location.href).href;
+  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:redirectUrl}});
+  if(error)throw error;
+  if(data?.session&&data?.user){await activateUser(data.user);setMessage('Conta criada e acesso liberado com sucesso!','success');return}
+  if(data?.user){setMessage('Recebemos sua solicitação. Se a confirmação por e-mail estiver ativa, abra o link enviado para '+email+' e depois volte para entrar. Confira Spam e Promoções.','success');return}
+  setMessage('O serviço respondeu sem confirmar o cadastro. Tente novamente.','error');
+ }catch(error){setMessage('Não foi possível criar sua conta. '+friendlyError(error),'error',error)}
+ finally{setAuthBusy(false)}
+}
+async function login(email,password){
+ setAuthBusy(true,'login');setMessage('Validando seus dados...','info');
+ try{
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error)throw error;if(!data?.user)throw new Error('O serviço não retornou os dados do usuário.');
+  await activateUser(data.user);setMessage('Login realizado. Seus lançamentos foram sincronizados.','success');
+ }catch(error){setMessage('Não foi possível entrar. '+friendlyError(error),'error',error)}
+ finally{setAuthBusy(false)}
+}
+async function requestPasswordReset(){
+ const email=$('authEmail').value.trim().toLowerCase();
+ if(!$('authEmail').checkValidity()||!email){setMessage('Digite um endereço de e-mail válido primeiro.','error');$('authEmail').focus();return}
+ $('resetBtn').disabled=true;setMessage('Solicitando recuperação de senha...','info');
+ try{
+  const redirectTo=new URL('./',window.location.href).href;
+  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;
+  setMessage('Se esse endereço estiver cadastrado, você receberá um link para redefinir a senha. Confira Spam e Promoções.','success');
+ }catch(error){setMessage('Não foi possível solicitar a recuperação. '+friendlyError(error),'error',error)}
+ finally{$('resetBtn').disabled=false}
+}
+function handleAuthForm(event){
+ event.preventDefault();
+ if(!supabaseClient){setMessage('A biblioteca do Supabase não carregou. Verifique sua conexão e atualize a página.','error');return}
+ const email=$('authEmail').value.trim().toLowerCase(),password=$('authPassword').value,action=event.submitter?.dataset?.authAction||'login';
+ if(!$('authEmail').checkValidity()||!email){setMessage('Informe um endereço de e-mail válido.','error');$('authEmail').focus();return}
+ if(password.length<6){setMessage('A senha precisa ter pelo menos 6 caracteres.','error');$('authPassword').focus();return}
+ if(action==='signup')createAccount(email,password);else login(email,password);
+}
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+function monthEntries(){const selected=$('monthPicker').value;return entries.filter(entry=>entry.date.startsWith(selected))}
+
+function chartMoney(value){const n=Number(value||0);if(n>=1000)return 'R$ '+(n/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil';return 'R$ '+Math.round(n).toLocaleString('pt-BR')}
+function selectedMonthDate(){const [y,m]=$('monthPicker').value.split('-').map(Number);return new Date(y,m-1,1,12)}
+function renderMonthlyChart(){
+ const base=selectedMonthDate(),months=[];
+ for(let i=5;i>=0;i--){const d=new Date(base.getFullYear(),base.getMonth()-i,1,12),key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),rows=entries.filter(e=>e.date.startsWith(key));months.push({label:d.toLocaleDateString('pt-BR',{month:'short'}).replace('.',''),income:rows.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),expense:rows.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0)})}
+ const max=Math.max(1,...months.flatMap(m=>[m.income,m.expense])),w=520,h=190,top=12,bottom=32,plot=h-top-bottom,group= w/6,bar=13;
+ let svg='<svg class="chart-svg" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Gráfico de barras comparando receitas e despesas nos últimos seis meses">';
+ for(let t=0;t<=3;t++){const y=top+plot*t/3;svg+='<line x1="34" y1="'+y+'" x2="510" y2="'+y+'" stroke="#edf0f5" stroke-width="1"/><text x="28" y="'+(y+4)+'" text-anchor="end" font-size="10" fill="#8993a5">'+(t===3?'0':chartMoney(max*(1-t/3)))+'</text>'}
+ months.forEach((m,i)=>{const cx=42+i*group+group/2,hi=m.income/max*plot,he=m.expense/max*plot;svg+='<rect x="'+(cx-bar-2)+'" y="'+(top+plot-hi)+'" width="'+bar+'" height="'+hi+'" rx="3" fill="#16845b"><title>Receitas '+chartMoney(m.income)+'</title></rect><rect x="'+(cx+2)+'" y="'+(top+plot-he)+'" width="'+bar+'" height="'+he+'" rx="3" fill="#d94b58"><title>Despesas '+chartMoney(m.expense)+'</title></rect><text x="'+cx+'" y="'+(h-9)+'" text-anchor="middle" font-size="11" fill="#687386">'+m.label+'</text>'});
+ $('monthlyChart').innerHTML=svg+'</svg>';
+}
+function renderCategoryDonut(list){
+ const totals=categories.expense.map(name=>({name,value:list.filter(e=>e.type==='expense'&&e.category===name).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value),total=totals.reduce((s,x)=>s+x.value,0),palette=['#3457d5','#16845b','#e49a35','#d94b58','#7c5ac7','#299bb5','#8a9b35','#d16c9a','#64748b'];
+ if(!total){$('categoryDonut').innerHTML='<div class="chart-empty">Ainda não há despesas neste mês para montar o gráfico.</div>';return}
+ let cursor=0,segments=[],legend=[];
+ totals.slice(0,7).forEach((item,i)=>{const pct=item.value/total*100,color=palette[i%palette.length];segments.push(color+' '+cursor+'% '+(cursor+pct)+'%');cursor+=pct;legend.push('<div><span><i class="legend-dot" style="background:'+color+'"></i>'+escapeHtml(item.name)+'</span><strong>'+Math.round(pct)+'%</strong></div>')});
+ if(totals.length>7){const rest=totals.slice(7).reduce((s,x)=>s+x.value,0),pct=rest/total*100,color=palette[7];segments.push(color+' '+cursor+'% 100%');legend.push('<div><span><i class="legend-dot" style="background:'+color+'"></i>Outras</span><strong>'+Math.round(pct)+'%</strong></div>')}
+ $('categoryDonut').innerHTML='<div class="donut-wrap"><div class="donut" style="background:conic-gradient('+segments.join(',')+')"><div class="donut-center"><strong>'+chartMoney(total)+'</strong><span>Total</span></div></div><div class="donut-legend">'+legend.join('')+'</div></div>';
+}
+function renderDailyChart(list){
+ const [year,month]=$('monthPicker').value.split('-').map(Number),days=new Date(year,month,0).getDate(),values=Array(days).fill(0);
+ list.filter(e=>e.type==='expense').forEach(e=>{const day=Number(e.date.slice(8,10));if(day>=1&&day<=days)values[day-1]+=e.amount});
+ const max=Math.max(1,...values),w=520,h=185,left=35,right=10,top=12,bottom=27,plotW=w-left-right,plotH=h-top-bottom;
+ let points=values.map((v,i)=>(left+i*plotW/Math.max(1,days-1))+','+(top+plotH-v/max*plotH)).join(' '),area=left+','+(top+plotH)+' '+points+' '+(left+plotW)+','+(top+plotH);
+ let svg='<svg class="chart-svg" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Gráfico de linha das despesas por dia">';
+ for(let t=0;t<=3;t++){const y=top+plotH*t/3;svg+='<line x1="'+left+'" y1="'+y+'" x2="'+(w-right)+'" y2="'+y+'" stroke="#edf0f5"/>'}
+ svg+='<polygon points="'+area+'" fill="#d94b5818"/><polyline points="'+points+'" fill="none" stroke="#d94b58" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>';
+ values.forEach((v,i)=>{if(v>0)svg+='<circle cx="'+(left+i*plotW/Math.max(1,days-1))+'" cy="'+(top+plotH-v/max*plotH)+'" r="3" fill="#d94b58"><title>Dia '+(i+1)+': '+money(v)+'</title></circle>'});
+ [1,Math.ceil(days/4),Math.ceil(days/2),Math.ceil(days*3/4),days].forEach(day=>{const x=left+(day-1)*plotW/Math.max(1,days-1);svg+='<text x="'+x+'" y="'+(h-7)+'" text-anchor="middle" font-size="10" fill="#687386">'+day+'</text>'});
+ $('dailyChart').innerHTML=svg+'</svg>';
+}
+function renderMetricInsights(list){
+ const income=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),expense=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0),count=list.filter(e=>e.type==='expense').length,daysWithExpense=new Set(list.filter(e=>e.type==='expense').map(e=>e.date)).size;
+ const savings=income>0?(income-expense)/income*100:null,largest=[...categories.expense].map(name=>({name,value:list.filter(e=>e.type==='expense'&&e.category===name).reduce((s,e)=>s+e.amount,0)})).sort((a,b)=>b.value-a.value)[0];
+ $('metricInsights').innerHTML='<div class="barrow"><span>Taxa de economia</span><div class="track"><div class="fill" style="width:'+Math.max(0,Math.min(100,savings||0))+'%;background:'+(savings>=0?'#16845b':'#d94b58')+'"></div></div><strong>'+(savings===null?'—':savings.toFixed(1).replace('.',',')+'%')+'</strong></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px"><div><div class="txmeta">Média por despesa</div><strong>'+money(expense/(count||1))+'</strong></div><div><div class="txmeta">Dias com gastos</div><strong>'+daysWithExpense+'</strong></div><div><div class="txmeta">Maior categoria</div><strong style="font-size:14px">'+(largest?.value?escapeHtml(largest.name):'—')+'</strong></div><div><div class="txmeta">Saldo acumulado no mês</div><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div></div>';
+}
+function renderCharts(list){renderMonthlyChart();renderCategoryDonut(list);renderDailyChart(list);renderMetricInsights(list)}
+
+function monthLabel(value){const [y,m]=value.split('-').map(Number);return new Date(y,m-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}
+function total(list,type,statuses=null){return list.filter(e=>e.type===type&&(!statuses||statuses.includes(e.status))).reduce((s,e)=>s+e.amount,0)}
+function effectiveStatus(entry,today=localDateString()){return ['pending','planned'].includes(entry.status)&&entry.date<today?'overdue':entry.status||'recorded'}function statusText(entry){const s=effectiveStatus(entry);return s==='overdue'?'Não pago':statusLabels[s]||'Registrado'}function projectionMonths(){const p=$('monthPicker').value.split('-').map(Number),a=[];for(let i=0;i<12;i++){const d=new Date(p[0],p[1]-1+i,1,12),key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),end=key+'-'+String(new Date(d.getFullYear(),d.getMonth()+1,0).getDate()).padStart(2,'0');a.push({key,end,label:d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}).replace('.','')})}return a}function renderProjection(){if(!$('projectionMonths'))return;const months=projectionMonths(),all=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));let running=openingBalance+all.filter(e=>e.date<months[0].key).reduce((s,e)=>s+(e.type==='income'?e.amount:-e.amount),0);const data=months.map(m=>{const rows=all.filter(e=>e.date>=m.key+'-01'&&e.date<=m.end),income=rows.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),expense=rows.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);running+=income-expense;return {...m,rows,income,expense,balance:running}});$('projectionEndBalance').textContent=money(data[11].balance);if($('projectionIncome'))$('projectionIncome').textContent=money(data.reduce((s,m)=>s+m.income,0));if($('projectionExpense'))$('projectionExpense').textContent=money(data.reduce((s,m)=>s+m.expense,0));$('projectionMonths').innerHTML=data.map(m=>'<tr data-month-open="'+m.key+'" tabindex="0" role="button" aria-label="Abrir detalhes de '+escapeHtml(m.label)+'"><td><strong>'+escapeHtml(m.label)+'</strong></td><td class="num income">'+money(m.income)+'</td><td class="num expense">'+money(m.expense)+'</td><td class="num"><strong>'+money(m.balance)+'</strong></td></tr>').join('');const vals=data.map(m=>m.balance),min=Math.min(0,...vals),max=Math.max(1,...vals),w=720,h=205,L=58,R=18,T=16,B=34,pw=w-L-R,ph=h-T-B,x=i=>L+i/(vals.length-1)*pw,y=v=>T+(max-v)/(max-min||1)*ph;let svg='<svg class="chart-svg" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Projeção do saldo acumulado nos próximos doze meses">';for(let t=0;t<4;t++){const v=max-(max-min)*t/3,yy=y(v);svg+='<line x1="'+L+'" y1="'+yy+'" x2="'+(w-R)+'" y2="'+yy+'" stroke="#edf0f4"/><text x="'+(L-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="10" fill="#7b8493">'+chartMoney(v)+'</text>'}svg+='<polyline points="'+vals.map((v,i)=>x(i)+','+y(v)).join(' ')+'" fill="none" stroke="#16845b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';vals.forEach((v,i)=>{svg+='<circle cx="'+x(i)+'" cy="'+y(v)+'" r="4" fill="#16845b"><title>'+data[i].label+': '+money(v)+'</title></circle><text x="'+x(i)+'" y="'+(h-9)+'" text-anchor="middle" font-size="10" fill="#687386">'+escapeHtml(data[i].label)+'</text>'});$('projectionChart').innerHTML=svg+'</svg>';const sel=$('projectionMonthFilter'),old=sel.value;sel.innerHTML=data.map(m=>'<option value="'+m.key+'">'+escapeHtml(m.label)+'</option>').join('');if(data.some(m=>m.key===old))sel.value=old;renderProjectionAccounts(data);renderReminders()}function renderProjectionAccounts(data){const key=$('projectionMonthFilter').value||data[0]?.key,m=data.find(x=>x.key===key);if(!m)return;$('projectionDetailTitle').textContent='Detalhes de '+m.label;const prev=new Date(Number(m.key.slice(0,4)),Number(m.key.slice(5,7))-1,0,12),prevKey=prev.getFullYear()+'-'+String(prev.getMonth()+1).padStart(2,'0')+'-'+String(prev.getDate()).padStart(2,'0');let running=openingBalance+entries.filter(e=>e.date<=prevKey).reduce((s,e)=>s+(e.type==='income'?e.amount:-e.amount),0);const rows=entries.filter(e=>e.date>=m.key+'-01'&&e.date<=m.end).sort((a,b)=>a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));if(!rows.length){$('projectionAccountRows').innerHTML='<tr><td colspan="5" class="projection-empty">Nenhuma conta ou movimentação lançada neste mês.</td></tr>';return}$('projectionAccountRows').innerHTML=rows.map(e=>{running+=e.type==='income'?e.amount:-e.amount;const s=effectiveStatus(e);return '<tr><td><div class="projection-account"><strong>'+escapeHtml(e.description)+'</strong><small>'+escapeHtml(e.category)+(e.type==='income'?' · Aporte':' · Conta')+'</small></div></td><td>'+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</td><td class="num '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</td><td><span class="tx-status '+(s==='overdue'?'overdue':s)+'">'+statusText(e)+'</span>'+(e.type==='expense'&&['pending','planned'].includes(e.status)?'<button type="button" class="projection-pay-toggle" data-projection-paid="'+escapeHtml(e.id)+'" role="switch" aria-checked="false" aria-label="Marcar '+escapeHtml(e.description)+' como paga"><span></span>Marcar paga</button>':'')+'</td><td class="num"><strong>'+money(running)+'</strong></td></tr>'}).join('')}function renderReminders(){const limit=new Date();limit.setDate(limit.getDate()+7);const limitKey=localDateString(limit),items=entries.filter(e=>e.type==='expense'&&!['paid','recorded'].includes(e.status)&&e.date<=limitKey).sort((a,b)=>a.date.localeCompare(b.date));$('reminderList').innerHTML=items.length?items.map(e=>{const s=effectiveStatus(e),late=s==='overdue',label=late?'Não pago':s==='planned'?'Prevista':'Pendente';return '<div class="reminder-item"><div><strong>'+escapeHtml(e.description)+'</strong><small>'+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+' · '+money(e.amount)+'</small></div><span class="tx-status '+(late?'overdue':s)+'">'+label+'</span></div>'}).join(''):'<div class="reminder-empty">Tudo certo! Nenhuma conta pendente ou prevista para os próximos 7 dias.</div>'}function openProjectionMonth(key){const select=$('projectionMonthFilter');select.value=key;renderProjectionAccounts(projectionMonths());setProjectionMode('accounts');$('projection-section').scrollIntoView({behavior:'smooth',block:'start'})}function setProjectionMode(mode){const account=mode==='accounts';$('projectionBalanceView').hidden=account;$('projectionAccountsView').hidden=!account;$('projectionBalanceBtn').classList.toggle('active',!account);$('projectionAccountsBtn').classList.toggle('active',account);$('projectionBalanceBtn').setAttribute('aria-pressed',String(!account));$('projectionAccountsBtn').setAttribute('aria-pressed',String(account))}function render(){
+ if(!$('transactions'))return;
+ const selected=$('monthPicker').value,list=monthEntries(),actualStatuses=['paid','recorded'];
+ const income=total(list,'income',actualStatuses),expense=total(list,'expense',actualStatuses);
+ const pending=total(list,'expense',['pending'])+total(list,'income',['pending']);
+ const planned=total(list,'expense',['planned'])+total(list,'income',['planned']);
+ $('monthReadable').textContent=monthLabel(selected);
+ $('incomeTotal').textContent=money(income);$('expenseTotal').textContent=money(expense);
+ const [year,month]=selected.split('-').map(Number),monthEnd=year+'-'+String(month).padStart(2,'0')+'-'+String(new Date(year,month,0).getDate()).padStart(2,'0');
+ const throughMonth=entries.filter(e=>e.date<=monthEnd);
+ const accumulated=openingBalance+total(throughMonth,'income',['paid','recorded'])-total(throughMonth,'expense',['paid','recorded']);
+ $('accumulatedTotal').textContent=money(accumulated);
+ $('paidSummary').textContent=money(total(list,'expense',['paid','recorded'])+total(list,'income',['paid','recorded']));
+ $('pendingSummary').textContent=money(total(list,'expense',['pending','planned']));$('plannedSummary').textContent=money(planned);
+ if(document.activeElement!==$('openingBalance'))$('openingBalance').value=Number(openingBalance).toFixed(2);
+ renderProjection();
+ const typeFilter=$('typeFilter').value,statusFilter=$('statusFilter').value;
+ const filtered=list.filter(e=>(typeFilter==='all'||e.type===typeFilter)&&(statusFilter==='all'||e.status===statusFilter)).sort((a,b)=>b.date.localeCompare(a.date));
+ $('transactions').innerHTML=filtered.length?filtered.map(e=>{
+  const cleanDescription=e.description.replace(/^(Planejado • |Previsão • )/,'').replace(/^Aporte • /,'Aporte: ');
+  const canPay=e.status==='pending'||e.status==='planned';
+  return '<div class="tx"><div style="min-width:0"><div class="txname">'+escapeHtml(cleanDescription)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div class="tx-actions"><span class="tx-status '+(effectiveStatus(e)==='overdue'?'overdue':e.status)+'">'+statusText(e)+'</span><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span>'+(canPay?'<button class="tx-action" data-paid="'+escapeHtml(e.id)+'">'+(e.type==='income'?'Confirmar recebimento':'Marcar pago')+'</button>':'')+'<button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>';
+ }).join(''):'<div class="empty">Nenhum item com esse filtro neste mês.</div>';
+ const totals=categories.expense.map(category=>({name:category,value:list.filter(e=>e.type==='expense'&&e.category===category).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
+ $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(total(list,'expense')||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">As contas aparecerão aqui.</div>';
+ const allIncome=total(list,'income'),allExpense=total(list,'expense'),pendingCount=list.filter(e=>e.status==='pending').length,plannedCount=list.filter(e=>e.status==='planned').length;
+ $('summary').innerHTML='<div class="summaryrow"><span>Movimentações</span><strong>'+list.length+'</strong></div><div class="summaryrow"><span>Resultado realizado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div><div class="summaryrow"><span>Resultado previsto</span><strong class="'+(allIncome-allExpense>=0?'income':'expense')+'">'+money(allIncome-allExpense)+'</strong></div><div class="summaryrow"><span>Contas pendentes</span><strong>'+pendingCount+'</strong></div><div class="summaryrow"><span>Previsões</span><strong>'+plannedCount+'</strong></div>';
+}
+async function saveOpeningBalance(){
+ if(!currentUser)return;const value=Math.round(Number($('openingBalance').value)*100)/100;
+ if(!Number.isFinite(value)||value<0){window.alert('Informe um saldo inicial válido.');return}
+ const button=$('saveOpeningBalance');button.disabled=true;button.textContent='Salvando...';
+ try{const {error}=await supabaseClient.from('apartment_settings').upsert({user_id:currentUser.id,opening_balance:value,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;openingBalance=value;render();setMessage('Saldo inicial atualizado.','success')}
+ catch(error){setMessage('Não foi possível salvar o saldo inicial: '+friendlyError(error),'error',error)}
+ finally{button.disabled=false;button.textContent='Salvar saldo inicial'}
+}
+async function updateEntryStatus(id,button){
+ const entry=entries.find(e=>e.id===id);if(!entry||!currentUser)return;
+ button.disabled=true;button.textContent='Atualizando...';
+ try{const {error}=await supabaseClient.from('transactions').update({status:'paid'}).eq('id',id).eq('user_id',currentUser.id);if(error)throw error;entry.status='paid';render();setMessage(entry.type==='income'?'Aporte confirmado como recebido.':'Conta marcada como paga.','success')}
+ catch(error){button.disabled=false;button.textContent='Marcar pago';setMessage('Não foi possível atualizar a situação: '+friendlyError(error),'error',error)}
+}
+async function loadEntries(userId){
+ if(!userId||!currentUser||currentUser.id!==userId)throw new Error('Sessão inválida. Entre novamente.');
+ const {data,error}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,status,created_at').eq('user_id',userId).order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
+ if(error)throw error;
+ entries=(data||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,status:row.status||'recorded'}));
+ const {data:settings,error:settingsError}=await supabaseClient.from('apartment_settings').select('opening_balance').eq('user_id',userId).maybeSingle();
+ if(settingsError)throw settingsError;
+ if(settings){openingBalance=Number(settings.opening_balance||0)}else{const {error:settingsInsertError}=await supabaseClient.from('apartment_settings').insert({user_id:userId,opening_balance:0});if(settingsInsertError)throw settingsInsertError;openingBalance=0}
+ const migrationKey='mcf_cloud_migrated_'+userId;
+ let localEntries=[];
+ try{localEntries=JSON.parse(localStorage.getItem(LOCAL_DATA_KEY)||'[]');if(!Array.isArray(localEntries))localEntries=[]}catch{localEntries=[]}
+ if(entries.length===0&&localEntries.length&&!localStorage.getItem(migrationKey)){
+  const shouldImport=window.confirm('Encontramos '+localEntries.length+' lançamento(s) salvos neste aparelho. Deseja importar para sua conta?');
+  if(shouldImport){
+   const rows=localEntries.filter(item=>['income','expense'].includes(item.type)&&String(item.description||'').trim()&&Number(item.amount)>0&&item.category&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)).map(item=>({user_id:userId,type:item.type,description:String(item.description).trim(),amount:Number(item.amount),category:String(item.category),transaction_date:item.date}));
+   if(rows.length){const {error:insertError}=await supabaseClient.from('transactions').insert(rows);if(insertError)throw insertError}
+   localStorage.setItem(migrationKey,'1');
+   const {data:refreshed,error:refreshError}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,created_at').eq('user_id',userId).order('transaction_date',{ascending:false});
+   if(refreshError)throw refreshError;
+   entries=(refreshed||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,status:row.status||'recorded'}));
+  }else localStorage.setItem(migrationKey,'skipped');
+ }else if(!localStorage.getItem(migrationKey))localStorage.setItem(migrationKey,'1');
+ render();
+}
+function openModal(type){
+ if(!currentUser){setMessage('Entre na sua conta antes de adicionar lançamentos.','error');return}
+ currentType=type;$('modalTitle').textContent=type==='income'?'Registrar aporte':'Adicionar conta';$('entryForm').reset();$('entryStatus').value=type==='income'?'paid':'pending';
+ $('category').innerHTML=categories[type].map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join('');
+ $('date').value=localDateString();$('modal').classList.add('open');$('description').focus();
+}
+async function saveEntry(event){
+ event.preventDefault();if(saveInProgress)return;
+ if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
+ const description=$('description').value.trim(),amount=Math.round(Number($('amount').value)*100)/100,date=$('date').value,category=$('category').value,status=$('entryStatus').value;
+ if(!description||!Number.isFinite(amount)||amount<=0||!date||!category){window.alert('Confira a descrição, o valor, a categoria e a data.');return}
+ saveInProgress=true;const button=$('entryForm').querySelector('button[type="submit"]');button.disabled=true;button.textContent='Salvando...';
+ try{
+  const row={user_id:currentUser.id,type:currentType,description,amount,category,transaction_date:date,status};
+  const {data,error}=await supabaseClient.from('transactions').insert(row).select('id,type,description,amount,category,transaction_date,status').single();if(error)throw error;
+  entries.unshift({id:data.id,type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date,status:data.status||'recorded'});
+  render();$('modal').classList.remove('open');setMessage('Lançamento salvo e sincronizado.','success');
+ }catch(error){window.alert('Não foi possível salvar: '+friendlyError(error))}
+ finally{saveInProgress=false;button.disabled=false;button.textContent='Salvar lançamento'}
+}
+async function deleteEntry(id,button){
+ if(!currentUser||!id||!window.confirm('Deseja realmente excluir este lançamento?'))return;
+ button.disabled=true;
+ try{
+  const {error}=await supabaseClient.from('transactions').delete().eq('id',id).eq('user_id',currentUser.id);if(error)throw error;
+  entries=entries.filter(e=>e.id!==id);render();setMessage('Lançamento excluído.','success');
+ }catch(error){button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}
+}
+async function logout(){
+ if(!supabaseClient)return;$('logoutBtn').disabled=true;
+ try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;resetUserData();showDashboard(null);setMessage('Você saiu da sua conta.','success')}
+ catch(error){setMessage('Não foi possível sair: '+friendlyError(error),'error',error)}
+ finally{$('logoutBtn').disabled=false}
+}
+function shiftMonth(offset){
+ const [year,month]=$('monthPicker').value.split('-').map(Number),date=new Date(year,month-1+offset,1,12);
+ $('monthPicker').value=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');render();
+}
+function exportCsv(){
+ if(!entries.length){window.alert('Não há lançamentos para exportar.');return}
+ const rows=[['Data','Tipo','Descrição','Categoria','Situação','Valor'],...entries.map(e=>[e.date,e.type==='income'?'Aporte':'Conta',e.description,e.category,statusLabels[e.status]||'Registrado',e.amount.toFixed(2).replace('.',',')])];
+ const csv='\uFEFF'+rows.map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+ const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='meu-controle-financeiro.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function setupPasswordFeedback(){
+ $('togglePassword').addEventListener('click',()=>{
+  const field=$('authPassword'),visible=field.type==='password';field.type=visible?'text':'password';
+  $('togglePassword').setAttribute('aria-label',visible?'Ocultar senha':'Mostrar senha');$('togglePassword').setAttribute('aria-pressed',String(visible));$('togglePassword').textContent=visible?'🙈':'👁';
+ });
+ $('authPassword').addEventListener('input',()=>{
+  const p=$('authPassword').value;let level=0;if(p.length>=6)level=1;if(p.length>=8&&/[A-Z]/.test(p)&&/[0-9]/.test(p))level=2;if(p.length>=10&&/[A-Z]/.test(p)&&/[0-9]/.test(p)&&/[^A-Za-z0-9]/.test(p))level=3;
+  $('passwordMeter').dataset.level=String(level);$('passwordHint').textContent=!p?'Sua senha deve ter ao menos 6 caracteres':level===1?'Senha básica':level===2?'Senha razoável':'Senha forte';
+ });
+}
+function setupInstallPrompt(){
+ $('installBtn').addEventListener('click',async()=>{
+  if(!installPrompt){window.alert('No Chrome, abra o menu ⋮ e escolha “Instalar app” ou “Adicionar à tela inicial”.');return}
+  installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').style.display='none';
+ });
+ window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;$('installBtn').style.display='block'});
+}
+function setupServiceWorker(){
+ if(!('serviceWorker'in navigator))return;
+ window.addEventListener('load',()=>{
+  let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded)return;reloaded=true;window.location.reload()});
+  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update().catch(()=>{})).catch(error=>console.warn('Service Worker não registrado:',error));
+ });
+}
+function initializeSupabase(){
+ if(!window.supabase?.createClient){setMessage('Não foi possível carregar o Supabase. Verifique sua conexão e atualize a página.','error');return}
+ const storageAdapter={
+  getItem(key){try{const preferred=$('rememberLogin').checked?localStorage:sessionStorage,other=$('rememberLogin').checked?sessionStorage:localStorage;let value=preferred.getItem(key);if(value!==null)return value;value=other.getItem(key);if(value!==null){preferred.setItem(key,value);other.removeItem(key)}return value}catch{return null}},
+  setItem(key,value){try{const preferred=$('rememberLogin').checked?localStorage:sessionStorage,other=$('rememberLogin').checked?sessionStorage:localStorage;preferred.setItem(key,value);other.removeItem(key)}catch(error){console.warn('Falha ao persistir sessão:',error)}},
+  removeItem(key){try{localStorage.removeItem(key);sessionStorage.removeItem(key)}catch(error){console.warn('Falha ao limpar sessão:',error)}}
+ };
+ supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storage:storageAdapter,storageKey:STORAGE_KEY,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ $('rememberLogin').addEventListener('change',()=>{const stored=storageAdapter.getItem(STORAGE_KEY);if(stored!==null)storageAdapter.setItem(STORAGE_KEY,stored)});
+ supabaseClient.auth.onAuthStateChange((event,session)=>{
+  // O callback deve permanecer síncrono; operações Supabase são agendadas após seu retorno.
+  if(event==='SIGNED_OUT'){resetUserData();openingBalance=0;showDashboard(null);return}
+  if(session&&['INITIAL_SESSION','SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED'].includes(event)){
+   queueMicrotask(()=>activateUser(session.user).catch(error=>setMessage('Sessão ativa, mas não foi possível carregar os lançamentos: '+friendlyError(error),'error',error)));
+  }
+  if(event==='PASSWORD_RECOVERY'){
+   queueMicrotask(async()=>{
+    const password=window.prompt('Digite sua nova senha (mínimo de 6 caracteres):');if(!password)return;
+    if(password.length<6){setMessage('A nova senha precisa ter pelo menos 6 caracteres.','error');return}
+    const {error}=await supabaseClient.auth.updateUser({password});
+    if(error)setMessage('Não foi possível atualizar a senha: '+friendlyError(error),'error',error);else setMessage('Senha atualizada com sucesso.','success');
+   });
+  }
+ });
+ setMessage('Autenticação pronta. Entre ou crie sua conta.','success');
+}
+
+let voiceRecognition=null,voiceActions=[];
+function openVoiceAssistant(){
+ if(!currentUser){setMessage('Entre na sua conta para usar o assistente.','error');return}
+ $('voiceAssistant').hidden=false;$('voiceAssistant').scrollIntoView({behavior:'smooth',block:'center'});
+ $('voiceTranscript').focus();
+}
+function startVoiceCapture(){
+ const Speech=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Speech){$('voiceStatus').textContent='Reconhecimento de voz não disponível neste navegador. Digite seu comando no campo abaixo.';$('voiceTranscript').focus();return}
+ if(voiceRecognition){try{voiceRecognition.stop()}catch{}voiceRecognition=null}
+ const recognition=new Speech();voiceRecognition=recognition;recognition.lang='pt-BR';recognition.interimResults=false;recognition.maxAlternatives=1;
+ $('voiceStart').classList.add('listening');$('voiceStart').textContent='■ Parar de ouvir';$('voiceStatus').textContent='Estou ouvindo… fale seu comando.';
+ recognition.onresult=event=>{const text=event.results?.[0]?.[0]?.transcript||'';$('voiceTranscript').value=($('voiceTranscript').value.trim()?$('voiceTranscript').value.trim()+' ':'')+text;$('voiceStatus').textContent='Transcrição concluída. Confira o texto e toque em Interpretar com Gemini.'};
+ recognition.onerror=event=>{$('voiceStatus').textContent=event.error==='not-allowed'?'Permita o acesso ao microfone nas configurações do navegador.':'Não consegui captar sua fala. Tente novamente ou digite o comando.'};
+ recognition.onend=()=>{$('voiceStart').classList.remove('listening');$('voiceStart').textContent='🎙 Começar a falar';if($('voiceTranscript').value.trim()&&$('voiceStatus').textContent==='Estou ouvindo… fale seu comando.')$('voiceStatus').textContent='Pronto. Confira a transcrição.';voiceRecognition=null};
+ try{recognition.start()}catch(error){$('voiceStatus').textContent='Não foi possível iniciar o microfone. Tente novamente.';$('voiceStart').classList.remove('listening');$('voiceStart').textContent='🎙 Começar a falar';voiceRecognition=null}
+}
+function voiceActionCard(action,index){
+ const type=action.type==='income'?'Entrada':'Despesa';
+ const title=action.action==='create'?'Novo lançamento':action.action==='update'?'Alterar lançamento':action.action==='mark_paid'?'Marcar como pago':action.action==='clarify'?'Preciso confirmar um detalhe':'Sem alteração';
+ const entry=action.target_id?entries.find(e=>e.id===action.target_id):null;
+ const description=action.description||entry?.description||'Lançamento';
+ const amount=Number(action.amount||entry?.amount||0);
+ const date=action.transaction_date||entry?.date||'';
+ const status=statusLabels[action.status]||statusLabels[entry?.status]||'';
+ const details=[type,action.category||entry?.category,date,status].filter(Boolean).join(' · ');
+ const value=amount>0?money(amount):'';
+ return '<article class="voice-preview-item"><strong>'+escapeHtml((index+1)+'. '+title+' — '+description)+'</strong><small>'+escapeHtml(details)+'</small>'+(value?'<div class="voice-value">'+escapeHtml(value)+'</div>':'')+(action.note?'<small>'+escapeHtml(action.note)+'</small>':'')+'</article>';
+}
+function showVoicePreview(result){
+ voiceActions=Array.isArray(result.actions)?result.actions:[];
+ $('voiceAssistantMessage').textContent=result.assistant_message||'Confira a interpretação abaixo.';
+ $('voicePreviewItems').innerHTML=voiceActions.length?voiceActions.map(voiceActionCard).join(''):'<p>Nenhuma alteração foi identificada.</p>';
+ $('voicePreview').hidden=false;
+ const hasWork=voiceActions.some(a=>['create','update','mark_paid'].includes(a.action));
+ const needsClarification=voiceActions.some(a=>['clarify','none'].includes(a.action));
+ $('voiceApply').hidden=!hasWork;$('voiceApply').disabled=!hasWork||needsClarification;
+}
+async function analyzeVoiceCommand(){
+ const transcript=$('voiceTranscript').value.trim();
+ if(!transcript){$('voiceStatus').textContent='Fale ou digite um comando primeiro.';return}
+ if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
+ const button=$('voiceAnalyze');button.disabled=true;button.textContent='Analisando…';$('voiceStatus').textContent='AURORA está interpretando seu comando…';$('voicePreview').hidden=true;
+ try{
+  const {data,error}=await supabaseClient.functions.invoke('aurora-assistant',{body:{transcript,today:localDateString(),categories,existingEntries:entries.map(e=>({id:e.id,type:e.type,description:e.description,amount:e.amount,category:e.category,date:e.date,status:e.status}))}});
+  if(error)throw error;if(data?.error)throw new Error(data.error);
+  showVoicePreview(data||{});$('voiceStatus').textContent='Interpretação pronta. Revise antes de salvar.';
+ }catch(error){
+  let message=error?.message||'Não foi possível interpretar o comando.';
+  if(error?.context&&typeof error.context.json==='function'){try{const body=await error.context.json();if(body?.error)message=body.error}catch{}}
+  const normalized=String(message).toLowerCase();
+  if(/alta demanda|high demand|overloaded|resource_exhausted|temporarily unavailable|tempo limite|timed out|timeout|worker_resource_limit|http 546/.test(normalized)){
+   message='A assistente está com alta demanda ou demorando para responder. Seu lançamento não foi salvo. Aguarde alguns instantes e toque em “Interpretar com Gemini” novamente.';
+  }else if(/quota|rate.?limit|429/.test(normalized)){
+   message='O limite temporário de solicitações da IA foi atingido. Seu lançamento não foi salvo. Aguarde um pouco e tente novamente.';
+  }else if(/api key|unauthorized|permission denied|403/.test(normalized)){
+   message='A integração com a IA precisa de uma verificação de acesso. Nenhum lançamento foi salvo.';
+  }else{
+   message='Não foi possível interpretar agora. Seu texto continua preenchido; tente novamente em instantes. Detalhe: '+message;
+  }
+  $('voiceStatus').textContent=message;setMessage('Assistente: '+message,'error');
+ }finally{button.disabled=false;button.textContent='Interpretar com Gemini'}
+}
+function validVoiceDate(value){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||'')))return false;
+ const date=new Date(value+'T12:00:00');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;
+}
+function prepareVoiceActions(){
+ if(!Array.isArray(voiceActions)||!voiceActions.length)throw new Error('Não há alterações para salvar.');
+ if(voiceActions.some(a=>['clarify','none'].includes(a.action)))throw new Error('Ainda há uma informação para esclarecer. Ajuste o comando antes de salvar.');
+ const prepared=[],updatedIds=new Set();
+ for(const action of voiceActions){
+  if(action.action==='create'){
+   const type=action.type,description=String(action.description||'').trim(),amount=Math.round(Number(action.amount)*100)/100,category=String(action.category||''),date=String(action.transaction_date||''),status=action.status;
+   if(!['income','expense'].includes(type)||!description||!Number.isFinite(amount)||amount<=0||!categories[type].includes(category)||!validVoiceDate(date)||!['paid','pending','planned','recorded'].includes(status))throw new Error('Um dos novos lançamentos veio incompleto ou inválido. Ajuste o comando e tente novamente.');
+   prepared.push({kind:'create',row:{user_id:currentUser.id,type,description,amount,category,transaction_date:date,status}});
+  }else if(action.action==='update'||action.action==='mark_paid'){
+   const target=entries.find(e=>e.id===action.target_id);
+   if(!target)throw new Error('Não encontrei o lançamento que o Gemini tentou alterar. Nenhuma alteração foi salva.');
+   if(updatedIds.has(target.id))throw new Error('O mesmo lançamento apareceu mais de uma vez na alteração. Separe os comandos para evitar conflito.');
+   updatedIds.add(target.id);
+   const payload={};
+   if(action.action==='mark_paid')payload.status='paid';
+   else{
+    const fields=Array.isArray(action.fields)?action.fields:[];
+    if(fields.includes('type')){if(!['income','expense'].includes(action.type))throw new Error('Tipo de lançamento inválido.');payload.type=action.type}
+    if(fields.includes('description')){const value=String(action.description||'').trim();if(!value)throw new Error('A descrição não pode ficar vazia.');payload.description=value}
+    if(fields.includes('amount')){const value=Math.round(Number(action.amount)*100)/100;if(!Number.isFinite(value)||value<=0)throw new Error('O valor precisa ser maior que zero.');payload.amount=value}
+    if(fields.includes('category'))payload.category=String(action.category||'');
+    if(fields.includes('transaction_date')){if(!validVoiceDate(action.transaction_date))throw new Error('A data informada é inválida.');payload.transaction_date=action.transaction_date}
+    if(fields.includes('status')){if(!['paid','pending','planned','recorded'].includes(action.status))throw new Error('Situação inválida.');payload.status=action.status}
+    if(!Object.keys(payload).length)throw new Error('Não identifiquei quais campos devem ser alterados.');
+    const nextType=payload.type||target.type,nextCategory=payload.category||target.category;
+    if(!categories[nextType].includes(nextCategory))throw new Error('A categoria não corresponde ao tipo de lançamento.');
+   }
+   prepared.push({kind:'update',id:target.id,payload});
+  }else throw new Error('O Gemini retornou uma ação que não é permitida.');
+ }
+ return prepared;
+}
+async function applyVoiceActions(){
+ if(saveInProgress||!currentUser)return;
+ let operations;try{operations=prepareVoiceActions()}catch(error){$('voiceStatus').textContent=error.message;return}
+ const button=$('voiceApply');button.disabled=true;button.textContent='Salvando…';saveInProgress=true;let completed=0;
+ try{
+  for(const operation of operations){
+   if(operation.kind==='create'){
+    const {data,error}=await supabaseClient.from('transactions').insert(operation.row).select('id,type,description,amount,category,transaction_date,status').single();if(error)throw error;
+    entries.unshift({id:data.id,type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date,status:data.status||'recorded'});
+   }else{
+    const {data,error}=await supabaseClient.from('transactions').update(operation.payload).eq('id',operation.id).eq('user_id',currentUser.id).select('id,type,description,amount,category,transaction_date,status').single();if(error)throw error;
+    const existing=entries.find(e=>e.id===operation.id);if(existing)Object.assign(existing,{type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date,status:data.status||'recorded'});
+   }
+   completed++;
+  }
+  render();$('voiceAssistant').hidden=true;$('voicePreview').hidden=true;$('voiceTranscript').value='';voiceActions=[];$('voiceStatus').textContent='Pronto para ouvir.';
+  setMessage(completed+' lançamento(s) atualizado(s) ou criado(s) e sincronizado(s).','success');
+ }catch(error){
+  render();const message=completed?completed+' alteração(ões) foram salvas antes de ocorrer um erro: '+(error.message||'erro desconhecido'):error.message||'Não foi possível salvar as alterações.';
+  $('voiceStatus').textContent=message;setMessage(message,'error',error);
+ }finally{saveInProgress=false;button.disabled=false;button.textContent='Confirmar e salvar'}
+}
+
+const changeStatusLabels={pending:'Pendente',in_progress:'Em andamento',completed:'Concluído',rejected:'Não aprovado'};
+let changeRequests=[];
+async function loadChangeRequests(){
+ if(!supabaseClient||!currentUser?.id)return;
+ const list=$('changeRequestList');if(list)list.innerHTML='<div class="change-empty">Carregando solicitações...</div>';
+ const {data,error}=await supabaseClient.from('app_change_requests').select('id,title,description,area,status,github_issue_url,created_at,updated_at,completed_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
+ if(error)throw error;
+ changeRequests=data||[];renderChangeRequests();
+}
+function renderChangeRequests(){
+ const list=$('changeRequestList');if(!list)return;
+ if(!changeRequests.length){list.innerHTML='<div class="change-empty">Você ainda não enviou nenhuma solicitação. Sua primeira ideia pode começar aqui. ✨</div>';return}
+ list.innerHTML=changeRequests.map(item=>{
+  const date=new Date(item.created_at).toLocaleDateString('pt-BR');
+  const link=item.github_issue_url?'<a href="'+escapeHtml(item.github_issue_url)+'" target="_blank" rel="noopener noreferrer">Acompanhar no GitHub ↗</a>':'';
+  return '<article class="change-item"><div class="change-item-top"><strong>'+escapeHtml(item.title)+'</strong><span class="change-status '+escapeHtml(item.status)+'">'+escapeHtml(changeStatusLabels[item.status]||item.status)+'</span></div><p>'+escapeHtml(item.description)+'</p><div class="change-meta"><span>'+escapeHtml(item.area)+'</span><span>·</span><span>Enviada em '+date+'</span>'+link+'</div></article>';
+ }).join('');
+}
+async function submitChangeRequest(event){
+ event.preventDefault();
+ if(!currentUser?.id||!supabaseClient){$('changeRequestMessage').textContent='Entre na sua conta para enviar uma solicitação.';return}
+ const title=$('changeTitle').value.trim(),description=$('changeDescription').value.trim(),area=$('changeArea').value,button=$('submitChangeRequest'),message=$('changeRequestMessage');
+ if(title.length<3||description.length<5){message.textContent='Informe um título e uma descrição um pouco mais completos.';return}
+ button.disabled=true;button.textContent='Enviando...';message.textContent='';
+ try{
+  const {error}=await supabaseClient.from('app_change_requests').insert({user_id:currentUser.id,title,description,area});
+  if(error)throw error;
+  $('changeRequestForm').reset();message.textContent='Solicitação registrada! Ela já está guardada no Supabase.';await loadChangeRequests();
+ }catch(error){message.textContent='Não foi possível enviar: '+friendlyError(error);console.error('Erro ao registrar melhoria:',error)}
+ finally{button.disabled=false;button.textContent='Enviar solicitação'}
+}
+function setupChangeCenter(){
+ $('changeRequestForm').addEventListener('submit',submitChangeRequest);
+ $('refreshChangeRequests').addEventListener('click',async()=>{try{await loadChangeRequests();$('changeRequestMessage').textContent='Lista atualizada.'}catch(error){$('changeRequestMessage').textContent='Falha ao atualizar: '+friendlyError(error)}});
+}
+
+function setupVoiceAssistant(){
+ $('openVoiceAssistant').addEventListener('click',openVoiceAssistant);
+ $('voiceClose').addEventListener('click',()=>{$('voiceAssistant').hidden=true;if(voiceRecognition){try{voiceRecognition.stop()}catch{}}});
+ $('voiceStart').addEventListener('click',()=>voiceRecognition?voiceRecognition.stop():startVoiceCapture());
+ $('voiceAnalyze').addEventListener('click',analyzeVoiceCommand);
+ $('voiceEdit').addEventListener('click',()=>{$('voicePreview').hidden=true;$('voiceTranscript').focus()});
+ $('voiceApply').addEventListener('click',applyVoiceActions);
+}
+function setupAuroraNavigation(){const nav=$('auroraBottomNav');if(!nav)return;const go=targetId=>{const target=$(targetId);if(target)target.scrollIntoView({behavior:'smooth',block:'start'})};nav.addEventListener('click',event=>{const button=event.target.closest('[data-target]');if(!button)return;nav.querySelectorAll('.nav-item').forEach(item=>{const active=item===button;item.classList.toggle('active',active);if(active)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});go(button.dataset.target)});document.querySelectorAll('.simple-metric[data-target]').forEach(button=>button.addEventListener('click',()=>go(button.dataset.target)));}
+function initializeApp(){
+ $('monthPicker').value=localDateString().slice(0,7);
+ $('authForm').addEventListener('submit',handleAuthForm);$('resetBtn').addEventListener('click',requestPasswordReset);
+ $('logoutBtn').addEventListener('click',logout);$('addIncome').addEventListener('click',()=>openModal('income'));$('addExpense').addEventListener('click',()=>openModal('expense'));
+ $('cancelBtn').addEventListener('click',()=>$('modal').classList.remove('open'));$('entryForm').addEventListener('submit',saveEntry);
+ $('transactions').addEventListener('click',event=>{const payButton=event.target.closest('[data-paid]');if(payButton){updateEntryStatus(payButton.dataset.paid,payButton);return}const button=event.target.closest('[data-delete]');if(button)deleteEntry(button.dataset.delete,button)});$('projectionAccountRows').addEventListener('click',event=>{const payButton=event.target.closest('[data-projection-paid]');if(payButton)updateEntryStatus(payButton.dataset.projectionPaid,payButton)});
+ $('typeFilter').addEventListener('change',render);$('statusFilter').addEventListener('change',render);$('projectionBalanceBtn').addEventListener('click',()=>setProjectionMode('balance'));$('projectionAccountsBtn').addEventListener('click',()=>setProjectionMode('accounts'));$('projectionMonthFilter').addEventListener('change',()=>renderProjectionAccounts(projectionMonths().map(m=>({...m}))));$('projectionMonths').addEventListener('click',event=>{const row=event.target.closest('[data-month-open]');if(!row)return;openProjectionMonth(row.dataset.monthOpen)});$('projectionMonths').addEventListener('keydown',event=>{if(event.key!=='Enter'&&event.key!==' ')return;const row=event.target.closest('[data-month-open]');if(!row)return;event.preventDefault();openProjectionMonth(row.dataset.monthOpen)});$('projectionBackBtn').addEventListener('click',()=>setProjectionMode('balance'));$('monthPicker').addEventListener('change',render);$('saveOpeningBalance').addEventListener('click',saveOpeningBalance);
+ $('prevMonth').addEventListener('click',()=>shiftMonth(-1));$('nextMonth').addEventListener('click',()=>shiftMonth(1));$('exportBtn').addEventListener('click',exportCsv);
+ setProjectionMode('balance');setupAuroraNavigation();setupVoiceAssistant();setupChangeCenter();setupPasswordFeedback();setupInstallPrompt();setupServiceWorker();initializeSupabase();
+ window.addEventListener('error',event=>console.error('Erro JavaScript:',event.error||event.message));
+ window.addEventListener('unhandledrejection',event=>{console.error('Falha assíncrona:',event.reason);setMessage('Uma operação não foi concluída: '+friendlyError(event.reason),'error',event.reason)});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initializeApp,{once:true});else initializeApp();
+</script>
+
+</body></html>
