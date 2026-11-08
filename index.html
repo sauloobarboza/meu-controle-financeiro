@@ -10,7 +10,15 @@
 <title>Meu Controle Financeiro</title>
 <style>
 :root{--bg:#f3f5f9;--card:#fff;--ink:#172033;--muted:#6b7280;--line:#e7eaf0;--green:#16845b;--red:#d94b58;--blue:#3457d5;--navy:#111827}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 1080px)/2)) 26px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:750;font-size:20px}.month{display:flex;align-items:center;gap:8px;margin-top:20px}.month button{background:#293449;color:#fff;border:0;border-radius:9px;padding:8px 12px}.month input{background:#293449;color:white;border:0;border-radius:9px;padding:8px}.wrap{max-width:1080px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 3px 12px #17203308}.metric span{color:var(--muted);font-size:13px}.metric strong{display:block;font-size:25px;margin-top:6px;letter-spacing:-.6px}.income{color:var(--green)}.expense{color:var(--red)}.balance{color:var(--blue)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin:17px 0}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:650}.primary{background:var(--blue);color:white}.secondary{background:#e9edff;color:#2946b4}.danger{background:#fff0f1;color:#bd3341}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:22px 0 12px}.sectionhead h2{font-size:17px;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters select,.filters input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px;color:var(--ink)}.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}.transactions{padding:0;overflow:hidden}.tx{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 17px;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.txname{font-weight:650}.txmeta{color:var(--muted);font-size:12px;margin-top:3px}.txamount{font-weight:750;white-space:nowrap}.empty{padding:28px 16px;text-align:center;color:var(--muted)}.barrow{display:grid;grid-template-columns:85px 1fr auto;gap:9px;align-items:center;margin:15px 0;font-size:13px}.track{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue)}.modal{position:fixed;inset:0;background:#10182799;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal.open{display:flex}.dialog{width:min(100%,440px);background:#fff;border-radius:18px;padding:21px}.dialog h2{margin:0 0 16px;font-size:19px}.field{display:block;margin:12px 0}.field span{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:white}.formactions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 1080px)/2)) 26px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:750;font-size:20px}.month{display:flex;align-items:center;gap:8px;margin-top:20px}.month button{background:#293449;color:#fff;border:0;border-radius:9px;padding:8px 12px}.month input{background:#293449;color:white;border:0;border-radius:9px;padding:8px}.wrap{max-width:1080px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.introline{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:5px 0 18px}.introline h1{font-size:25px;letter-spacing:-.7px;margin:3px 0}.introline p{color:var(--muted);margin:0;font-size:13px}.eyebrow-dark{font-size:10px;letter-spacing:1.4px;color:var(--blue);font-weight:800}.month-label{font-size:12px;color:var(--muted);text-align:right}.month-label strong{display:block;color:var(--ink);font-size:15px;margin-top:3px}
+.apartment-metrics .metric{min-width:0}.metric small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.accumulated-card{border-color:#cbd6fb;background:#f8f9ff}
+.status-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:13px 0 17px}.status-tile{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:10px}.status-tile small{display:block;color:var(--muted);font-size:11px}.status-tile strong{display:block;font-size:16px;margin-top:2px}.status-dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}.paid-dot{background:#16845b}.pending-dot{background:#e49a35}.planned-dot{background:#3457d5}
+.opening-card p{font-size:12px;color:var(--muted);margin:0 0 12px}.opening-card .field{margin:0 0 12px}.opening-card input{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px}
+.tx-status{font-size:10px;font-weight:700;padding:4px 7px;border-radius:99px;white-space:nowrap;background:#eef1f7;color:#5e6879}.tx-status.paid{background:#e8f7ef;color:#16734d}.tx-status.pending{background:#fff5df;color:#986313}.tx-status.planned{background:#edf0ff;color:#3457d5}.tx-status.recorded{background:#eef1f7;color:#5e6879}
+.tx-actions{display:flex;align-items:center;gap:7px}.tx-action{border:0;background:#edf0ff;color:#2946b4;border-radius:8px;padding:6px 8px;font-size:11px;font-weight:700}.tx-action:disabled{opacity:.5}.summaryrow{display:flex;justify-content:space-between;gap:12px;margin:9px 0;font-size:13px}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.status-overview{grid-template-columns:1fr}.introline{align-items:start;flex-direction:column}.month-label{text-align:left}.month-label strong{display:inline;margin-left:5px}.grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:auto}}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 3px 12px #17203308}.metric span{color:var(--muted);font-size:13px}.metric strong{display:block;font-size:25px;margin-top:6px;letter-spacing:-.6px}.income{color:var(--green)}.expense{color:var(--red)}.balance{color:var(--blue)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin:17px 0}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:650}.primary{background:var(--blue);color:white}.secondary{background:#e9edff;color:#2946b4}.danger{background:#fff0f1;color:#bd3341}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:22px 0 12px}.sectionhead h2{font-size:17px;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters select,.filters input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px;color:var(--ink)}.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}.transactions{padding:0;overflow:hidden}.tx{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 17px;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.txname{font-weight:650}.txmeta{color:var(--muted);font-size:12px;margin-top:3px}.txamount{font-weight:750;white-space:nowrap}.empty{padding:28px 16px;text-align:center;color:var(--muted)}.barrow{display:grid;grid-template-columns:85px 1fr auto;gap:9px;align-items:center;margin:15px 0;font-size:13px}.track{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue)}.modal{position:fixed;inset:0;background:#10182799;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal.open{display:flex}.dialog{width:min(100%,440px);background:#fff;border-radius:18px;padding:21px}.dialog h2{margin:0 0 16px;font-size:19px}.field{display:block;margin:12px 0}.field span{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:white}.formactions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}
 /* Painel de métricas e gráficos */
 .chart-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px;margin-top:16px}
 .chart-card{min-width:0;background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 3px 12px #17203308}
@@ -69,33 +77,38 @@ body:has(#authPanel:not([hidden])){background:#f4f7ff}
  </div>
 </section>
 <main class="wrap" id="dashboard" hidden>
- <section class="grid">
-  <div class="card metric"><span>Receitas do mês</span><strong class="income" id="incomeTotal">R$ 0,00</strong></div>
-  <div class="card metric"><span>Despesas do mês</span><strong class="expense" id="expenseTotal">R$ 0,00</strong></div>
-  <div class="card metric"><span>Saldo do mês</span><strong class="balance" id="balanceTotal">R$ 0,00</strong></div>
+ <div class="introline"><div><span class="eyebrow-dark">CONTROLE DO APARTAMENTO</span><h1>Resumo da casa</h1><p>Entradas, contas e saldo acumulado em um só lugar.</p></div><div class="month-label">Mês acompanhado <strong id="monthReadable"></strong></div></div>
+ <section class="grid apartment-metrics">
+  <div class="card metric"><span>Entradas e aportes</span><strong class="income" id="incomeTotal">R$ 0,00</strong><small>Recebidos ou registrados</small></div>
+  <div class="card metric"><span>Contas do mês</span><strong class="expense" id="expenseTotal">R$ 0,00</strong><small>Pagas ou registradas</small></div>
+  <div class="card metric"><span>Resultado do mês</span><strong class="balance" id="balanceTotal">R$ 0,00</strong><small>Entradas menos despesas</small></div>
+  <div class="card metric accumulated-card"><span>Saldo acumulado projetado</span><strong class="balance" id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + movimentações até o mês</small></div>
  </section>
-
- <section class="chart-grid" aria-label="Gráficos financeiros">
-  <article class="chart-card"><h3>Fluxo financeiro</h3><p class="chart-subtitle">Receitas e despesas — últimos 6 meses</p><div id="monthlyChart"></div><div class="chart-legend"><span><i class="legend-dot" style="background:#16845b"></i>Receitas</span><span><i class="legend-dot" style="background:#d94b58"></i>Despesas</span></div></article>
-  <article class="chart-card"><h3>Composição das despesas</h3><p class="chart-subtitle">Distribuição por categoria no mês selecionado</p><div id="categoryDonut"></div></article>
-  <article class="chart-card"><h3>Despesas ao longo do mês</h3><p class="chart-subtitle">Evolução diária no mês selecionado</p><div id="dailyChart"></div></article>
-  <article class="chart-card"><h3>Indicadores do mês</h3><p class="chart-subtitle">Comparativo e comportamento dos lançamentos</p><div id="metricInsights"></div></article>
+ <section class="status-overview" aria-label="Situação das contas">
+  <div class="status-tile"><span class="status-dot paid-dot"></span><div><small>Pagas / recebidas</small><strong id="paidSummary">R$ 0,00</strong></div></div>
+  <div class="status-tile"><span class="status-dot pending-dot"></span><div><small>Pendentes</small><strong id="pendingSummary">R$ 0,00</strong></div></div>
+  <div class="status-tile"><span class="status-dot planned-dot"></span><div><small>Previsões</small><strong id="plannedSummary">R$ 0,00</strong></div></div>
  </section>
- 
- <div class="actions"><button class="btn primary" id="addIncome">＋ Nova receita</button><button class="btn danger" id="addExpense">－ Nova despesa</button><button class="btn secondary" id="exportBtn">Exportar CSV</button></div>
+ <section class="chart-grid" aria-label="Gráficos do apartamento">
+  <article class="chart-card"><h3>Entradas x saídas</h3><p class="chart-subtitle">Aportes e despesas por mês — últimos 6 meses</p><div id="monthlyChart"></div><div class="chart-legend"><span><i class="legend-dot" style="background:#16845b"></i>Entradas</span><span><i class="legend-dot" style="background:#d94b58"></i>Saídas</span></div></article>
+  <article class="chart-card"><h3>Para onde vai o dinheiro</h3><p class="chart-subtitle">Distribuição das contas no mês selecionado</p><div id="categoryDonut"></div></article>
+  <article class="chart-card"><h3>Contas ao longo do mês</h3><p class="chart-subtitle">Valores lançados por dia</p><div id="dailyChart"></div></article>
+  <article class="chart-card"><h3>Indicadores do mês</h3><p class="chart-subtitle">Resultado, média das contas e maior despesa</p><div id="metricInsights"></div></article>
+ </section>
+ <div class="actions"><button class="btn primary" id="addIncome">＋ Registrar aporte</button><button class="btn danger" id="addExpense">＋ Adicionar conta</button><button class="btn secondary" id="exportBtn">Exportar planilha CSV</button></div>
  <div class="layout">
   <section>
-   <div class="sectionhead"><h2>Lançamentos</h2><div class="filters"><select id="typeFilter"><option value="all">Todos</option><option value="income">Receitas</option><option value="expense">Despesas</option></select></div></div>
+   <div class="sectionhead"><h2>Movimentações do mês</h2><div class="filters"><select id="typeFilter" aria-label="Filtrar tipo"><option value="all">Todas</option><option value="income">Aportes</option><option value="expense">Contas</option></select><select id="statusFilter" aria-label="Filtrar situação"><option value="all">Todas as situações</option><option value="paid">Pagas / recebidas</option><option value="pending">Pendentes</option><option value="planned">Previsões</option><option value="recorded">Registradas</option></select></div></div>
    <div class="card transactions" id="transactions"></div>
   </section>
   <aside>
-   <div class="sectionhead"><h2>Despesas por categoria</h2></div>
-   <div class="card" id="categories"></div>
-   <div class="sectionhead"><h2>Resumo</h2></div>
-   <div class="card" id="summary"></div>
+   <div class="sectionhead"><h2>Contas por tipo</h2></div><div class="card" id="categories"></div>
+   <div class="sectionhead"><h2>Saldo de partida</h2></div>
+   <div class="card opening-card"><p>Informe quanto já havia disponível no início do controle. Esse valor entra no saldo acumulado, mas não é contado como aporte do mês.</p><label class="field"><span>Saldo inicial (R$)</span><input id="openingBalance" type="number" min="0" step="0.01" inputmode="decimal" value="0"></label><button class="btn secondary" id="saveOpeningBalance">Salvar saldo inicial</button></div>
+   <div class="sectionhead"><h2>Resumo do mês</h2></div><div class="card" id="summary"></div>
   </aside>
  </div>
- <div class="foot">Seus lançamentos são sincronizados com sua conta e protegidos por usuário. Exporte um CSV para manter uma cópia de segurança.</div>
+ <div class="foot">Controle do apartamento · Aportes, contas, pagamentos e saldo acumulado. Seus dados ficam sincronizados com sua conta.</div>
 </main>
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
  <form class="dialog" id="entryForm">
@@ -103,7 +116,7 @@ body:has(#authPanel:not([hidden])){background:#f4f7ff}
   <label class="field"><span>Descrição</span><input id="description" maxlength="70" required placeholder="Ex.: Salário, mercado..."></label>
   <label class="field"><span>Valor (R$)</span><input id="amount" type="number" min="0.01" step="0.01" required placeholder="0,00"></label>
   <label class="field"><span>Categoria</span><select id="category" required></select></label>
-  <label class="field"><span>Data</span><input id="date" type="date" required></label>
+  <label class="field"><span>Data</span><input id="date" type="date" required></label><label class="field"><span>Situação</span><select id="entryStatus" required><option value="paid">Pago / recebido</option><option value="pending">Pendente</option><option value="planned">Previsão</option><option value="recorded">Registrado</option></select></label>
   <div class="formactions"><button type="button" class="btn secondary" id="cancelBtn">Cancelar</button><button class="btn primary" type="submit">Salvar lançamento</button></div>
  </form>
 </div>
@@ -116,8 +129,9 @@ const SUPABASE_KEY='sb_publishable_vM-nl4k5Ilkk0_QUohutFw_2wuweUTP';
 const STORAGE_KEY='sb-dqhyiggxcxczdcopdyec-auth-token';
 const LOCAL_DATA_KEY='mcf_transactions_v1';
 const $=id=>document.getElementById(id);
-const categories={income:['Salário','Renda extra','Investimentos','Outros'],expense:['Moradia','Alimentação','Transporte','Saúde','Lazer','Contas','Cartão de crédito','Educação','Outros']};
-let supabaseClient=null,entries=[],currentUser=null,currentType='expense',installPrompt=null,activeUserId=null,entriesLoadedForUser=null,loadingPromise=null,saveInProgress=false;
+const categories={income:['Aporte','Outros'],expense:['Aluguel','Água','Luz','Condomínio','IPTU','IPVA','Gás','Caução','Cartão','Faculdade','Seguro','Internet','MP','Itaú','Outros']};
+const statusLabels={paid:'Pago / recebido',pending:'Pendente',planned:'Previsão',recorded:'Registrado'};
+let supabaseClient=null,entries=[],currentUser=null,currentType='expense',installPrompt=null,activeUserId=null,entriesLoadedForUser=null,loadingPromise=null,saveInProgress=false,openingBalance=0;
 
 function localDateString(date=new Date()){
  const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');
@@ -241,25 +255,58 @@ function renderMetricInsights(list){
 }
 function renderCharts(list){renderMonthlyChart();renderCategoryDonut(list);renderDailyChart(list);renderMetricInsights(list)}
 
+function monthLabel(value){const [y,m]=value.split('-').map(Number);return new Date(y,m-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}
+function total(list,type,statuses=null){return list.filter(e=>e.type===type&&(!statuses||statuses.includes(e.status))).reduce((s,e)=>s+e.amount,0)}
 function render(){
  if(!$('transactions'))return;
- const list=monthEntries();
- const income=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0);
- const expense=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
+ const selected=$('monthPicker').value,list=monthEntries(),actualStatuses=['paid','recorded'];
+ const income=total(list,'income',actualStatuses),expense=total(list,'expense',actualStatuses);
+ const pending=total(list,'expense',['pending'])+total(list,'income',['pending']);
+ const planned=total(list,'expense',['planned'])+total(list,'income',['planned']);
+ $('monthReadable').textContent=monthLabel(selected);
  $('incomeTotal').textContent=money(income);$('expenseTotal').textContent=money(expense);$('balanceTotal').textContent=money(income-expense);
+ const [year,month]=selected.split('-').map(Number),monthEnd=year+'-'+String(month).padStart(2,'0')+'-'+String(new Date(year,month,0).getDate()).padStart(2,'0');
+ const throughMonth=entries.filter(e=>e.date<=monthEnd);
+ const accumulated=openingBalance+total(throughMonth,'income')-total(throughMonth,'expense');
+ $('accumulatedTotal').textContent=money(accumulated);
+ $('paidSummary').textContent=money(total(list,'expense',['paid'])+total(list,'income',['paid']));
+ $('pendingSummary').textContent=money(pending);$('plannedSummary').textContent=money(planned);
+ if(document.activeElement!==$('openingBalance'))$('openingBalance').value=Number(openingBalance).toFixed(2);
  renderCharts(list);
- const filter=$('typeFilter').value,filtered=list.filter(e=>filter==='all'||e.type===filter).sort((a,b)=>b.date.localeCompare(a.date));
- $('transactions').innerHTML=filtered.length?filtered.map(e=>'<div class="tx"><div><div class="txname">'+escapeHtml(e.description)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div style="display:flex;align-items:center;gap:10px"><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span><button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>').join(''):'<div class="empty">Nenhum lançamento neste mês.<br>Adicione sua primeira receita ou despesa.</div>';
+ const typeFilter=$('typeFilter').value,statusFilter=$('statusFilter').value;
+ const filtered=list.filter(e=>(typeFilter==='all'||e.type===typeFilter)&&(statusFilter==='all'||e.status===statusFilter)).sort((a,b)=>b.date.localeCompare(a.date));
+ $('transactions').innerHTML=filtered.length?filtered.map(e=>{
+  const cleanDescription=e.description.replace(/^(Planejado • |Previsão • )/,'').replace(/^Aporte • /,'Aporte: ');
+  const canPay=e.status==='pending'||e.status==='planned';
+  return '<div class="tx"><div style="min-width:0"><div class="txname">'+escapeHtml(cleanDescription)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div class="tx-actions"><span class="tx-status '+e.status+'">'+statusLabels[e.status]+'</span><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span>'+(canPay?'<button class="tx-action" data-paid="'+escapeHtml(e.id)+'">Marcar pago</button>':'')+'<button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>';
+ }).join(''):'<div class="empty">Nenhum item com esse filtro neste mês.</div>';
  const totals=categories.expense.map(category=>({name:category,value:list.filter(e=>e.type==='expense'&&e.category===category).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
- $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(expense||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">Suas despesas por categoria aparecerão aqui.</div>';
- const count=list.filter(e=>e.type==='expense').length;
- $('summary').innerHTML='<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Quantidade de lançamentos</span><strong>'+list.length+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Média por despesa</span><strong>'+money(expense/(count||1))+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Resultado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div>';
+ $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(total(list,'expense')||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">As contas aparecerão aqui.</div>';
+ const allIncome=total(list,'income'),allExpense=total(list,'expense'),pendingCount=list.filter(e=>e.status==='pending').length,plannedCount=list.filter(e=>e.status==='planned').length;
+ $('summary').innerHTML='<div class="summaryrow"><span>Movimentações</span><strong>'+list.length+'</strong></div><div class="summaryrow"><span>Resultado realizado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div><div class="summaryrow"><span>Resultado previsto</span><strong class="'+(allIncome-allExpense>=0?'income':'expense')+'">'+money(allIncome-allExpense)+'</strong></div><div class="summaryrow"><span>Contas pendentes</span><strong>'+pendingCount+'</strong></div><div class="summaryrow"><span>Previsões</span><strong>'+plannedCount+'</strong></div>';
+}
+async function saveOpeningBalance(){
+ if(!currentUser)return;const value=Math.round(Number($('openingBalance').value)*100)/100;
+ if(!Number.isFinite(value)||value<0){window.alert('Informe um saldo inicial válido.');return}
+ const button=$('saveOpeningBalance');button.disabled=true;button.textContent='Salvando...';
+ try{const {error}=await supabaseClient.from('apartment_settings').upsert({user_id:currentUser.id,opening_balance:value,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;openingBalance=value;render();setMessage('Saldo inicial atualizado.','success')}
+ catch(error){setMessage('Não foi possível salvar o saldo inicial: '+friendlyError(error),'error',error)}
+ finally{button.disabled=false;button.textContent='Salvar saldo inicial'}
+}
+async function updateEntryStatus(id,button){
+ const entry=entries.find(e=>e.id===id);if(!entry||!currentUser)return;
+ button.disabled=true;button.textContent='Atualizando...';
+ try{const {error}=await supabaseClient.from('transactions').update({status:'paid'}).eq('id',id).eq('user_id',currentUser.id);if(error)throw error;entry.status='paid';render();setMessage(entry.type==='income'?'Aporte confirmado como recebido.':'Conta marcada como paga.','success')}
+ catch(error){button.disabled=false;button.textContent='Marcar pago';setMessage('Não foi possível atualizar a situação: '+friendlyError(error),'error',error)}
 }
 async function loadEntries(userId){
  if(!userId||!currentUser||currentUser.id!==userId)throw new Error('Sessão inválida. Entre novamente.');
- const {data,error}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,created_at').eq('user_id',userId).order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
+ const {data,error}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,status,created_at').eq('user_id',userId).order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
  if(error)throw error;
- entries=(data||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date}));
+ entries=(data||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,status:row.status||'recorded'}));
+ const {data:settings,error:settingsError}=await supabaseClient.from('apartment_settings').select('opening_balance').eq('user_id',userId).maybeSingle();
+ if(settingsError)throw settingsError;
+ if(settings){openingBalance=Number(settings.opening_balance||0)}else{const {error:settingsInsertError}=await supabaseClient.from('apartment_settings').insert({user_id:userId,opening_balance:0});if(settingsInsertError)throw settingsInsertError;openingBalance=0}
  const migrationKey='mcf_cloud_migrated_'+userId;
  let localEntries=[];
  try{localEntries=JSON.parse(localStorage.getItem(LOCAL_DATA_KEY)||'[]');if(!Array.isArray(localEntries))localEntries=[]}catch{localEntries=[]}
@@ -271,27 +318,27 @@ async function loadEntries(userId){
    localStorage.setItem(migrationKey,'1');
    const {data:refreshed,error:refreshError}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,created_at').eq('user_id',userId).order('transaction_date',{ascending:false});
    if(refreshError)throw refreshError;
-   entries=(refreshed||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date}));
+   entries=(refreshed||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,status:row.status||'recorded'}));
   }else localStorage.setItem(migrationKey,'skipped');
  }else if(!localStorage.getItem(migrationKey))localStorage.setItem(migrationKey,'1');
  render();
 }
 function openModal(type){
  if(!currentUser){setMessage('Entre na sua conta antes de adicionar lançamentos.','error');return}
- currentType=type;$('modalTitle').textContent=type==='income'?'Nova receita':'Nova despesa';$('entryForm').reset();
+ currentType=type;$('modalTitle').textContent=type==='income'?'Registrar aporte':'Adicionar conta';$('entryForm').reset();$('entryStatus').value=type==='income'?'paid':'pending';
  $('category').innerHTML=categories[type].map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join('');
  $('date').value=localDateString();$('modal').classList.add('open');$('description').focus();
 }
 async function saveEntry(event){
  event.preventDefault();if(saveInProgress)return;
  if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
- const description=$('description').value.trim(),amount=Math.round(Number($('amount').value)*100)/100,date=$('date').value,category=$('category').value;
+ const description=$('description').value.trim(),amount=Math.round(Number($('amount').value)*100)/100,date=$('date').value,category=$('category').value,status=$('entryStatus').value;
  if(!description||!Number.isFinite(amount)||amount<=0||!date||!category){window.alert('Confira a descrição, o valor, a categoria e a data.');return}
  saveInProgress=true;const button=$('entryForm').querySelector('button[type="submit"]');button.disabled=true;button.textContent='Salvando...';
  try{
-  const row={user_id:currentUser.id,type:currentType,description,amount,category,transaction_date:date};
-  const {data,error}=await supabaseClient.from('transactions').insert(row).select('id,type,description,amount,category,transaction_date').single();if(error)throw error;
-  entries.unshift({id:data.id,type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date});
+  const row={user_id:currentUser.id,type:currentType,description,amount,category,transaction_date:date,status};
+  const {data,error}=await supabaseClient.from('transactions').insert(row).select('id,type,description,amount,category,transaction_date,status').single();if(error)throw error;
+  entries.unshift({id:data.id,type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date,status:data.status||'recorded'});
   render();$('modal').classList.remove('open');setMessage('Lançamento salvo e sincronizado.','success');
  }catch(error){window.alert('Não foi possível salvar: '+friendlyError(error))}
  finally{saveInProgress=false;button.disabled=false;button.textContent='Salvar lançamento'}
@@ -316,7 +363,7 @@ function shiftMonth(offset){
 }
 function exportCsv(){
  if(!entries.length){window.alert('Não há lançamentos para exportar.');return}
- const rows=[['Data','Tipo','Descrição','Categoria','Valor'],...entries.map(e=>[e.date,e.type==='income'?'Receita':'Despesa',e.description,e.category,e.amount.toFixed(2).replace('.',',')])];
+ const rows=[['Data','Tipo','Descrição','Categoria','Situação','Valor'],...entries.map(e=>[e.date,e.type==='income'?'Aporte':'Conta',e.description,e.category,statusLabels[e.status]||'Registrado',e.amount.toFixed(2).replace('.',',')])];
  const csv='\uFEFF'+rows.map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(';')).join('\r\n');
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='meu-controle-financeiro.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
 }
@@ -355,7 +402,7 @@ function initializeSupabase(){
  $('rememberLogin').addEventListener('change',()=>{const stored=storageAdapter.getItem(STORAGE_KEY);if(stored!==null)storageAdapter.setItem(STORAGE_KEY,stored)});
  supabaseClient.auth.onAuthStateChange((event,session)=>{
   // O callback deve permanecer síncrono; operações Supabase são agendadas após seu retorno.
-  if(event==='SIGNED_OUT'){resetUserData();showDashboard(null);return}
+  if(event==='SIGNED_OUT'){resetUserData();openingBalance=0;showDashboard(null);return}
   if(session&&['INITIAL_SESSION','SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED'].includes(event)){
    queueMicrotask(()=>activateUser(session.user).catch(error=>setMessage('Sessão ativa, mas não foi possível carregar os lançamentos: '+friendlyError(error),'error',error)));
   }
@@ -375,8 +422,8 @@ function initializeApp(){
  $('authForm').addEventListener('submit',handleAuthForm);$('resetBtn').addEventListener('click',requestPasswordReset);
  $('logoutBtn').addEventListener('click',logout);$('addIncome').addEventListener('click',()=>openModal('income'));$('addExpense').addEventListener('click',()=>openModal('expense'));
  $('cancelBtn').addEventListener('click',()=>$('modal').classList.remove('open'));$('entryForm').addEventListener('submit',saveEntry);
- $('transactions').addEventListener('click',event=>{const button=event.target.closest('[data-delete]');if(button)deleteEntry(button.dataset.delete,button)});
- $('typeFilter').addEventListener('change',render);$('monthPicker').addEventListener('change',render);
+ $('transactions').addEventListener('click',event=>{const payButton=event.target.closest('[data-paid]');if(payButton){updateEntryStatus(payButton.dataset.paid,payButton);return}const button=event.target.closest('[data-delete]');if(button)deleteEntry(button.dataset.delete,button)});
+ $('typeFilter').addEventListener('change',render);$('statusFilter').addEventListener('change',render);$('monthPicker').addEventListener('change',render);$('saveOpeningBalance').addEventListener('click',saveOpeningBalance);
  $('prevMonth').addEventListener('click',()=>shiftMonth(-1));$('nextMonth').addEventListener('click',()=>shiftMonth(1));$('exportBtn').addEventListener('click',exportCsv);
  setupPasswordFeedback();setupInstallPrompt();setupServiceWorker();initializeSupabase();
  window.addEventListener('error',event=>console.error('Erro JavaScript:',event.error||event.message));
