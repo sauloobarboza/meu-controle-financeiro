@@ -319,7 +319,7 @@ function setAuthBusy(busy,action=''){
  if($('signupBtn'))$('signupBtn').textContent=busy&&action==='signup'?'Criando conta...':'Criar minha conta';
 }
 function showDashboard(user){
- currentUser=user||null;$('authPanel').hidden=true;$('dashboard').hidden=!user;$('logoutBtn').hidden=true;$('userEmail').textContent='';
+ currentUser=user||null;$('authPanel').hidden=!!user;$('dashboard').hidden=!user;$('logoutBtn').hidden=true;$('userEmail').textContent='';
  if(!user)$('appNotice').hidden=true;
 }
 function resetUserData(){entries=[];currentUser=null;activeUserId=null;entriesLoadedForUser=null;loadingPromise=null;render()}
@@ -591,7 +591,7 @@ function initializeSupabase(){
  };
  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storage:storageAdapter,storageKey:STORAGE_KEY,persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
  supabaseClient.auth.onAuthStateChange((event,session)=>{
-  if(event==='SIGNED_OUT'){resetUserData();openingBalance=0;showDashboard(null);return}
+  if(event==='SIGNED_OUT'){resetUserData();openingBalance=0;showDashboard(null);queueMicrotask(ensureAnonymousSession);return}
   if(session&&['INITIAL_SESSION','SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED'].includes(event)){
    queueMicrotask(()=>activateUser(session.user).catch(error=>setMessage('Sessão ativa, mas não foi possível carregar os movimentações: '+friendlyError(error),'error',error)));
   }
