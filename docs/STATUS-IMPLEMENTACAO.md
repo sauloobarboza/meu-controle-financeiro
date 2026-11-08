@@ -22,8 +22,8 @@ Implementação em branch separada: `aurora/reforma-completa-2026-11`. A versão
 - Atalhos PWA Novo gasto e Falar; cache atualizado para v14.
 - Assistente com contexto de lançamentos próximo de hoje, até 10 ações por comando, repetição até 36 meses e prévia com confirmação.
 - RPC transacional `apply_transaction_batch` para criação/edição em lote sem gravação parcial.
-- Remoção do bloco de gráficos antigos ocultos e das funções de gráfico que não eram usadas.
-- Melhorias de acessibilidade: alvos de toque de 44 px, texto mínimo de 12 px em componentes pequenos e foco visível.
+- Remoção do bloco de gráficos antigos ocultos, funções de gráfico sem uso e 61 regras CSS legadas sem referência.
+- Melhorias de acessibilidade: alvos de toque de 44 px, texto mínimo de 12 px, foco visível e ícones SVG consistentes para navegação e voz.
 
 ## Banco de dados e segurança
 
@@ -33,7 +33,7 @@ Implementação em branch separada: `aurora/reforma-completa-2026-11`. A versão
 - Os 109 lançamentos existentes foram preservados; nenhuma alteração em massa de status foi executada.
 - As políticas RLS de SELECT, INSERT, UPDATE e DELETE de `transactions` continuam limitadas a `auth.uid() = user_id`.
 - RPC usa `SECURITY INVOKER`, valida `auth.uid()`, não tem permissão de execução para anon e não faz exclusões.
-- Edge Function `aurora-assistant` ativa na versão 7, com JWT obrigatório.
+- Edge Function `aurora-assistant` ativa na versão 8, com JWT obrigatório.
 
 ## Ainda depende de validação ou configuração
 
