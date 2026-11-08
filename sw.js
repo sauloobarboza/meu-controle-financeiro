@@ -1,4 +1,4 @@
-const CACHE='mcf-cache-v3';
+const CACHE='mcf-cache-v4';
 const FILES=['./','./index.html','./manifest.webmanifest','./icons/icon.svg'];
 const STATIC_URLS=new Set(FILES.map(path=>new URL(path,self.registration.scope).href));
 
