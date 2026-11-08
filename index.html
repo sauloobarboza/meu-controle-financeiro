@@ -477,7 +477,7 @@ async function loadEntries(userId){
  if(!userId||!currentUser||currentUser.id!==userId)throw new Error('Sessão inválida. Entre novamente.');
  const {data,error}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,status,created_at,series_id,needs_review').eq('user_id',userId).order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
  if(error)throw error;
- entries=(data||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,status:row.status||'recorded',series_id:row.series_id||null,needs_review:!!row.needs_review}));
+ entries=(data||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,created_at:row.created_at||null,status:row.status||'recorded',series_id:row.series_id||null,needs_review:!!row.needs_review}));
  const {data:settings,error:settingsError}=await supabaseClient.from('apartment_settings').select('opening_balance').eq('user_id',userId).maybeSingle();
  if(settingsError)throw settingsError;
  if(settings){openingBalance=Number(settings.opening_balance||0)}else{const {error:settingsInsertError}=await supabaseClient.from('apartment_settings').insert({user_id:userId,opening_balance:0});if(settingsInsertError)throw settingsInsertError;openingBalance=0}
@@ -799,7 +799,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   const out=current.filter(e=>e.type==='expense'&&realized(e)).reduce((s,e)=>s+e.amount,0);
   $('newBalance').textContent=fmt(balance);$('newHomeIncome').textContent=fmt(inc);$('newHomeExpense').textContent=fmt(out);$('newCurrentMonth').textContent=monthTitle(selected);
   $('newUserEmail').textContent=currentUser.email||'';
-  const recent=entries.slice().sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id))).slice(0,5);
+  const recent=entries.slice().sort((a,b)=>b.date.localeCompare(a.date)||((Date.parse(b.created_at||'')||0)-(Date.parse(a.created_at||'')||0))).slice(0,5);
   $('newRecent').innerHTML=recent.length?recent.map(rowHtml).join(''):'<div class="aurora-empty">Seu histórico começa no primeiro lançamento. ✨</div>';
   const due=entries.filter(e=>e.type==='expense'&&!realized(e)&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
   $('newUpcoming').innerHTML=due.length?due.map(rowHtml).join(''):'<div class="aurora-empty">Nenhuma conta futura cadastrada.</div>';
