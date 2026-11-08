@@ -1,7 +1,7 @@
 {
-  "name": "Controle do Apartamento",
-  "short_name": "Apartamento",
-  "description": "Aportes, contas, pagamentos e saldo acumulado do apartamento",
+  "name": "AURORA — Controle Financeiro",
+  "short_name": "AURORA",
+  "description": "Controle financeiro pessoal, contas e projeções",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
@@ -13,6 +13,32 @@
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Novo gasto",
+      "short_name": "Novo gasto",
+      "description": "Abrir lançamento rápido de despesa",
+      "url": "./?action=new-expense",
+      "icons": [
+        {
+          "src": "icons/icon.svg",
+          "sizes": "any"
+        }
+      ]
+    },
+    {
+      "name": "Falar",
+      "short_name": "Falar",
+      "description": "Abrir o assistente por voz",
+      "url": "./?action=voice",
+      "icons": [
+        {
+          "src": "icons/icon.svg",
+          "sizes": "any"
+        }
+      ]
     }
   ]
 }
