@@ -481,20 +481,11 @@ async function loadEntries(userId){
  const {data:settings,error:settingsError}=await supabaseClient.from('apartment_settings').select('opening_balance').eq('user_id',userId).maybeSingle();
  if(settingsError)throw settingsError;
  if(settings){openingBalance=Number(settings.opening_balance||0)}else{const {error:settingsInsertError}=await supabaseClient.from('apartment_settings').insert({user_id:userId,opening_balance:0});if(settingsInsertError)throw settingsInsertError;openingBalance=0}
- loadUserCategories(userId);const migrationKey='mcf_cloud_migrated_'+userId;
- let localEntries=[];
- try{localEntries=JSON.parse(localStorage.getItem(LOCAL_DATA_KEY)||'[]');if(!Array.isArray(localEntries))localEntries=[]}catch{localEntries=[]}
- if(entries.length===0&&localEntries.length&&!localStorage.getItem(migrationKey)){
-  const shouldImport=window.confirm('Encontramos '+localEntries.length+' lançamento(s) salvos neste aparelho. Deseja importar para sua conta?');
-  if(shouldImport){
-   const rows=localEntries.filter(item=>['income','expense'].includes(item.type)&&String(item.description||'').trim()&&Number(item.amount)>0&&item.category&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)).map(item=>({user_id:userId,type:item.type,description:String(item.description).trim(),amount:Number(item.amount),category:String(item.category),transaction_date:item.date}));
-   if(rows.length){const {error:insertError}=await supabaseClient.from('transactions').insert(rows);if(insertError)throw insertError}
-   localStorage.setItem(migrationKey,'1');
-   const {data:refreshed,error:refreshError}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,created_at').eq('user_id',userId).order('transaction_date',{ascending:false});
-   if(refreshError)throw refreshError;
-   entries=(refreshed||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,status:row.status||'recorded'}));
-  }else localStorage.setItem(migrationKey,'skipped');
- }else if(!localStorage.getItem(migrationKey))localStorage.setItem(migrationKey,'1');
+ loadUserCategories(userId);
+ // AURORA 3.0 começa com histórico limpo: remove apenas o legado fictício deste aparelho.
+ // A fila offline atual é preservada e sincronizada separadamente.
+ localStorage.removeItem(LOCAL_DATA_KEY);
+ localStorage.setItem('mcf_cloud_migrated_'+userId,'1');
  render();
 }
 function openModal(type,id=null){
