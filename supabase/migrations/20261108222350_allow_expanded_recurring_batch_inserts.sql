@@ -32,7 +32,7 @@ begin
          or coalesce((item.value->>'amount')::numeric, 0) <= 0
          or nullif(btrim(item.value->>'category'), '') is null
          or coalesce(item.value->>'status', '') not in ('paid', 'pending')
-         or coalesce(item.value->>'transaction_date', '') !~ '^\\d{4}-\\d{2}-\\d{2}$'
+         or coalesce(item.value->>'transaction_date', '') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
     ) then raise exception 'Invalid transaction in create batch'; end if;
     insert into public.transactions (
       id, user_id, type, description, amount, category,
