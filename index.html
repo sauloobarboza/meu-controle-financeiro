@@ -15,6 +15,23 @@
 
 .authwrap{max-width:480px;margin:28px auto;padding:18px}.authcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.authcard h1{font-size:22px;margin:0 0 8px}.authcard p{color:var(--muted);margin:0 0 18px}.authcard input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 12px}.authactions{display:flex;gap:8px;flex-wrap:wrap}.password-field{position:relative}.authcard .password-field input{padding-right:52px}.toggle-password{position:absolute;right:7px;top:28px;height:36px;min-width:38px;border:0;border-radius:8px;background:#eef1f7;color:#263247;font-size:19px;display:grid;place-items:center}.toggle-password:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.authmsg{font-size:13px;margin-top:12px;padding:12px;border-radius:10px;background:#eef2ff;color:var(--blue);min-height:20px;white-space:pre-wrap}.authmsg[data-state="error"]{background:#fff0f1;color:#bd3341}.authmsg[data-state="success"]{background:#eaf8f1;color:#14734f}.notice{max-width:1080px;margin:14px auto 0;padding:0 18px}.notice .authmsg{margin:0}.authdebug{margin-top:10px;font-size:12px;color:var(--muted)}.authdebug pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f6f7fa;padding:10px;border-radius:8px}.account{display:flex;align-items:center;gap:8px;color:#fff;font-size:12px}.account button{background:#293449;color:#fff;border:1px solid #536078;border-radius:9px;padding:8px 10px}
 [hidden]{display:none!important}
+
+/* Login redesign — azul */
+body:has(#authPanel:not([hidden])){background:#f4f7ff}
+.authwrap{max-width:1120px;margin:34px auto;padding:0 18px;display:grid;grid-template-columns:1.05fr .95fr;min-height:640px;background:#fff;border:1px solid #e4eaf7;border-radius:28px;overflow:hidden;box-shadow:0 24px 70px #12356b18}
+.authvisual{position:relative;isolation:isolate;overflow:hidden;padding:42px 42px 28px;background:linear-gradient(145deg,#071b49 0%,#0b3d91 52%,#1675db 100%);color:#fff;display:flex;flex-direction:column;justify-content:space-between;min-height:640px}
+.visual-glow{position:absolute;z-index:-1;width:440px;height:440px;border-radius:50%;right:-150px;top:100px;background:radial-gradient(circle,#55b7ff55,transparent 68%);filter:blur(5px);animation:floatGlow 7s ease-in-out infinite alternate}
+@keyframes floatGlow{from{transform:translate(-25px,15px) scale(.9)}to{transform:translate(20px,-20px) scale(1.12)}}
+.visual-top{display:flex;align-items:center;gap:11px;font-size:10px;letter-spacing:2px;font-weight:800;color:#c8e2ff}.visual-mark{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#ffffff20;font-size:19px}
+.visual-copy{margin:38px 0 24px}.eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:#9bcaff}.visual-copy h2{font-size:clamp(34px,4vw,49px);line-height:1.08;letter-spacing:-1.8px;margin:14px 0}.visual-copy h2 em{font-style:normal;color:#7cc8ff}.visual-copy p{max-width:350px;color:#d1e5ff;line-height:1.7;font-size:14px}
+.preview-card{background:#ffffff12;border:1px solid #ffffff35;border-radius:19px;padding:20px;backdrop-filter:blur(12px);box-shadow:0 15px 40px #00133c30;animation:cardFloat 5s ease-in-out infinite alternate}
+@keyframes cardFloat{from{transform:translateY(0)}to{transform:translateY(-7px)}}
+.preview-head,.preview-foot{display:flex;align-items:center;justify-content:space-between;gap:8px}.preview-head{font-size:12px;color:#e4f2ff}.live-dot{font-size:9px;letter-spacing:1px;color:#a8f2d0}.preview-label{font-size:11px;color:#c4dcf7;margin-top:22px}.preview-value{font-size:31px;font-weight:800;letter-spacing:-1px;margin:3px 0 12px}.preview-chart{height:85px;display:flex;align-items:end;gap:8px;border-bottom:1px solid #ffffff30;padding:0 2px}.preview-chart i{display:block;flex:1;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#8dd7ff,#4b9cf0);opacity:.9;animation:chartPulse 2.8s ease-in-out infinite alternate}.preview-chart i:nth-child(2n){animation-delay:.5s}.preview-chart i:nth-child(3n){animation-delay:1s}@keyframes chartPulse{to{filter:brightness(1.25);transform:scaleY(.9);transform-origin:bottom}}.preview-foot{display:grid;grid-template-columns:1fr auto;row-gap:9px;margin-top:15px;font-size:11px;color:#d8eaff}.preview-foot strong{color:#fff}.mini-green{color:#82f0bd}.mini-red{color:#ffb4bd}.visual-bottom{font-size:11px;color:#c7e1ff;margin-top:25px}.visual-bottom span{color:#8ef0c1;margin-right:7px}
+.auth-side{padding:45px clamp(26px,5vw,62px);display:flex;flex-direction:column;justify-content:center}.auth-brand{display:flex;align-items:center;gap:10px;font-size:14px;color:#263c62;font-weight:600;margin-bottom:48px}.brand-icon{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#e8f2ff;color:#1260c5;font-size:21px}.auth-intro{margin-bottom:26px}.blue-eyebrow{color:#2876d2}.auth-intro h1{font-size:29px;letter-spacing:-.8px;color:#122b50;margin:9px 0}.auth-intro p{font-size:13px;color:#71809a;margin:0;line-height:1.6}
+.auth-side .field{margin:17px 0}.auth-side .field span{font-size:12px;font-weight:700;color:#344b6d;margin-bottom:7px}.auth-side .field input{width:100%;padding:13px 14px;border:1px solid #dce5f2;border-radius:11px;background:#fbfdff;color:#152d50;outline:none;transition:border .2s,box-shadow .2s}.auth-side .field input:focus{border-color:#3989e8;box-shadow:0 0 0 4px #2c83e51a}.auth-side .password-field{position:relative}.auth-side .password-field input{padding-right:53px}.auth-side .toggle-password{top:29px;right:7px;background:#edf4fd;color:#2867b0}.password-meter{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:-8px}.password-meter>span{height:4px;flex:1;border-radius:9px;background:#e6ebf3}.password-meter[data-level="1"]>span:nth-child(1){background:#e4a34c}.password-meter[data-level="2"]>span:nth-child(-n+2){background:#3c91dc}.password-meter[data-level="3"]>span{background:#20a878}.password-meter small{width:100%;font-size:10px;color:#8794a8;margin-top:3px}.auth-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:17px 0 20px}.remember{display:flex;align-items:center;gap:7px;font-size:11px;color:#697c98}.remember input{accent-color:#176bd0}.text-button{border:0;background:none;color:#176bd0;font-size:11px;font-weight:700;padding:4px}.auth-side .authactions{display:grid;gap:10px}.auth-submit{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;background:linear-gradient(100deg,#1457b8,#197ee4);box-shadow:0 8px 18px #176bd033}.auth-submit span{font-size:18px;transition:transform .2s}.auth-submit:hover span{transform:translateX(4px)}.auth-signup{width:100%;padding:13px;background:#edf5ff;color:#185db2;border:1px solid #d7e8fc}.auth-side .authmsg{margin-top:16px;font-size:12px}.auth-privacy{margin-top:25px;text-align:center;font-size:10px;color:#8b9ab0}.auth-privacy span{color:#2475ce;margin-right:5px}
+@media(max-width:760px){.authwrap{display:flex;flex-direction:column;margin:12px auto;padding:0;border-radius:21px;min-height:0}.authvisual{min-height:0;padding:22px 23px 20px}.visual-top{font-size:9px}.visual-copy{margin:25px 0 17px}.visual-copy h2{font-size:34px}.visual-copy p{font-size:12px;margin-bottom:0}.preview-card{padding:15px}.preview-value{font-size:26px}.preview-chart{height:55px}.visual-bottom{margin-top:15px}.auth-side{padding:29px 24px 25px}.auth-brand{margin-bottom:27px}.auth-intro h1{font-size:25px}}
+@media(prefers-reduced-motion:reduce){.visual-glow,.preview-card,.preview-chart i{animation:none}}
+
 </style>
 </head>
 <body>
@@ -23,7 +40,25 @@
  <div class="month"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
 </header>
 <div class="notice" id="appNotice" hidden><div class="authmsg" id="appNoticeMessage" role="status" aria-live="polite"></div></div>
-<section class="authwrap" id="authPanel"><div class="authcard"><h1>Acesse seu controle financeiro</h1><p>Entre ou crie sua conta para sincronizar seus lançamentos com segurança.</p><form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label><label class="field password-field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"><button class="toggle-password" id="togglePassword" type="button" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></label><div class="authactions"><button class="btn primary" type="submit" id="loginBtn" data-auth-action="login">Entrar</button><button class="btn secondary" type="submit" id="signupBtn" data-auth-action="signup">Criar conta</button><button class="btn secondary" type="button" id="resetBtn">Esqueci a senha</button></div></form><div class="authmsg" id="authMessage" data-state="info" role="status" aria-live="polite">Carregando autenticação...</div><details class="authdebug" id="authDebug" hidden><summary>Detalhes técnicos do erro</summary><pre id="authDebugText"></pre></details></div></section>
+<section class="authwrap" id="authPanel">
+ <div class="authvisual" aria-label="Prévia do controle financeiro">
+  <div class="visual-glow"></div><div class="visual-top"><span class="visual-mark">✦</span><span>SEU DINHEIRO, SOB CONTROLE</span></div>
+  <div class="visual-copy"><span class="eyebrow">PLANEJE · ACOMPANHE · CONQUISTE</span><h2>Mais clareza.<br><em>Mais tranquilidade.</em></h2><p>Uma visão simples e inteligente para cuidar do seu dinheiro todos os meses.</p></div>
+  <div class="preview-card"><div class="preview-head"><span>Visão do mês</span><span class="live-dot">● AO VIVO</span></div><div class="preview-label">Saldo disponível</div><div class="preview-value" id="previewBalance">R$ 4.280,50</div><div class="preview-chart"><i style="height:35%"></i><i style="height:52%"></i><i style="height:43%"></i><i style="height:68%"></i><i style="height:58%"></i><i style="height:82%"></i><i style="height:100%"></i><i style="height:76%"></i><i style="height:91%"></i></div><div class="preview-foot"><span><b class="mini-green">↗</b> Receitas</span><strong>R$ 5.800,00</strong><span><b class="mini-red">↘</b> Despesas</span><strong>R$ 1.519,50</strong></div></div>
+  <div class="visual-bottom"><span>●</span> Seus dados protegidos e sincronizados</div>
+ </div>
+ <div class="auth-side"><div class="auth-brand"><span class="brand-icon">₿</span><span>Meu Controle <b>Financeiro</b></span></div>
+  <div class="auth-intro"><span class="eyebrow blue-eyebrow">BEM-VINDO DE VOLTA</span><h1>Entre na sua conta</h1><p>Acesse seus lançamentos e acompanhe sua vida financeira.</p></div>
+  <form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
+   <label class="field password-field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Digite sua senha"><button class="toggle-password" id="togglePassword" type="button" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></label>
+   <div class="password-meter" id="passwordMeter" aria-live="polite"><span></span><span></span><span></span><small id="passwordHint">Sua senha deve ter ao menos 6 caracteres</small></div>
+   <div class="auth-row"><label class="remember"><input type="checkbox" id="rememberLogin" checked> Manter conectado</label><button class="text-button" type="button" id="resetBtn">Esqueci a senha</button></div>
+   <div class="authactions"><button class="btn primary auth-submit" type="submit" id="loginBtn" data-auth-action="login">Entrar na minha conta <span>→</span></button><button class="btn secondary auth-signup" type="submit" id="signupBtn" data-auth-action="signup">Criar minha conta</button></div>
+  </form>
+  <div class="authmsg" id="authMessage" data-state="info" role="status" aria-live="polite">Carregando autenticação...</div><details class="authdebug" id="authDebug" hidden><summary>Detalhes técnicos do erro</summary><pre id="authDebugText"></pre></details>
+  <div class="auth-privacy"><span>▣</span> Conexão segura · Seus dados são privados</div>
+ </div>
+</section>
 <main class="wrap" id="dashboard" hidden>
  <section class="grid">
   <div class="card metric"><span>Receitas do mês</span><strong class="income" id="incomeTotal">R$ 0,00</strong></div>
@@ -156,6 +191,21 @@ $('togglePassword').addEventListener('click',()=>{
  $('togglePassword').setAttribute('aria-pressed',String(show));
  $('togglePassword').textContent=show?'🙈':'👁';
 });
+
+// Dynamic password feedback for the refreshed login screen.
+$('authPassword').addEventListener('input',()=>{
+ const p=$('authPassword').value;let level=0;
+ if(p.length>=6)level=1;
+ if(p.length>=8&&/[A-Z]/.test(p)&&/[0-9]/.test(p))level=2;
+ if(p.length>=10&&/[A-Z]/.test(p)&&/[0-9]/.test(p)&&/[^A-Za-z0-9]/.test(p))level=3;
+ $('passwordMeter').dataset.level=String(level);
+ $('passwordHint').textContent=!p?'Sua senha deve ter ao menos 6 caracteres':level===1?'Senha básica':level===2?'Senha razoável':'Senha forte';
+});
+$('authEmail').addEventListener('input',()=>{
+ const email=$('authEmail').value.trim();
+ $('authEmail').setAttribute('aria-label',email?'E-mail de acesso: '+email:'E-mail');
+});
+
 let requestedAuthAction='login';
 $('loginBtn').addEventListener('click',()=>requestedAuthAction='login');
 $('signupBtn').addEventListener('click',()=>requestedAuthAction='signup');
