@@ -141,7 +141,7 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 .top,.aurora-bottom-nav,.aurora-hero,.change-center,.apartment-metrics,.simple-months,.simple-reminders,#bills-section,.foot{display:none!important}
 #dashboard{max-width:900px;margin:auto;padding:0 0 34px}
 #auroraNewUI{display:block;padding:22px 22px 35px}
-.aurora-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 20px}
+.aurora-boot{width:min(420px,calc(100% - 32px));margin:15vh auto 0;padding:38px 26px;text-align:center;background:#fff;border:1px solid #e2ebf6;border-radius:24px;box-shadow:0 18px 50px #0b39701a;color:#17385f}.aurora-boot-mark{width:58px;height:58px;margin:0 auto 14px;display:grid;place-items:center;border-radius:19px;background:linear-gradient(145deg,#3da6ff,#1456bd);color:#fff;font-size:30px;box-shadow:0 8px 20px #1768d544;animation:orb 3s ease-in-out infinite alternate}.aurora-boot strong{font-size:18px;letter-spacing:1px}.aurora-boot p{font-size:13px;color:#74839a;line-height:1.6;margin:10px 0 0}.aurora-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 20px}
 .aurora-logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:850;letter-spacing:.5px}
 .aurora-symbol{width:36px;height:36px;display:grid;place-items:center;color:#fff;border-radius:13px;background:linear-gradient(145deg,#3da6ff,#1456bd);box-shadow:0 8px 20px #1768d544;transform:rotate(-8deg)}
 .aurora-user{display:flex;align-items:center;gap:9px;color:#74839a;font-size:12px}.aurora-user button{border:1px solid #dce6f3;background:#fff;color:#35516f;border-radius:10px;padding:8px 11px}
@@ -185,29 +185,13 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
  <div class="month" id="globalMonthControl" data-screen="months"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
 </header>
 <div class="notice" id="appNotice" hidden><div class="authmsg" id="appNoticeMessage" role="status" aria-live="polite"></div></div>
-<section class="authwrap" id="authPanel">
- <div class="authvisual" aria-label="Prévia do controle financeiro">
-  <div class="visual-glow"></div><div class="visual-top"><span class="visual-mark">✦</span><span>SEU DINHEIRO, SOB CONTROLE</span></div>
-  <div class="visual-copy"><span class="eyebrow">PLANEJE · ACOMPANHE · CONQUISTE</span><h2>Mais clareza.<br><em>Mais tranquilidade.</em></h2><p>Uma visão simples e inteligente para cuidar do seu dinheiro todos os meses.</p></div>
-  <div class="preview-card"><div class="preview-head"><span>Visão do mês</span><span class="live-dot">● AO VIVO</span></div><div class="preview-label">Seu dinheiro, em um só lugar</div><div class="preview-value" id="previewBalance">R$ —</div><div class="preview-chart"><i style="height:35%"></i><i style="height:52%"></i><i style="height:43%"></i><i style="height:68%"></i><i style="height:58%"></i><i style="height:82%"></i><i style="height:100%"></i><i style="height:76%"></i><i style="height:91%"></i></div><div class="preview-foot"><span><b class="mini-green">↑</b> Receitas</span><strong>Entradas</strong><span><b class="mini-red">↓</b> Saídas</span><strong>Acumulado</strong></div></div>
-  <div class="visual-bottom"><span>●</span> Seus dados protegidos e sincronizados</div>
- </div>
- <div class="auth-side"><div class="auth-brand"><span class="brand-icon">₿</span><span><b>AURORA</b> · Seu controle financeiro</span></div>
-  <div class="auth-intro"><span class="eyebrow blue-eyebrow">BEM-VINDO DE VOLTA</span><h1>Entre na sua conta</h1><p>Acesse seus lançamentos e acompanhe sua vida financeira.</p></div>
-  <form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
-   <label class="field password-field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Digite sua senha"><button class="toggle-password" id="togglePassword" type="button" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">Mostrar</button></label>
-   <div class="password-meter" id="passwordMeter" aria-live="polite"><span></span><span></span><span></span><small id="passwordHint">Sua senha deve ter ao menos 6 caracteres</small></div>
-   <div class="auth-row"><label class="remember"><input type="checkbox" id="rememberLogin" checked> Manter conectado</label><button class="text-button" type="button" id="resetBtn">Esqueci a senha</button></div>
-   <div class="authactions"><button class="btn primary auth-submit" type="submit" id="loginBtn" data-auth-action="login">Entrar na minha conta <span>→</span></button><button class="btn secondary auth-signup" type="submit" id="signupBtn" data-auth-action="signup">Criar minha conta</button></div>
-  </form>
-  <div class="authmsg" id="authMessage" data-state="info" role="status" aria-live="polite">Carregando autenticação...</div><details class="authdebug" id="authDebug" hidden><summary>Detalhes técnicos do erro</summary><pre id="authDebugText"></pre></details>
-  <div class="auth-privacy"><span>▣</span> Conexão segura · Seus dados são privados</div>
- </div>
+<section id="authPanel" class="aurora-boot" role="status" aria-live="polite">
+ <div class="aurora-boot-mark">✦</div><strong>AURORA</strong><p id="bootMessage">Preparando seu espaço financeiro...</p>
 </section>
 <main class="wrap" id="dashboard" hidden>
 
 <div id="auroraNewUI" hidden>
- <header class="aurora-head"><div class="aurora-logo"><span class="aurora-symbol">✦</span><span>AURORA</span></div><div class="aurora-user"><span id="newUserEmail"></span><button type="button" id="newLogout">Sair</button></div></header>
+ <header class="aurora-head"><div class="aurora-logo"><span class="aurora-symbol">✦</span><span>AURORA</span></div><div class="aurora-user"><span>Seu controle financeiro</span></div></header>
  <section class="aurora-page active" data-new-page="home">
   <div class="aurora-balance"><div class="aurora-kicker">MEU DINHEIRO HOJE</div><div class="aurora-money" id="newBalance">R$ 0,00</div><div class="aurora-balance-sub">Seu saldo acumulado até agora</div><div class="aurora-balance-foot"><span id="newBalanceHint">Tudo em um só lugar.</span><strong id="newCurrentMonth"></strong></div></div>
   <div class="aurora-actions"><button class="aurora-action out" id="newExpense"><span class="action-icon">↗</span><span>Lançar saída<small>Registre um gasto</small></span></button><button class="aurora-action in" id="newIncome"><span class="action-icon">↙</span><span>Adicionar entrada<small>Registre um recebimento</small></span></button></div>
@@ -312,7 +296,7 @@ function localDateString(date=new Date()){
 }
 function money(value){return Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
 function setMessage(message,state='info',error=null){
- const box=$('authMessage');if(box){box.textContent=message;box.dataset.state=state}
+ const box=$('authMessage');if(box){box.textContent=message;box.dataset.state=state}const boot=$('bootMessage');if(boot&&!$('dashboard').hidden)boot.textContent=message;
  const notice=$('appNotice');
  if(notice&&!$('dashboard').hidden){notice.hidden=false;$('appNoticeMessage').textContent=message;$('appNoticeMessage').dataset.state=state}
  const debug=$('authDebug');
@@ -330,12 +314,12 @@ function friendlyError(error){
  return msg;
 }
 function setAuthBusy(busy,action=''){
- $('loginBtn').disabled=busy;$('signupBtn').disabled=busy;$('resetBtn').disabled=busy;
- $('loginBtn').innerHTML=busy&&action==='login'?'Entrando...':'Entrar na minha conta <span>→</span>';
- $('signupBtn').textContent=busy&&action==='signup'?'Criando conta...':'Criar minha conta';
+ if($('loginBtn'))$('loginBtn').disabled=busy;if($('signupBtn'))$('signupBtn').disabled=busy;if($('resetBtn'))$('resetBtn').disabled=busy;
+ if($('loginBtn'))$('loginBtn').innerHTML=busy&&action==='login'?'Entrando...':'Entrar na minha conta <span>→</span>';
+ if($('signupBtn'))$('signupBtn').textContent=busy&&action==='signup'?'Criando conta...':'Criar minha conta';
 }
 function showDashboard(user){
- currentUser=user||null;$('authPanel').hidden=!!user;$('dashboard').hidden=!user;$('logoutBtn').hidden=!user;$('userEmail').textContent=user?.email||'';
+ currentUser=user||null;$('authPanel').hidden=true;$('dashboard').hidden=!user;$('logoutBtn').hidden=true;$('userEmail').textContent='';
  if(!user)$('appNotice').hidden=true;
 }
 function resetUserData(){entries=[];currentUser=null;activeUserId=null;entriesLoadedForUser=null;loadingPromise=null;render()}
@@ -599,30 +583,36 @@ function setupServiceWorker(){
  });
 }
 function initializeSupabase(){
- if(!window.supabase?.createClient){setMessage('Não foi possível carregar o Supabase. Verifique sua conexão e atualize a página.','error');return}
+ if(!window.supabase?.createClient){setMessage('Não foi possível carregar o serviço de dados. Verifique sua conexão e atualize a página.','error');return}
  const storageAdapter={
-  getItem(key){try{const preferred=$('rememberLogin').checked?localStorage:sessionStorage,other=$('rememberLogin').checked?sessionStorage:localStorage;let value=preferred.getItem(key);if(value!==null)return value;value=other.getItem(key);if(value!==null){preferred.setItem(key,value);other.removeItem(key)}return value}catch{return null}},
-  setItem(key,value){try{const preferred=$('rememberLogin').checked?localStorage:sessionStorage,other=$('rememberLogin').checked?sessionStorage:localStorage;preferred.setItem(key,value);other.removeItem(key)}catch(error){console.warn('Falha ao persistir sessão:',error)}},
+  getItem(key){try{return localStorage.getItem(key)}catch{return null}},
+  setItem(key,value){try{localStorage.setItem(key,value)}catch(error){console.warn('Falha ao salvar sessão:',error)}},
   removeItem(key){try{localStorage.removeItem(key);sessionStorage.removeItem(key)}catch(error){console.warn('Falha ao limpar sessão:',error)}}
  };
- supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storage:storageAdapter,storageKey:STORAGE_KEY,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
- $('rememberLogin').addEventListener('change',()=>{const stored=storageAdapter.getItem(STORAGE_KEY);if(stored!==null)storageAdapter.setItem(STORAGE_KEY,stored)});
+ supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storage:storageAdapter,storageKey:STORAGE_KEY,persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
  supabaseClient.auth.onAuthStateChange((event,session)=>{
-  // O callback deve permanecer síncrono; operações Supabase são agendadas após seu retorno.
   if(event==='SIGNED_OUT'){resetUserData();openingBalance=0;showDashboard(null);return}
   if(session&&['INITIAL_SESSION','SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED'].includes(event)){
-   queueMicrotask(()=>activateUser(session.user).catch(error=>setMessage('Sessão ativa, mas não foi possível carregar os lançamentos: '+friendlyError(error),'error',error)));
-  }
-  if(event==='PASSWORD_RECOVERY'){
-   queueMicrotask(async()=>{
-    const password=window.prompt('Digite sua nova senha (mínimo de 6 caracteres):');if(!password)return;
-    if(password.length<6){setMessage('A nova senha precisa ter pelo menos 6 caracteres.','error');return}
-    const {error}=await supabaseClient.auth.updateUser({password});
-    if(error)setMessage('Não foi possível atualizar a senha: '+friendlyError(error),'error',error);else setMessage('Senha atualizada com sucesso.','success');
-   });
+   queueMicrotask(()=>activateUser(session.user).catch(error=>setMessage('Sessão ativa, mas não foi possível carregar os movimentações: '+friendlyError(error),'error',error)));
   }
  });
- setMessage('Autenticação pronta. Entre ou crie sua conta.','success');
+ ensureAnonymousSession();
+}
+async function ensureAnonymousSession(){
+ try{
+  const {data,error}=await supabaseClient.auth.getSession();
+  if(error)throw error;
+  if(data?.session?.user){await activateUser(data.session.user);return}
+  const {data:anonymous,error:signInError}=await supabaseClient.auth.signInAnonymously();
+  if(signInError)throw signInError;
+  if(!anonymous?.user)throw new Error('O Supabase não retornou uma sessão anônima.');
+  await activateUser(anonymous.user);
+ }catch(error){
+  const message=/anonymous|disabled|signups not allowed|not enabled/i.test(String(error?.message||''))?
+   'Falta ativar o acesso anônimo no Supabase: Authentication → Sign In / Providers → Allow anonymous sign-ins. Depois, atualize esta página.':
+   'Não foi possível abrir seu controle financeiro automaticamente. '+friendlyError(error);
+  setMessage(message,'error',error);
+ }
 }
 
 async function loadChangeRequests(){
@@ -764,13 +754,12 @@ function setupAuroraNavigation(){
 }
 function initializeApp(){
  $('monthPicker').value=localDateString().slice(0,7);
- $('authForm').addEventListener('submit',handleAuthForm);$('resetBtn').addEventListener('click',requestPasswordReset);
- $('logoutBtn').addEventListener('click',logout);$('addIncome').addEventListener('click',()=>openModal('income'));$('addExpense').addEventListener('click',()=>openModal('expense'));
+$('addIncome').addEventListener('click',()=>openModal('income'));$('addExpense').addEventListener('click',()=>openModal('expense'));
  $('cancelBtn').addEventListener('click',()=>$('modal').classList.remove('open'));$('entryForm').addEventListener('submit',saveEntry);
  $('reminderList').addEventListener('click',event=>{const b=event.target.closest('[data-paid]');if(b)updateEntryStatus(b.dataset.paid,b)});$('transactions').addEventListener('click',event=>{const payButton=event.target.closest('[data-paid]');if(payButton){updateEntryStatus(payButton.dataset.paid,payButton);return}const edit=event.target.closest('[data-edit]');if(edit){const e=entries.find(x=>x.id===edit.dataset.edit);if(e)openModal(e.type,e.id);return}const button=event.target.closest('[data-delete]');if(button)deleteEntry(button.dataset.delete,button)});$('projectionAccountRows').addEventListener('click',event=>{const payButton=event.target.closest('[data-projection-paid]');if(payButton){updateEntryStatus(payButton.dataset.projectionPaid,payButton);return}const edit=event.target.closest('[data-projection-edit]');if(edit){const e=entries.find(x=>x.id===edit.dataset.projectionEdit);if(e)openModal(e.type,e.id)}});
  $('typeFilter').addEventListener('change',render);$('statusFilter').addEventListener('change',render);$('projectionMonthFilter').addEventListener('change',()=>renderProjectionAccounts(projectionMonths().map(m=>({...m}))));$('projectionMonths').addEventListener('click',event=>{const row=event.target.closest('[data-month-open]');if(!row)return;openProjectionMonth(row.dataset.monthOpen)});$('projectionMonths').addEventListener('keydown',event=>{if(event.key!=='Enter'&&event.key!==' ')return;const row=event.target.closest('[data-month-open]');if(!row)return;event.preventDefault();openProjectionMonth(row.dataset.monthOpen)});$('projectionBackBtn').addEventListener('click',()=>setProjectionMode('balance'));$('monthPicker').addEventListener('change',render);$('saveOpeningBalance').addEventListener('click',saveOpeningBalance);
  $('prevMonth').addEventListener('click',()=>shiftMonth(-1));$('nextMonth').addEventListener('click',()=>shiftMonth(1));$('exportBtn').addEventListener('click',exportCsv);
- setProjectionMode('balance');setupAuroraNavigation();const projectionHead=document.querySelector('.projection-head');if(projectionHead&&$('projectionMonthFilter'))projectionHead.appendChild($('projectionMonthFilter'));setupChangeCenter();setupPasswordFeedback();setupInstallPrompt();setupServiceWorker();initializeSupabase();
+ setProjectionMode('balance');setupAuroraNavigation();const projectionHead=document.querySelector('.projection-head');if(projectionHead&&$('projectionMonthFilter'))projectionHead.appendChild($('projectionMonthFilter'));setupChangeCenter();setupInstallPrompt();setupServiceWorker();initializeSupabase();
  window.addEventListener('error',event=>console.error('Erro JavaScript:',event.error||event.message));
  window.addEventListener('unhandledrejection',event=>{console.error('Falha assíncrona:',event.reason);setMessage('Uma operação não foi concluída: '+friendlyError(event.reason),'error',event.reason)});
 }
@@ -835,7 +824,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   $('newHistoryMonth').value=monthKey(new Date());
   $('newExpense').addEventListener('click',()=>openModal('expense'));
   $('newIncome').addEventListener('click',()=>openModal('income'));
-  $('newLogout').addEventListener('click',logout);
   $('auroraNewNav').addEventListener('click',e=>{const b=e.target.closest('[data-new-tab]');if(b)page(b.dataset.newTab)});
   root.addEventListener('click',e=>{const go=e.target.closest('[data-go-page]');if(go){page(go.dataset.goPage);return}const edit=e.target.closest('[data-new-edit]');if(edit)openModal(entries.find(x=>x.id===edit.dataset.newEdit)?.type||'expense',edit.dataset.newEdit)});
   ['newHistoryMonth','newHistoryType','newHistoryStatus','newHistorySearch'].forEach(id=>$(id).addEventListener(id==='newHistorySearch'?'input':'change',renderNewHistory));
