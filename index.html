@@ -219,7 +219,7 @@ function renderCategoryDonut(list){
  if(!total){$('categoryDonut').innerHTML='<div class="chart-empty">Ainda não há despesas neste mês para montar o gráfico.</div>';return}
  let cursor=0,segments=[],legend=[];
  totals.slice(0,7).forEach((item,i)=>{const pct=item.value/total*100,color=palette[i%palette.length];segments.push(color+' '+cursor+'% '+(cursor+pct)+'%');cursor+=pct;legend.push('<div><span><i class="legend-dot" style="background:'+color+'"></i>'+escapeHtml(item.name)+'</span><strong>'+Math.round(pct)+'%</strong></div>')});
- if(totals.length>7){const rest=totals.slice(7).reduce((s,x)=>s+x.value,0),pct=rest/total*100;color=palette[7];segments.push(color+' '+cursor+'% 100%');legend.push('<div><span><i class="legend-dot" style="background:'+color+'"></i>Outras</span><strong>'+Math.round(pct)+'%</strong></div>')}
+ if(totals.length>7){const rest=totals.slice(7).reduce((s,x)=>s+x.value,0),pct=rest/total*100,color=palette[7];segments.push(color+' '+cursor+'% 100%');legend.push('<div><span><i class="legend-dot" style="background:'+color+'"></i>Outras</span><strong>'+Math.round(pct)+'%</strong></div>')}
  $('categoryDonut').innerHTML='<div class="donut-wrap"><div class="donut" style="background:conic-gradient('+segments.join(',')+')"><div class="donut-center"><strong>'+chartMoney(total)+'</strong><span>Total</span></div></div><div class="donut-legend">'+legend.join('')+'</div></div>';
 }
 function renderDailyChart(list){
