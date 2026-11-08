@@ -491,7 +491,7 @@ function saveUndo(record){
  }catch(error){setMessage('Não foi possível desfazer: '+friendlyError(error),'error',error)}};
  if(undoTimer)clearTimeout(undoTimer);undoTimer=setTimeout(()=>{toast.hidden=true;undoRecord=null},6000);
 }
-function saveEntry(event){
+async function saveEntry(event){
  event.preventDefault();if(saveInProgress)return;if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
  const amount=Calc.round(Number($('amount').value)),date=$('date').value,category=$('category').value||'Outros',description=$('description').value.trim()||category,paid=$('entryPaid').checked;
  if(!Number.isFinite(amount)||amount<=0||!date){$('entryValidation').textContent='Informe um valor válido e confira a data.';return}
@@ -530,7 +530,7 @@ async async function deleteEntry(id,button){
   $('modal').classList.remove('open');render();setMessage('Excluído. Você pode desfazer em 6 segundos.','success');
  }catch(error){if(button)button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}
 }
-function logout(){
+async function logout(){
  if(!supabaseClient)return;$('logoutBtn').disabled=true;
  try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;resetUserData();showDashboard(null);setMessage('Você saiu da sua conta.','success')}
  catch(error){setMessage('Não foi possível sair: '+friendlyError(error),'error',error)}
