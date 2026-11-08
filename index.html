@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="description" content="Controle suas receitas, despesas e saldo mensal.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<title>Meu Controle Financeiro</title>
+<style>
+:root{--bg:#f3f5f9;--card:#fff;--ink:#172033;--muted:#6b7280;--line:#e7eaf0;--green:#16845b;--red:#d94b58;--blue:#3457d5;--navy:#111827}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 1080px)/2)) 26px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:750;font-size:20px}.month{display:flex;align-items:center;gap:8px;margin-top:20px}.month button{background:#293449;color:#fff;border:0;border-radius:9px;padding:8px 12px}.month input{background:#293449;color:white;border:0;border-radius:9px;padding:8px}.wrap{max-width:1080px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 3px 12px #17203308}.metric span{color:var(--muted);font-size:13px}.metric strong{display:block;font-size:25px;margin-top:6px;letter-spacing:-.6px}.income{color:var(--green)}.expense{color:var(--red)}.balance{color:var(--blue)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin:17px 0}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:650}.primary{background:var(--blue);color:white}.secondary{background:#e9edff;color:#2946b4}.danger{background:#fff0f1;color:#bd3341}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:22px 0 12px}.sectionhead h2{font-size:17px;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters select,.filters input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px;color:var(--ink)}.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}.transactions{padding:0;overflow:hidden}.tx{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 17px;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.txname{font-weight:650}.txmeta{color:var(--muted);font-size:12px;margin-top:3px}.txamount{font-weight:750;white-space:nowrap}.empty{padding:28px 16px;text-align:center;color:var(--muted)}.barrow{display:grid;grid-template-columns:85px 1fr auto;gap:9px;align-items:center;margin:15px 0;font-size:13px}.track{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue)}.modal{position:fixed;inset:0;background:#10182799;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal.open{display:flex}.dialog{width:min(100%,440px);background:#fff;border-radius:18px;padding:21px}.dialog h2{margin:0 0 16px;font-size:19px}.field{display:block;margin:12px 0}.field span{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:white}.formactions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}.foot{color:var(--muted);font-size:12px;text-align:center;padding:24px 10px}.install{background:#293449;color:white;border:1px solid #536078;border-radius:9px;padding:8px 11px;display:none}
+@media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:1/-1}.layout{grid-template-columns:1fr}.top{padding:18px}.wrap{padding:13px}.metric strong{font-size:22px}.brand{font-size:18px}}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="toprow"><div class="brand">💰 Meu Controle Financeiro</div><button id="installBtn" class="install">Instalar app</button></div>
+ <div class="month"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
+</header>
+<main class="wrap">
+ <section class="grid">
+  <div class="card metric"><span>Receitas do mês</span><strong class="income" id="incomeTotal">R$ 0,00</strong></div>
+  <div class="card metric"><span>Despesas do mês</span><strong class="expense" id="expenseTotal">R$ 0,00</strong></div>
+  <div class="card metric"><span>Saldo do mês</span><strong class="balance" id="balanceTotal">R$ 0,00</strong></div>
+ </section>
+ <div class="actions"><button class="btn primary" id="addIncome">＋ Nova receita</button><button class="btn danger" id="addExpense">－ Nova despesa</button><button class="btn secondary" id="exportBtn">Exportar CSV</button></div>
+ <div class="layout">
+  <section>
+   <div class="sectionhead"><h2>Lançamentos</h2><div class="filters"><select id="typeFilter"><option value="all">Todos</option><option value="income">Receitas</option><option value="expense">Despesas</option></select></div></div>
+   <div class="card transactions" id="transactions"></div>
+  </section>
+  <aside>
+   <div class="sectionhead"><h2>Despesas por categoria</h2></div>
+   <div class="card" id="categories"></div>
+   <div class="sectionhead"><h2>Resumo</h2></div>
+   <div class="card" id="summary"></div>
+  </aside>
+ </div>
+ <div class="foot">Seus dados ficam salvos neste aparelho e navegador. Exporte um CSV para manter uma cópia de segurança.</div>
+</main>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+ <form class="dialog" id="entryForm">
+  <h2 id="modalTitle">Novo lançamento</h2>
+  <label class="field"><span>Descrição</span><input id="description" maxlength="70" required placeholder="Ex.: Salário, mercado..."></label>
+  <label class="field"><span>Valor (R$)</span><input id="amount" type="number" min="0.01" step="0.01" required placeholder="0,00"></label>
+  <label class="field"><span>Categoria</span><select id="category" required></select></label>
+  <label class="field"><span>Data</span><input id="date" type="date" required></label>
+  <div class="formactions"><button type="button" class="btn secondary" id="cancelBtn">Cancelar</button><button class="btn primary" type="submit">Salvar lançamento</button></div>
+ </form>
+</div>
+<script>
+const KEY='mcf_transactions_v1';
+const categories={income:['Salário','Renda extra','Investimentos','Outros'],expense:['Moradia','Alimentação','Transporte','Saúde','Lazer','Contas','Cartão de crédito','Educação','Outros']};
+let entries=JSON.parse(localStorage.getItem(KEY)||'[]'),currentType='expense';
+const $=id=>document.getElementById(id);
+const money=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const today=()=>new Date().toISOString().slice(0,10);
+$('monthPicker').value=today().slice(0,7);
+function monthEntries(){const m=$('monthPicker').value;return entries.filter(e=>e.date.startsWith(m))}
+function save(){localStorage.setItem(KEY,JSON.stringify(entries));render()}
+function render(){
+ const list=monthEntries(),inc=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),out=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
+ $('incomeTotal').textContent=money(inc);$('expenseTotal').textContent=money(out);$('balanceTotal').textContent=money(inc-out);
+ const filtered=list.filter(e=>$('typeFilter').value==='all'||e.type===$('typeFilter').value).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+ $('transactions').innerHTML=filtered.length?filtered.map(e=>'<div class="tx"><div><div class="txname">'+escapeHtml(e.description)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div style="display:flex;align-items:center;gap:10px"><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span><button class="btn secondary" style="padding:6px 9px" data-delete="'+e.id+'" aria-label="Excluir lançamento">×</button></div></div>').join(''):'<div class="empty">Nenhum lançamento neste mês.<br>Adicione sua primeira receita ou despesa.</div>';
+ const totals=categories.expense.map(c=>({name:c,value:list.filter(e=>e.type==='expense'&&e.category===c).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
+ $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/out*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">Suas despesas por categoria aparecerão aqui.</div>';
+ $('summary').innerHTML='<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Quantidade de lançamentos</span><strong>'+list.length+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Média por despesa</span><strong>'+money(out/(list.filter(e=>e.type==='expense').length||1))+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Resultado</span><strong class="'+(inc-out>=0?'income':'expense')+'">'+money(inc-out)+'</strong></div>';
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function openModal(type){currentType=type;$('modalTitle').textContent=type==='income'?'Nova receita':'Nova despesa';$('category').innerHTML=categories[type].map(c=>'<option>'+c+'</option>').join('');$('date').value=today();$('entryForm').reset();$('date').value=today();$('category').innerHTML=categories[type].map(c=>'<option>'+c+'</option>').join('');$('modal').classList.add('open');$('description').focus()}
+$('addIncome').onclick=()=>openModal('income');$('addExpense').onclick=()=>openModal('expense');$('cancelBtn').onclick=()=>$('modal').classList.remove('open');
+$('entryForm').onsubmit=e=>{e.preventDefault();entries.push({id:Date.now(),type:currentType,description:$('description').value.trim(),amount:Math.round(Number($('amount').value)*100)/100,category:$('category').value,date:$('date').value});save();$('modal').classList.remove('open')};
+$('transactions').onclick=e=>{const b=e.target.closest('[data-delete]');if(b&&confirm('Excluir este lançamento?')){entries=entries.filter(x=>x.id!==Number(b.dataset.delete));save()}};
+$('typeFilter').onchange=render;$('monthPicker').onchange=render;
+function shiftMonth(n){const d=new Date($('monthPicker').value+'-15T12:00:00');d.setMonth(d.getMonth()+n);$('monthPicker').value=d.toISOString().slice(0,7);render()}
+$('prevMonth').onclick=()=>shiftMonth(-1);$('nextMonth').onclick=()=>shiftMonth(1);
+$('exportBtn').onclick=()=>{const rows=[['Data','Tipo','Descrição','Categoria','Valor'],...entries.map(e=>[e.date,e.type==='income'?'Receita':'Despesa',e.description,e.category,e.amount.toFixed(2).replace('.',',')])];const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='controle-financeiro.csv';a.click();URL.revokeObjectURL(a.href)};
+let installPrompt;$('installBtn').onclick=async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').style.display='none'}else alert('No Chrome, abra o menu ⋮ e escolha "Instalar app" ou "Adicionar à tela inicial".')};
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').style.display='block'});
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+render();
+</script>
+</body></html>
