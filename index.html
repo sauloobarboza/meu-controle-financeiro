@@ -211,7 +211,7 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
  <section class="reminder-panel simple-reminders" id="reminderPanel" data-screen="today" aria-live="polite"><h3>Contas próximas do vencimento</h3><div id="reminderList"></div></section>
  <div class="layout" id="bills-section" data-screen="today">
   <section>
-   <div class="sectionhead"><h2>Movimentações do mês</h2><div class="filters"><select id="typeFilter" aria-label="Filtrar tipo"><option value="all">Todas</option><option value="income">Aportes</option><option value="expense">Contas</option></select><select id="statusFilter" aria-label="Filtrar situação"><option value="all">Todas as situações</option><option value="paid">Pagas / recebidas</option><option value="pending">Pendentes</option><option value="planned">Previsões</option><option value="recorded">Registradas</option></select></div></div>
+   <div class="sectionhead"><h2>Movimentações do mês</h2><div class="filters"><select id="typeFilter" aria-label="Filtrar tipo"><option value="all">Todas</option><option value="income">Aportes</option><option value="expense">Contas</option></select><select id="statusFilter" aria-label="Filtrar situação"><option value="all">Todas</option><option value="paid">Pagas / recebidas</option><option value="pending">A pagar / a receber</option></select></div></div>
    <div class="card transactions" id="transactions"></div>
   </section>
   <aside class="advanced-details" data-screen="settings"><details open><summary>Mais opções e resumo</summary>
@@ -395,11 +395,11 @@ const Calc={round(v){return Math.round((Number(v)||0)*100)/100},actualBalance(ro
  if(document.activeElement!==$('openingBalance'))$('openingBalance').value=Number(openingBalance).toFixed(2);
  renderProjection();
  const typeFilter=$('typeFilter').value,statusFilter=$('statusFilter').value;
- const filtered=list.filter(e=>(typeFilter==='all'||e.type===typeFilter)&&(statusFilter==='all'||e.status===statusFilter)).sort((a,b)=>b.date.localeCompare(a.date));
+ const filtered=list.filter(e=>(typeFilter==='all'||e.type===typeFilter)&&(statusFilter==='all'||(statusFilter==='paid'?['paid','recorded'].includes(e.status):['pending','planned'].includes(e.status)))).sort((a,b)=>b.date.localeCompare(a.date));
  $('transactions').innerHTML=filtered.length?filtered.map(e=>{
   const cleanDescription=e.description.replace(/^(Planejado • |Previsão • )/,'').replace(/^Aporte • /,'Aporte: ');
   const canPay=e.status==='pending'||e.status==='planned';
-  return '<div class="tx"><div style="min-width:0"><div class="txname">'+escapeHtml(cleanDescription)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div class="tx-actions"><span class="tx-status '+(effectiveStatus(e)==='overdue'?'overdue':e.status)+'">'+statusText(e)+'</span><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span>'+(canPay?'<button class="tx-action" data-paid="'+escapeHtml(e.id)+'">'+(e.type==='income'?'Confirmar recebimento':'Marcar pago')+'</button>':'')+'<button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>';
+  return '<div class="tx"><div style="min-width:0"><div class="txname">'+escapeHtml(cleanDescription)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div class="tx-actions"><span class="tx-status '+(effectiveStatus(e)==='overdue'?'overdue':e.status)+'">'+statusText(e)+'</span><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span>'+(canPay?'<button class="tx-action" data-paid="'+escapeHtml(e.id)+'">'+(e.type==='income'?'Confirmar recebimento':'Marcar pago')+'</button>':'')+'<button class="tx-action" data-edit="'+escapeHtml(e.id)+'" aria-label="Editar lançamento">Editar</button><button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>';
  }).join(''):'<div class="empty">Nenhum item com esse filtro neste mês.</div>';
  const totals=categories.expense.map(category=>({name:category,value:list.filter(e=>e.type==='expense'&&e.category===category).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
  $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(total(list,'expense')||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">As contas aparecerão aqui.</div>';
@@ -727,7 +727,59 @@ function setupVoiceAssistant(){
  $('voiceEdit').addEventListener('click',()=>{$('voicePreview').hidden=true;$('voiceTranscript').focus()});
  $('voiceApply').addEventListener('click',applyVoiceActions);
 }
-function setupAuroraNavigation(){const nav=$('auroraBottomNav');if(!nav)return;const go=targetId=>{const target=$(targetId);if(target)target.scrollIntoView({behavior:'smooth',block:'start'})};nav.addEventListener('click',event=>{const button=event.target.closest('[data-target]');if(!button)return;nav.querySelectorAll('.nav-item').forEach(item=>{const active=item===button;item.classList.toggle('active',active);if(active)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});go(button.dataset.target)});document.querySelectorAll('.simple-metric[data-target]').forEach(button=>button.addEventListener('click',()=>go(button.dataset.target)));}
+function setScreen(screen){
+ const allowed=['today','months','settings'];if(!allowed.includes(screen))screen='today';
+ document.body.classList.remove('aurora-screen-today','aurora-screen-months','aurora-screen-settings');document.body.classList.add('aurora-screen-'+screen);
+ const nav=$('auroraBottomNav');nav?.querySelectorAll('[data-screen-target]').forEach(button=>{const active=button.dataset.screenTarget===screen;button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current')});
+ if(screen==='settings'){const aside=document.querySelector('.advanced-details');if(aside&&aside.parentElement!==$('dashboard'))$('dashboard').appendChild(aside)}
+}
+function setProjectionView(mode){
+ projectionMode=mode;document.querySelectorAll('[data-projection-mode]').forEach(b=>b.classList.toggle('active',b.dataset.projectionMode===mode));
+ $('projectionBalanceView').hidden=mode==='year';$('projectionAccountsView').hidden=true;$('projectionYearView').hidden=mode!=='year';
+ $('projectionChart').hidden=mode!=='accumulated';$('projectionMonths').closest('.projection-table-wrap').hidden=mode==='year';
+ if(mode==='year')renderProjectionYear();const sel=$('projectionMonthFilter');if(sel){sel.hidden=mode!=='month';sel.setAttribute('aria-label','Escolher mês')}
+}
+function renderProjectionYear(){
+ const months=projectionMonths(),start=months[0].key+'-01',end=months[11].end,rows=entries.filter(e=>e.type==='expense'&&e.date>=start&&e.date<=end),totals={};
+ rows.forEach(e=>totals[e.category]=(totals[e.category]||0)+e.amount);
+ const data=Object.entries(totals).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...data.map(x=>x[1]));
+ $('projectionYearView').innerHTML='<h3>Quanto cada conta representa nos próximos 12 meses</h3><p class="chart-subtitle">Período móvel: '+months[0].label+' a '+months[11].label+'</p>'+(data.length?data.map(([name,value])=>'<div class="barrow"><span>'+escapeHtml(name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(2,value/max*100)+'%"></div></div><strong>'+money(value)+'</strong></div>').join(''):'<div class="empty">Cadastre contas para montar a visão anual.</div>');
+}
+function renderQuickChips(){
+ const host=$('quickChips');if(!host)return;const seen=new Set(),recent=[];
+ entries.slice().sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{const key=e.description.trim().toLowerCase();if(key&&!seen.has(key)){seen.add(key);recent.push(e)}});
+ host.innerHTML=recent.slice(0,6).map(e=>'<button type="button" class="quick-chip" data-chip="'+escapeHtml(e.id)+'">'+escapeHtml(e.description)+'</button>').join('');
+}
+function renderReviewPanel(){
+ const host=$('reviewPanel');if(!host)return;const items=entries.filter(e=>e.needs_review);if(!items.length){host.hidden=true;return}
+ host.hidden=false;host.innerHTML='<h3>Para revisar ('+items.length+')</h3>'+items.slice(0,5).map(e=>'<div class="review-row"><span>'+escapeHtml(e.description)+' · '+money(e.amount)+'</span><button type="button" data-review="'+escapeHtml(e.id)+'">Revisar</button></div>').join('')+(items.length>1?'<button type="button" id="confirmAllReview">Confirmar todos</button>':'');
+}
+async function confirmAllReview(){
+ if(!currentUser)return;const ids=entries.filter(e=>e.needs_review).map(e=>e.id);if(!ids.length)return;
+ const {error}=await supabaseClient.from('transactions').update({needs_review:false}).in('id',ids).eq('user_id',currentUser.id);if(error){setMessage('Não foi possível confirmar a revisão: '+friendlyError(error),'error',error);return}
+ entries.forEach(e=>{if(ids.includes(e.id))e.needs_review=false});render();setMessage('Itens revisados.','success');
+}
+async function syncOfflineQueue(){
+ if(!currentUser||!navigator.onLine)return;const key='aurora_offline_queue_'+currentUser.id;let queue=[];try{queue=JSON.parse(localStorage.getItem(key)||'[]')}catch{return}if(!queue.length)return;
+ const {data,error}=await supabaseClient.from('transactions').upsert(queue,{onConflict:'id'}).select('id,type,description,amount,category,transaction_date,status,series_id,needs_review');
+ if(error){console.warn('Fila offline permanece no aparelho:',error);return}
+ const sent=new Set((data||[]).map(x=>x.id));localStorage.setItem(key,JSON.stringify(queue.filter(x=>!sent.has(x.id))));
+ entries=entries.map(e=>{const saved=(data||[]).find(x=>x.id===e.id);return saved?{...e,offline:false}:e});setMessage('Lançamentos offline sincronizados.','success');render();
+}
+function setupAuroraNavigation(){
+ const nav=$('auroraBottomNav');if(nav)nav.addEventListener('click',event=>{const b=event.target.closest('[data-screen-target]');if(b)setScreen(b.dataset.screenTarget)});
+ document.querySelectorAll('.simple-metric[data-target]').forEach(b=>b.addEventListener('click',()=>setScreen('today')));
+ document.querySelectorAll('[data-projection-mode]').forEach(b=>b.addEventListener('click',()=>setProjectionView(b.dataset.projectionMode)));
+ $('quickCommand').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();$('openVoiceAssistant').click()}});
+ $('quickChips').addEventListener('click',event=>{const b=event.target.closest('[data-chip]');if(!b)return;const e=entries.find(x=>x.id===b.dataset.chip);if(e)openModal(e.type,e.id)});
+ $('reviewPanel').addEventListener('click',event=>{const b=event.target.closest('[data-review]');if(b){const e=entries.find(x=>x.id===b.dataset.review);if(e)openModal(e.type,e.id)}if(event.target.id==='confirmAllReview')confirmAllReview()});
+ $('seriesMode').addEventListener('change',()=>{$('seriesCountWrap').hidden=$('seriesMode').value==='none';$('seriesCountLabel').textContent=$('seriesMode').value==='installments'?'Número de parcelas':'Repetir por quantos meses'});
+ $('entryPaid').addEventListener('change',()=>{$('entryPaidLabel').textContent=currentType==='income'?'Já recebi':'Já paguei'});
+ $('deleteFromForm').addEventListener('click',()=>{if(editingEntryId)deleteEntry(editingEntryId,null)});
+ $('quickVoice').addEventListener('click',()=>{openVoiceAssistant();startVoiceCapture()});
+ $('openVoiceAssistant').addEventListener('click',()=>{const value=$('quickCommand').value.trim();if(value)$('voiceTranscript').value=value;openVoiceAssistant();if(value)analyzeVoiceCommand()});
+ window.addEventListener('online',syncOfflineQueue);setScreen('today');
+}
 function initializeApp(){
  $('monthPicker').value=localDateString().slice(0,7);
  $('authForm').addEventListener('submit',handleAuthForm);$('resetBtn').addEventListener('click',requestPasswordReset);
