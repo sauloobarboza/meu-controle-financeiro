@@ -1,12 +1,12 @@
 {
   "name": "AURORA — Controle Financeiro",
   "short_name": "AURORA",
-  "description": "Controle financeiro pessoal, contas e projeções",
+  "description": "Entradas, saídas e seu dinheiro acumulado em uma experiência simples.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f3f5f9",
-  "theme_color": "#111827",
+  "background_color": "#f3f7fd",
+  "theme_color": "#0b3c7d",
   "icons": [
     {
       "src": "icons/icon.svg",
