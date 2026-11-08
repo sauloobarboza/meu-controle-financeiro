@@ -25,10 +25,10 @@ jobs:
           node - <<'NODE'
           const fs = require('node:fs');
           const html = fs.readFileSync('index.html', 'utf8');
-          const scripts = [...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)]
+          const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]
             .map(match => match[1]).filter(source => source.trim());
           if (!scripts.length) throw new Error('No inline JavaScript found');
-          fs.writeFileSync('/tmp/aurora-app.js', scripts.join('\\n'));
+          fs.writeFileSync('/tmp/aurora-app.js', scripts.join('\n'));
           NODE
           node --check /tmp/aurora-app.js
       - name: Validate service worker JavaScript
