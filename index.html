@@ -160,6 +160,7 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
 
 .review-category{display:block;color:#d4e7f3;font-size:12px;margin-top:3px}
 .year-account-row{width:100%;display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:10px;padding:10px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;color:var(--ink)}.year-account-bar{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.year-account-bar i{display:block;height:100%;background:var(--blue);border-radius:99px}.year-detail-row{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--line)}
+.projected-end-line{font-size:12px;color:#d8e6f1;margin:8px 0 0}.projected-end-line strong{color:#fff;font-size:14px}
 </style>
 </head>
 <body>
@@ -190,7 +191,7 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
 <main class="wrap" id="dashboard" hidden>
  <section class="aurora-hero" id="home-section" data-screen="today">
   <div class="hero-topline"><div><span class="hero-kicker">CONTROLE FINANCEIRO</span><h1>Seu dinheiro, em ordem</h1><p>Seu planejamento, com clareza em cada decisão.</p></div><div class="hero-period"><span>VISÃO DO MÊS</span><strong id="monthReadable"></strong></div></div>
-  <div class="hero-balance"><div><span class="hero-balance-label">SALDO REAL DISPONÍVEL</span><strong id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + valores efetivamente recebidos − pagos</small></div></div>
+  <div class="hero-balance"><div><span class="hero-balance-label">SALDO REAL DISPONÍVEL</span><strong id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + valores efetivamente recebidos − pagos</small><p class="projected-end-line">Previsto para o fim do mês: <strong id="projectedMonthEnd">R$ 0,00</strong></p></div></div>
   <div class="hero-actions"><button class="hero-action-main" id="addExpense">＋ Lançar gasto</button><button class="hero-action-light" id="addIncome">＋ Novo recebimento</button></div><div class="aurora-command"><input id="quickCommand" type="text" autocomplete="off" placeholder="Ex.: Paguei 120 de internet hoje"><button type="button" id="quickVoice" aria-label="Falar comando">🎙</button><button type="button" id="openVoiceAssistant" class="voice-launch">Enviar</button></div><div class="quick-chips" id="quickChips" aria-label="Lançamentos frequentes"></div><div class="review-panel" id="reviewPanel" hidden></div><button type="button" class="home-mini-card" id="homeMiniProjection"><span>Saldo previsto · próximos 6 meses</span><div id="homeMiniChart"></div></button><div class="week-summary" id="weekSummary"></div>
  </section>
  <section class="voice-assistant" id="voiceAssistant" data-screen="today" hidden aria-label="Assistente por voz">
@@ -390,7 +391,7 @@ function renderReminders(){
  const today=localDateString(),limit=new Date();limit.setDate(limit.getDate()+7);const limitKey=localDateString(limit);
  const items=entries.filter(e=>e.type==='expense'&&!['paid','recorded'].includes(e.status)&&e.date<=limitKey).sort((a,b)=>a.date.localeCompare(b.date));
  const totalDue=items.reduce((sum,e)=>sum+e.amount,0);
- $('reminderPanel').querySelector('h3').textContent='Vence nos próximos 7 dias · '+money(totalDue);
+ $('reminderPanel').querySelector('h3').textContent='Atrasadas e vencem nos próximos 7 dias · '+money(totalDue);
  $('reminderList').innerHTML=items.length?items.map(e=>{const late=e.date<today;return '<div class="reminder-item"><div><strong>'+escapeHtml(e.description)+'</strong><small>'+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+' · '+money(e.amount)+'</small></div><div class="reminder-actions"><span class="tx-status '+(late?'overdue':'pending')+'">'+(late?'Atrasada':'A pagar')+'</span><button type="button" class="tx-action" data-paid="'+escapeHtml(e.id)+'">✓</button></div></div>'}).join(''):'<div class="reminder-empty">Tudo certo! Nenhuma conta pendente nos próximos 7 dias.</div>';
 }
 function openProjectionMonth(key){const select=$('projectionMonthFilter');select.value=key;renderProjectionAccounts(projectionMonths());setProjectionMode('accounts');$('projection-section').scrollIntoView({behavior:'smooth',block:'start'})}function setProjectionMode(mode){const account=mode==='accounts';$('projectionBalanceView').hidden=account;$('projectionAccountsView').hidden=!account}function render(){
@@ -403,8 +404,8 @@ function openProjectionMonth(key){const select=$('projectionMonthFilter');select
  $('incomeTotal').textContent=money(income);$('expenseTotal').textContent=money(expense);
  const [year,month]=selected.split('-').map(Number),monthEnd=year+'-'+String(month).padStart(2,'0')+'-'+String(new Date(year,month,0).getDate()).padStart(2,'0');
  const throughMonth=entries.filter(e=>e.date<=monthEnd);
- const accumulated=openingBalance+total(throughMonth,'income',['paid','recorded'])-total(throughMonth,'expense',['paid','recorded']);
- $('accumulatedTotal').textContent=money(accumulated);
+ const accumulated=Calc.actualBalance(throughMonth,openingBalance),projectedEnd=Calc.projectedBalance(throughMonth,openingBalance);
+ $('accumulatedTotal').textContent=money(accumulated);$('projectedMonthEnd').textContent=money(projectedEnd);
  $('pendingSummary').textContent=money(total(list,'expense',['pending','planned']));
  if(document.activeElement!==$('openingBalance'))$('openingBalance').value=Number(openingBalance).toFixed(2);
  renderProjection();
@@ -763,7 +764,7 @@ function handlePwaShortcut(){const action=new URLSearchParams(location.search).g
 function setScreen(screen){
  const allowed=['today','months','settings'];if(!allowed.includes(screen))screen='today';
  document.body.classList.remove('aurora-screen-today','aurora-screen-months','aurora-screen-settings');document.body.classList.add('aurora-screen-'+screen);
- const nav=$('auroraBottomNav');nav?.querySelectorAll('[data-screen-target]').forEach(button=>{const active=button.dataset.screenTarget===screen;button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current')});
+ const nav=$('auroraBottomNav');nav?.querySelectorAll('[data-screen-target]').forEach(button=>{const active=button.dataset.screenTarget===screen;button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current')});const monthControl=$('globalMonthControl');if(monthControl)monthControl.style.display=screen==='months'&&projectionMode==='month'?'flex':'none';
  if(screen==='settings'){const aside=document.querySelector('.advanced-details');if(aside&&aside.parentElement!==$('dashboard'))$('dashboard').appendChild(aside);const install=$('installBtn');if(install&&aside&&!aside.contains(install))aside.prepend(install)}
 }
 function setProjectionView(mode){
@@ -773,7 +774,7 @@ function setProjectionView(mode){
  $('projectionBalanceView').hidden=mode==='year'||mode==='month';
  $('projectionAccountsView').hidden=mode!=='month';
  const sel=$('projectionMonthFilter');if(sel)sel.hidden=true;
- const monthControl=$('globalMonthControl');if(monthControl)monthControl.style.display=mode==='month'?'flex':'none';
+ const monthControl=$('globalMonthControl');if(monthControl)monthControl.style.display=document.body.classList.contains('aurora-screen-months')&&mode==='month'?'flex':'none';
  if(mode==='year')renderProjectionYear();
  if(mode==='month'){const data=projectionMonths(),key=$('monthPicker').value;sel.value=key;renderProjectionAccounts(data)}
 }
