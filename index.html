@@ -510,7 +510,7 @@ async function deleteEntry(id,button){
  catch(error){if(button)button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}
 }
 
-function logout(){
+async function logout(){
  if(!supabaseClient)return;$('logoutBtn').disabled=true;
  try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;resetUserData();showDashboard(null);setMessage('Você saiu da sua conta.','success')}
  catch(error){setMessage('Não foi possível sair: '+friendlyError(error),'error',error)}
@@ -680,7 +680,7 @@ async function applyVoiceActions(){
  }catch(error){const message='Nenhuma alteração foi salva. '+friendlyError(error);$('voiceStatus').textContent=message;setMessage(message,'error',error)}
  finally{saveInProgress=false;button.disabled=false;button.textContent='Confirmar e salvar'}
 }
-function loadChangeRequests(){
+async function loadChangeRequests(){
  if(!supabaseClient||!currentUser?.id)return;
  const list=$('changeRequestList');if(list)list.innerHTML='<div class="change-empty">Carregando solicitações...</div>';
  const {data,error}=await supabaseClient.from('app_change_requests').select('id,title,description,area,status,github_issue_url,created_at,updated_at,completed_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
