@@ -133,7 +133,7 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
  </section>
  <section class="voice-assistant" id="voiceAssistant" hidden aria-label="Assistente por voz">
   <div class="voice-head"><div><span class="eyebrow-dark">AURORA IA</span><h2>Fale com suas finanças</h2></div><button type="button" class="voice-close" id="voiceClose" aria-label="Fechar assistente">×</button></div>
-  <p class="voice-help">Diga o que entrou, o que você pagou ou qual conta deseja alterar. Eu preparo as mudanças para você conferir antes de salvar.</p>
+  <p class="voice-help">Diga o que entrou, o que você pagou ou qual conta deseja alterar. A fala vira texto no navegador e o Gemini interpreta o comando. Nada é salvo sem sua confirmação.</p>
   <div class="voice-recorder"><button type="button" class="voice-record" id="voiceStart">🎙 Começar a falar</button><span id="voiceStatus" role="status">Pronto para ouvir.</span></div>
   <label class="field voice-transcript-label"><span>O que você falou (você também pode digitar)</span><textarea id="voiceTranscript" rows="3" maxlength="3000" placeholder="Ex.: Paguei 120 reais de internet hoje."></textarea></label>
   <div class="voice-actions"><button type="button" class="btn primary" id="voiceAnalyze">Interpretar com Gemini</button></div>
@@ -527,7 +527,8 @@ async function analyzeVoiceCommand(){
   if(error)throw error;if(data?.error)throw new Error(data.error);
   showVoicePreview(data||{});$('voiceStatus').textContent='Interpretação pronta. Revise antes de salvar.';
  }catch(error){
-  const message=error?.context?.json?.error||error?.message||'Não foi possível interpretar o comando.';
+  let message=error?.message||'Não foi possível interpretar o comando.';
+  if(error?.context&&typeof error.context.json==='function'){try{const body=await error.context.json();if(body?.error)message=body.error}catch{}}
   $('voiceStatus').textContent=message;setMessage('Assistente: '+message,'error',error);
  }finally{button.disabled=false;button.textContent='Interpretar com Gemini'}
 }
