@@ -150,6 +150,14 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
 .week-summary{margin:12px 0;padding:12px 15px;border:1px solid var(--line);border-radius:13px;background:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:12px}.week-summary span{color:var(--muted)}.week-summary strong{color:var(--ink)}.week-summary small{color:var(--muted)}
 
 .series-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}.series-row:last-child{border-bottom:0}.series-row small{display:block;color:var(--muted);font-size:11px;margin-top:4px}.series-row button{min-height:42px;white-space:nowrap}
+
+/* Acessibilidade e alvos de toque — revisão 2026 */
+button,input,select,textarea{min-height:44px}
+button{touch-action:manipulation}
+small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metric small{font-size:12px}
+:focus-visible{outline:3px solid #5b9bd5;outline-offset:2px}
+@media(max-width:700px){.wrap{padding-bottom:100px}.aurora-bottom-nav{padding-bottom:env(safe-area-inset-bottom)}}
+
 </style>
 </head>
 <body>
@@ -179,7 +187,7 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
 </section>
 <main class="wrap" id="dashboard" hidden>
  <section class="aurora-hero" id="home-section" data-screen="today">
-  <div class="hero-topline"><div><span class="hero-kicker">AURORA FINANCIAL HOME</span><h1>Finanças da casa</h1><p>Seu planejamento, com clareza em cada decisão.</p></div><div class="hero-period"><span>VISÃO DO MÊS</span><strong id="monthReadable"></strong></div></div>
+  <div class="hero-topline"><div><span class="hero-kicker">CONTROLE FINANCEIRO</span><h1>Seu dinheiro, em ordem</h1><p>Seu planejamento, com clareza em cada decisão.</p></div><div class="hero-period"><span>VISÃO DO MÊS</span><strong id="monthReadable"></strong></div></div>
   <div class="hero-balance"><div><span class="hero-balance-label">SALDO REAL DISPONÍVEL</span><strong id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + valores efetivamente recebidos − pagos</small></div></div>
   <div class="hero-actions"><button class="hero-action-main" id="addExpense">＋ Lançar gasto</button><button class="hero-action-light" id="addIncome">＋ Novo recebimento</button></div><div class="aurora-command"><input id="quickCommand" type="text" autocomplete="off" placeholder="Ex.: Paguei 120 de internet hoje"><button type="button" id="quickVoice" aria-label="Falar comando">🎙</button><button type="button" id="openVoiceAssistant" class="voice-launch">Enviar</button></div><div class="quick-chips" id="quickChips" aria-label="Lançamentos frequentes"></div><div class="review-panel" id="reviewPanel" hidden></div><button type="button" class="home-mini-card" id="homeMiniProjection"><span>Saldo previsto · próximos 6 meses</span><div id="homeMiniChart"></div></button><div class="week-summary" id="weekSummary"></div>
  </section>
@@ -211,13 +219,13 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
   <div class="projection-head"><div><span class="eyebrow-dark">PLANEJAMENTO</span><h2>Meses</h2><p>Veja seus lançamentos, contas e saldo projetado.</p></div><div class="projection-switch" role="group" aria-label="Visão do planejamento"><button type="button" class="active" data-projection-mode="month">Mês</button><button type="button" data-projection-mode="year">Ano</button><button type="button" data-projection-mode="accumulated">Acumulado</button></div></div><div id="projectionYearView" hidden></div>
   <div class="projection-kpis simple-projection-kpi"><div class="projection-kpi"><small>Saldo previsto ao fim dos 12 meses</small><strong id="projectionEndBalance">R$ 0,00</strong></div></div>
   <div id="projectionBalanceView"><div id="projectionChart" hidden></div><div class="projection-table-wrap"><table class="projection-table simple-projection-table"><thead><tr><th>MÊS</th><th class="num">ENTRADAS</th><th class="num">SAÍDAS</th><th class="num">SALDO PREVISTO</th></tr></thead><tbody id="projectionMonths"></tbody></table></div></div>
-  <div id="projectionAccountsView" hidden><div class="simple-detail-head"><strong id="projectionDetailTitle">Detalhes do mês</strong><button type="button" class="btn secondary" id="projectionBackBtn">Voltar aos meses</button></div><div class="projection-table-wrap"><table class="projection-table"><thead><tr><th>CONTA / MOVIMENTAÇÃO</th><th>DATA</th><th class="num">VALOR</th><th>SITUAÇÃO</th><th class="num">SALDO APÓS</th></tr></thead><tbody id="projectionAccountRows"></tbody></table></div><p class="chart-subtitle" style="margin:10px 0 0">O saldo após cada lançamento considera a ordem cronológica, incluindo aportes.</p></div>
+  <div id="projectionAccountsView" hidden><div class="simple-detail-head"><strong id="projectionDetailTitle">Detalhes do mês</strong><button type="button" class="btn secondary" id="projectionBackBtn">Voltar aos meses</button></div><div class="projection-table-wrap"><table class="projection-table"><thead><tr><th>CONTA / MOVIMENTAÇÃO</th><th>DATA</th><th class="num">VALOR</th><th>SITUAÇÃO</th></tr></thead><tbody id="projectionAccountRows"></tbody></table></div><p class="chart-subtitle" style="margin:10px 0 0">O saldo projetado considera todos os lançamentos até a data escolhida.</p></div>
   <div hidden><button id="projectionBalanceBtn" type="button"></button><button id="projectionAccountsBtn" type="button"></button><select id="projectionMonthFilter"></select><span id="projectionIncome"></span><span id="projectionExpense"></span><span id="paidSummary"></span><span id="plannedSummary"></span><div id="monthlyChart"></div><div id="categoryDonut"></div><div id="dailyChart"></div><div id="metricInsights"></div></div>
  </section>
  <section class="reminder-panel simple-reminders" id="reminderPanel" data-screen="today" aria-live="polite"><h3>Contas próximas do vencimento</h3><div id="reminderList"></div></section>
  <div class="layout" id="bills-section" data-screen="today">
   <section>
-   <div class="sectionhead"><h2>Movimentações do mês</h2><div class="filters"><select id="typeFilter" aria-label="Filtrar tipo"><option value="all">Todas</option><option value="income">Aportes</option><option value="expense">Contas</option></select><select id="statusFilter" aria-label="Filtrar situação"><option value="all">Todas</option><option value="paid">Pagas / recebidas</option><option value="pending">A pagar / a receber</option></select></div></div>
+   <div class="sectionhead"><h2>Movimentações do mês</h2><div class="filters"><select id="typeFilter" aria-label="Filtrar tipo"><option value="all">Todas</option><option value="income">Recebimentos</option><option value="expense">Contas</option></select><select id="statusFilter" aria-label="Filtrar situação"><option value="all">Todas</option><option value="paid">Pagas / recebidas</option><option value="pending">A pagar / a receber</option></select></div></div>
    <div class="card transactions" id="transactions"></div>
   </section>
   <aside class="advanced-details" data-screen="settings"><details open><summary>Mais opções e resumo</summary>
@@ -420,7 +428,7 @@ function openProjectionMonth(key){const select=$('projectionMonthFilter');select
  const typeFilter=$('typeFilter').value,statusFilter=$('statusFilter').value;
  const filtered=list.filter(e=>(typeFilter==='all'||e.type===typeFilter)&&(statusFilter==='all'||(statusFilter==='paid'?['paid','recorded'].includes(e.status):['pending','planned'].includes(e.status)))).sort((a,b)=>b.date.localeCompare(a.date));
  $('transactions').innerHTML=filtered.length?filtered.map(e=>{
-  const cleanDescription=e.description.replace(/^(Planejado • |Previsão • )/,'').replace(/^Aporte • /,'Aporte: ');
+  const cleanDescription=e.description.replace(/^(Planejado • |)/,'').replace(/^Aporte • /,'Aporte: ');
   const canPay=e.status==='pending'||e.status==='planned';
   return '<div class="tx"><div style="min-width:0"><div class="txname">'+escapeHtml(cleanDescription)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div class="tx-actions"><span class="tx-status '+(effectiveStatus(e)==='overdue'?'overdue':e.status)+'">'+statusText(e)+'</span><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span>'+(canPay?'<button class="tx-action" data-paid="'+escapeHtml(e.id)+'">'+(e.type==='income'?'Confirmar recebimento':'Marcar pago')+'</button>':'')+'<button class="tx-action" data-edit="'+escapeHtml(e.id)+'" aria-label="Editar lançamento">Editar</button><button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>';
  }).join(''):'<div class="empty">Nenhum item com esse filtro neste mês.</div>';
@@ -431,7 +439,7 @@ function openProjectionMonth(key){const select=$('projectionMonthFilter');select
 }
 async function saveOpeningBalance(){
  if(!currentUser)return;const value=Math.round(Number($('openingBalance').value)*100)/100;
- if(!Number.isFinite(value)||value<0){window.alert('Informe um saldo inicial válido.');return}
+ if(!Number.isFinite(value)||value<0){setMessage('Informe um saldo inicial válido.','error');return}
  const button=$('saveOpeningBalance');button.disabled=true;button.textContent='Salvando...';
  try{const {error}=await supabaseClient.from('apartment_settings').upsert({user_id:currentUser.id,opening_balance:value,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;openingBalance=value;render();setMessage('Saldo inicial atualizado.','success')}
  catch(error){setMessage('Não foi possível salvar o saldo inicial: '+friendlyError(error),'error',error)}
@@ -541,8 +549,8 @@ function shiftMonth(offset){
  $('monthPicker').value=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');render();
 }
 function exportCsv(){
- if(!entries.length){window.alert('Não há lançamentos para exportar.');return}
- const rows=[['Data','Tipo','Descrição','Categoria','Situação','Valor'],...entries.map(e=>[e.date,e.type==='income'?'Aporte':'Conta',e.description,e.category,statusLabels[e.status]||'Registrado',e.amount.toFixed(2).replace('.',',')])];
+ if(!entries.length){setMessage('Não há lançamentos para exportar.','info');return}
+ const rows=[['Data','Tipo','Descrição','Categoria','Situação','Valor'],...entries.map(e=>[e.date,e.type==='income'?'Aporte':'Conta',e.description,e.category,statusLabels[e.status]||'Pago / recebido',e.amount.toFixed(2).replace('.',',')])];
  const csv='\uFEFF'+rows.map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(';')).join('\r\n');
  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='meu-controle-financeiro.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
 }
@@ -558,7 +566,7 @@ function setupPasswordFeedback(){
 }
 function setupInstallPrompt(){
  $('installBtn').addEventListener('click',async()=>{
-  if(!installPrompt){window.alert('No Chrome, abra o menu ⋮ e escolha “Instalar app” ou “Adicionar à tela inicial”.');return}
+  if(!installPrompt){setMessage('No Chrome, abra o menu ⋮ e escolha “Instalar app” ou “Adicionar à tela inicial”.','info');return}
   installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').style.display='none';
  });
  window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;$('installBtn').style.display='block'});
@@ -609,7 +617,7 @@ function startVoiceCapture(){
  if(voiceRecognition){try{voiceRecognition.stop()}catch{}voiceRecognition=null}
  const recognition=new Speech();voiceRecognition=recognition;recognition.lang='pt-BR';recognition.interimResults=false;recognition.maxAlternatives=1;
  $('voiceStart').classList.add('listening');$('voiceStart').textContent='■ Parar de ouvir';$('voiceStatus').textContent='Estou ouvindo… fale seu comando.';
- recognition.onresult=event=>{const text=event.results?.[0]?.[0]?.transcript||'';$('voiceTranscript').value=($('voiceTranscript').value.trim()?$('voiceTranscript').value.trim()+' ':'')+text;$('voiceStatus').textContent='Transcrição concluída. Confira o texto e toque em Interpretar com Gemini.'};
+ recognition.onresult=event=>{const text=event.results?.[0]?.[0]?.transcript||'';$('voiceTranscript').value=($('voiceTranscript').value.trim()?$('voiceTranscript').value.trim()+' ':'')+text;$('voiceStatus').textContent='Transcrição concluída. Confira o texto e toque em Entender comando.'};
  recognition.onerror=event=>{$('voiceStatus').textContent=event.error==='not-allowed'?'Permita o acesso ao microfone nas configurações do navegador.':'Não consegui captar sua fala. Tente novamente ou digite o comando.'};
  recognition.onend=()=>{$('voiceStart').classList.remove('listening');$('voiceStart').textContent='🎙 Começar a falar';voiceRecognition=null;if($('voiceTranscript').value.trim()){ $('voiceStatus').textContent='Entendendo…';analyzeVoiceCommand() }else $('voiceStatus').textContent='Pronto para ouvir.'};
  try{recognition.start()}catch(error){$('voiceStatus').textContent='Não foi possível iniciar o microfone. Tente novamente.';$('voiceStart').classList.remove('listening');$('voiceStart').textContent='🎙 Começar a falar';voiceRecognition=null}
