@@ -224,12 +224,12 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
   <div class="aurora-section-head"><div><h2>Movimentações</h2><p id="newHistoryCount">0 lançamentos</p></div></div><div class="aurora-list" id="newHistoryRows"></div>
  </section>
  <section class="aurora-page" data-new-page="analysis">
-  <div class="aurora-section-head"><div><span class="aurora-kicker">VISÃO GERAL</span><h2>Análise mensal</h2><p>Entrou, saiu e quanto ficou acumulado</p></div></div>
+  <div class="aurora-section-head"><div><span class="aurora-kicker">VISÃO GERAL</span><h2>Análise mensal</h2><p>Projeção mensal: entradas, saídas e resultado</p></div></div>
   <div class="aurora-month-control"><label class="aurora-badge">PERÍODO</label><select id="newAnalysisPeriod"><option value="6">Últimos 6 meses</option><option value="12" selected>Últimos 12 meses</option></select></div>
-  <div class="aurora-analysis-hero"><small>ACUMULADO ATÉ O MÊS SELECIONADO</small><strong id="newAnalysisBalance">R$ 0,00</strong><small id="newAnalysisLabel">Saldo que foi ficando ao longo do tempo</small></div>
+  <div class="aurora-analysis-hero"><small>RESULTADO DO PERÍODO</small><strong id="newAnalysisBalance">R$ 0,00</strong><small id="newAnalysisLabel">Entradas menos saídas nos meses exibidos</small></div>
   <div class="aurora-stats"><div class="aurora-stat"><small>Entradas no período</small><strong class="positive" id="newAnalysisIncome">R$ 0,00</strong></div><div class="aurora-stat"><small>Saídas no período</small><strong class="negative" id="newAnalysisExpense">R$ 0,00</strong></div></div>
   <div class="aurora-section-head"><div><h2>Movimento por mês</h2><p>Azul: entradas · Coral: saídas</p></div></div><div class="aurora-list" style="padding:8px 13px"><div class="aurora-chart" id="newAnalysisChart"></div><div class="aurora-legend"><span><i style="background:#2588e8"></i>Entradas</span><span><i style="background:#e36a7a"></i>Saídas</span></div></div>
-  <div class="aurora-section-head"><div><h2>Acumulado mês a mês</h2><p>O saldo continua de um mês para o outro</p></div></div><div class="aurora-month-table" id="newAnalysisRows"></div>
+  <div class="aurora-section-head"><div><h2>Resultado mês a mês</h2><p>Verde: sobrou · Vermelho: faltou · Amarelo: ficou zerado</p></div></div><div class="aurora-month-table" id="newAnalysisRows"></div>
  </section>
 </div>
 <nav class="aurora-bottom" id="auroraNewNav" hidden><div class="aurora-bottom-inner"><button class="aurora-tab active" data-new-tab="home"><b>⌂</b>Início</button><button class="aurora-tab" data-new-tab="history"><b>↕</b>Histórico</button><button class="aurora-tab" data-new-tab="analysis"><b>◷</b>Análise</button></div></nav>
@@ -820,17 +820,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  function monthData(n){
   const today=new Date(),end=monthKey(today),[ey,em]=end.split('-').map(Number),start=new Date(ey,em-1-(n-1),1,12),keys=[];
   for(let i=0;i<n;i++){const d=new Date(start.getFullYear(),start.getMonth()+i,1,12);keys.push(monthKey(d))}
-  let running=openingBalance;
-  const prior=entries.filter(e=>e.date<keys[0]+'-01'&&realized(e));running+=prior.reduce((s,e)=>s+sign(e)*e.amount,0);
-  return keys.map(k=>{const list=entries.filter(e=>e.date.startsWith(k)&&realized(e)),income=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),expense=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);running+=income-expense;return {key:k,label:monthTitle(k).split(' ')[0].slice(0,3),income,expense,balance:running}});
+  return keys.map(k=>{const list=entries.filter(e=>e.date.startsWith(k)),income=list.filter(e=>e.type==='income').reduce((s,e)=>s+Number(e.amount||0),0),expense=list.filter(e=>e.type==='expense').reduce((s,e)=>s+Number(e.amount||0),0);return {key:k,label:monthTitle(k).split(' ')[0].slice(0,3),income,expense,result:Math.round((income-expense)*100)/100}});
  }
+ function resultColor(value){return value>0?'#15956b':value<0?'#dc5968':'#d49a16'}
  function renderNewAnalysis(){
   if(!$('newAnalysisRows'))return;
-  const n=Number($('newAnalysisPeriod').value||12),data=monthData(n),totalIn=data.reduce((s,x)=>s+x.income,0),totalOut=data.reduce((s,x)=>s+x.expense,0);
-  $('newAnalysisBalance').textContent=fmt(data[data.length-1]?.balance||openingBalance);$('newAnalysisIncome').textContent=fmt(totalIn);$('newAnalysisExpense').textContent=fmt(totalOut);$('newAnalysisLabel').textContent='Acumulado até '+monthTitle(data[data.length-1].key);
+  const n=Number($('newAnalysisPeriod').value||12),data=monthData(n),totalIn=data.reduce((s,x)=>s+x.income,0),totalOut=data.reduce((s,x)=>s+x.expense,0),totalResult=Math.round((totalIn-totalOut)*100)/100;
+  $('newAnalysisBalance').textContent=fmt(totalResult);$('newAnalysisBalance').style.color=resultColor(totalResult);$('newAnalysisIncome').textContent=fmt(totalIn);$('newAnalysisExpense').textContent=fmt(totalOut);$('newAnalysisLabel').textContent='Resultado somado dos '+data.length+' meses exibidos';
   const max=Math.max(1,...data.flatMap(x=>[x.income,x.expense]));
   $('newAnalysisChart').innerHTML=data.map(m=>'<div class="aurora-chart-col"><div class="aurora-chart-bars"><i class="bar-in" style="height:'+Math.max(2,m.income/max*100)+'%"></i><i class="bar-out" style="height:'+Math.max(2,m.expense/max*100)+'%"></i></div><small>'+m.label+'</small></div>').join('');
-  $('newAnalysisRows').innerHTML=data.slice().reverse().map(m=>'<div class="aurora-month-row"><div><small>'+monthTitle(m.key)+'</small><strong style="color:#15956b">'+fmt(m.income)+'</strong></div><div><small>SAÍDAS</small><strong style="color:#d95365">'+fmt(m.expense)+'</strong></div><div><small>ACUMULADO</small><strong class="accum">'+fmt(m.balance)+'</strong></div></div>').join('');
+  $('newAnalysisRows').innerHTML=data.slice().reverse().map(m=>'<div class="aurora-month-row"><div><small>'+monthTitle(m.key)+'</small><strong style="color:#15956b">'+fmt(m.income)+'</strong></div><div><small>SAÍDAS</small><strong style="color:#d95365">'+fmt(m.expense)+'</strong></div><div><small>RESULTADO</small><strong style="color:'+resultColor(m.result)+'">'+fmt(m.result)+'</strong></div></div>').join('');
  }
  const oldRender=render;
  render=function(){oldRender();renderNewUI()};
