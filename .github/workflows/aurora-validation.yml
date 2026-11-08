@@ -1,0 +1,37 @@
+name: AURORA validation
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - aurora/reforma-completa-2026-11
+    paths:
+      - "index.html"
+      - "sw.js"
+      - "manifest.webmanifest"
+      - "supabase/functions/aurora-assistant/index.ts"
+      - ".github/workflows/aurora-validation.yml"
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate inline application JavaScript
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]
+            .map(match => match[1]).filter(source => source.trim());
+          if (!scripts.length) throw new Error('No inline JavaScript found');
+          fs.writeFileSync('/tmp/aurora-app.js', scripts.join('\n'));
+          NODE
+          node --check /tmp/aurora-app.js
+      - name: Validate service worker JavaScript
+        run: node --check sw.js
+      - name: Validate PWA manifest JSON
+        run: node -e "JSON.parse(require('node:fs').readFileSync('manifest.webmanifest','utf8'))"
