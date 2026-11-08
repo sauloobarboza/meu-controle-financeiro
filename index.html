@@ -467,7 +467,7 @@ function openModal(type,id=null){
  $('category').innerHTML=categories[type].map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join('');
  $('date').value=entry?.date||localDateString();$('description').value=entry?.description?.replace(/\s\(\d+\/\d+\)$/,'')||'';
  $('amount').value=entry?Number(entry.amount).toFixed(2):'';$('category').value=entry?.category||'Outros';
- $('entryPaid').checked=entry?['paid','recorded'].includes(entry.status):type==='income';
+ $('entryPaid').checked=entry?['paid','recorded'].includes(entry.status):true;
  $('entryPaidLabel').textContent=type==='income'?'Já recebi':'Já paguei';
  $('seriesMode').value='none';$('seriesMode').disabled=!!entry;$('seriesCountWrap').hidden=true;$('seriesCount').value='12';
  $('editScopeWrap').hidden=!(entry?.series_id);$('editScope').value='one';$('deleteFromForm').hidden=!entry;
@@ -502,7 +502,7 @@ async function saveEntry(event){
    for(let i=0;i<count;i++){const rowDate=makeSeriesDate(date,i),suffix=mode==='installments'?' ('+(i+1)+'/'+count+')':'';rows.push({id:crypto.randomUUID(),user_id:currentUser.id,type:currentType,description:description+suffix,amount,category,transaction_date:rowDate,status:i===0?status:'pending',series_id:seriesId,needs_review:needsReview})}
    if(!navigator.onLine){const key='aurora_offline_queue_'+currentUser.id,queue=JSON.parse(localStorage.getItem(key)||'[]');queue.push(...rows);localStorage.setItem(key,JSON.stringify(queue));rows.forEach(r=>entries.unshift({id:r.id,type:r.type,description:r.description,amount:r.amount,category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review,offline:true}));setMessage('Salvo neste aparelho. Enviaremos quando a internet voltar.','success')}
    else{const {data,error}=await supabaseClient.from('transactions').insert(rows).select('id,type,description,amount,category,transaction_date,status,series_id,needs_review');if(error)throw error;(data||[]).forEach(r=>entries.unshift({id:r.id,type:r.type,description:r.description,amount:Number(r.amount),category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review}));saveUndo({kind:'insert',rows:data||[],message:(data||[]).length+' lançamento(s) salvo(s).'});setMessage((data||[]).length+' lançamento(s) salvo(s).','success')}
-   $('entryForm').reset();$('date').value=localDateString();$('category').value='Outros';$('entryPaid').checked=currentType==='income';$('seriesMode').value='none';$('seriesCountWrap').hidden=true;$('amount').focus();render();if(mode==='none')$('modal').classList.remove('open');
+   $('entryForm').reset();$('date').value=localDateString();$('category').value='Outros';$('entryPaid').checked=true;$('seriesMode').value='none';$('seriesCountWrap').hidden=true;$('amount').focus();render();if(mode==='none')$('modal').classList.remove('open');
   }
  }catch(error){$('entryValidation').textContent='Não foi possível salvar: '+friendlyError(error);setMessage('Seu lançamento não foi salvo. '+friendlyError(error),'error',error)}
  finally{saveInProgress=false;button.disabled=false;button.textContent='Salvar lançamento'}
