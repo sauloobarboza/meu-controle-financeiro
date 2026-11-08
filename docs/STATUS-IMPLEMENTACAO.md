@@ -46,7 +46,7 @@ Implementação em branch separada: `aurora/reforma-completa-2026-11`. A versão
 
 ## Validação já executada
 
-- Workflow GitHub Actions `AURORA validation`: sucesso no commit `de082f11ee0ac321240e559a87707586c4ea0a4f`.
+- Workflow GitHub Actions `AURORA validation`: sucesso no commit `7122d8aa3b27d9e3e169b550d01fa5d51f7984f1`.
 - Verificou sintaxe do JavaScript inline, service worker e JSON do manifest.
 - Edge Function v7 publicada com JWT obrigatório.
 - Colunas, índice, migrações, RLS e privilégios da RPC verificados no Supabase.
