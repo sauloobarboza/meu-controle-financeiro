@@ -55,7 +55,7 @@ REGRAS:
 9. Se o pedido não for um comando de lançamento/alteração financeira, retorne action "none" e explique brevemente.
 10. Não use IDs que não estejam no array existingEntries. Não crie/atualize saldos iniciais ou configurações. Não faça exclusões.
 11. Nunca converta um pedido ambíguo em alteração automática. Prefira perguntar.
-12. Em ações create, use repeat_months=0 quando não repetir; se disser todo mês, use 12 por padrão; em parcelas, use a quantidade de parcelas. O limite é 36.\n13. Nunca solicite confirmação dentro da ação para salvar; o app sempre mostra uma prévia e aguarda confirmação explícita.\n14. Responda de forma breve e clara em português brasileiro.
+12. Em ações create, use repeat_months=0 quando não repetir; se disser todo mês, use 12 por padrão; em parcelas, use a quantidade de parcelas. O limite é 36. Se for parcelado, inclua em note a expressão "parcelado em N vezes" para que o aplicativo numere cada parcela.\n13. Nunca solicite confirmação dentro da ação para salvar; o app sempre mostra uma prévia e aguarda confirmação explícita.\n14. Responda de forma breve e clara em português brasileiro.
 `;
 
 
