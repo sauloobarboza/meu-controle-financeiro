@@ -551,7 +551,7 @@ async function analyzeVoiceCommand(){
  const transcript=$('voiceTranscript').value.trim();
  if(!transcript){$('voiceStatus').textContent='Fale ou digite um comando primeiro.';return}
  if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
- const button=$('voiceAnalyze');button.disabled=true;button.textContent='Analisando…';$('voiceStatus').textContent='O Gemini está interpretando seu comando…';$('voicePreview').hidden=true;
+ const button=$('voiceAnalyze');button.disabled=true;button.textContent='Analisando…';$('voiceStatus').textContent='AURORA está interpretando seu comando…';$('voicePreview').hidden=true;
  try{
   const {data,error}=await supabaseClient.functions.invoke('aurora-assistant',{body:{transcript,today:localDateString(),categories,existingEntries:entries.map(e=>({id:e.id,type:e.type,description:e.description,amount:e.amount,category:e.category,date:e.date,status:e.status}))}});
   if(error)throw error;if(data?.error)throw new Error(data.error);
@@ -559,7 +559,17 @@ async function analyzeVoiceCommand(){
  }catch(error){
   let message=error?.message||'Não foi possível interpretar o comando.';
   if(error?.context&&typeof error.context.json==='function'){try{const body=await error.context.json();if(body?.error)message=body.error}catch{}}
-  $('voiceStatus').textContent=message;setMessage('Assistente: '+message,'error',error);
+  const normalized=String(message).toLowerCase();
+  if(/alta demanda|high demand|overloaded|resource_exhausted|temporarily unavailable|tempo limite|timed out|timeout|worker_resource_limit|http 546/.test(normalized)){
+   message='A assistente está com alta demanda ou demorando para responder. Seu lançamento não foi salvo. Aguarde alguns instantes e toque em “Interpretar com Gemini” novamente.';
+  }else if(/quota|rate.?limit|429/.test(normalized)){
+   message='O limite temporário de solicitações da IA foi atingido. Seu lançamento não foi salvo. Aguarde um pouco e tente novamente.';
+  }else if(/api key|unauthorized|permission denied|403/.test(normalized)){
+   message='A integração com a IA precisa de uma verificação de acesso. Nenhum lançamento foi salvo.';
+  }else{
+   message='Não foi possível interpretar agora. Seu texto continua preenchido; tente novamente em instantes. Detalhe: '+message;
+  }
+  $('voiceStatus').textContent=message;setMessage('Assistente: '+message,'error');
  }finally{button.disabled=false;button.textContent='Interpretar com Gemini'}
 }
 function validVoiceDate(value){
