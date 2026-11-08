@@ -121,9 +121,9 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
  <section class="projection-shell simple-months" id="projection-section" aria-label="Visão dos próximos meses">
   <div class="projection-head"><div><span class="eyebrow-dark">PLANEJAMENTO</span><h2>Como ficam os próximos meses?</h2><p>Toque em um mês para abrir os lançamentos e conferir os detalhes.</p></div></div>
   <div class="projection-kpis simple-projection-kpi"><div class="projection-kpi"><small>Saldo previsto ao fim dos 12 meses</small><strong id="projectionEndBalance">R$ 0,00</strong></div></div>
-  <div id="projectionBalanceView"><div class="projection-table-wrap"><table class="projection-table simple-projection-table"><thead><tr><th>MÊS</th><th class="num">ENTRADAS</th><th class="num">SAÍDAS</th><th class="num">SALDO PREVISTO</th></tr></thead><tbody id="projectionMonths"></tbody></table></div></div>
+  <div id="projectionBalanceView"><div id="projectionChart" hidden></div><div class="projection-table-wrap"><table class="projection-table simple-projection-table"><thead><tr><th>MÊS</th><th class="num">ENTRADAS</th><th class="num">SAÍDAS</th><th class="num">SALDO PREVISTO</th></tr></thead><tbody id="projectionMonths"></tbody></table></div></div>
   <div id="projectionAccountsView" hidden><div class="simple-detail-head"><strong id="projectionDetailTitle">Detalhes do mês</strong><button type="button" class="btn secondary" id="projectionBackBtn">Voltar aos meses</button></div><div class="projection-table-wrap"><table class="projection-table"><thead><tr><th>CONTA / MOVIMENTAÇÃO</th><th>DATA</th><th class="num">VALOR</th><th>SITUAÇÃO</th><th class="num">SALDO APÓS</th></tr></thead><tbody id="projectionAccountRows"></tbody></table></div><p class="chart-subtitle" style="margin:10px 0 0">O saldo após cada lançamento considera a ordem cronológica, incluindo aportes.</p></div>
-  <div hidden><button id="projectionBalanceBtn" type="button"></button><button id="projectionAccountsBtn" type="button"></button><select id="projectionMonthFilter"></select></div>
+  <div hidden><button id="projectionBalanceBtn" type="button"></button><button id="projectionAccountsBtn" type="button"></button><select id="projectionMonthFilter"></select><span id="projectionIncome"></span><span id="projectionExpense"></span><span id="paidSummary"></span><span id="plannedSummary"></span><div id="monthlyChart"></div><div id="categoryDonut"></div><div id="dailyChart"></div><div id="metricInsights"></div></div>
  </section>
  <section class="reminder-panel simple-reminders" id="reminderPanel" aria-live="polite"><h3>Contas próximas do vencimento</h3><div id="reminderList"></div></section>
  <div class="layout" id="bills-section">
@@ -135,7 +135,7 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
    <div class="sectionhead"><h2>Contas por tipo</h2></div><div class="card" id="categories"></div>
    <div class="sectionhead"><h2>Saldo de partida</h2></div>
    <div class="card opening-card"><p>Informe quanto já havia disponível no início do controle. Esse valor entra no saldo acumulado, mas não é contado como aporte do mês.</p><label class="field"><span>Saldo inicial (R$)</span><input id="openingBalance" type="number" min="0" step="0.01" inputmode="decimal" value="0"></label><button class="btn secondary" id="saveOpeningBalance">Salvar saldo inicial</button></div>
-   <div class="sectionhead"><h2>Resumo do mês</h2></div><div class="card" id="summary"></div>
+   <div class="sectionhead"><h2>Resumo do mês</h2></div><div class="card" id="summary"></div><div class="actions report-actions"><button class="btn secondary" id="exportBtn">↓ Exportar CSV</button></div>
   </details></aside>
  </div>
  <div class="foot">Controle do apartamento · Aportes, contas, pagamentos e saldo acumulado. Seus dados ficam sincronizados com sua conta.</div>
@@ -296,7 +296,8 @@ function effectiveStatus(entry,today=localDateString()){return ['pending','plann
  if(!$('transactions'))return;
  const selected=$('monthPicker').value,list=monthEntries(),actualStatuses=['paid','recorded'];
  const income=total(list,'income',actualStatuses),expense=total(list,'expense',actualStatuses);
-
+ const pending=total(list,'expense',['pending'])+total(list,'income',['pending']);
+ const planned=total(list,'expense',['planned'])+total(list,'income',['planned']);
  $('monthReadable').textContent=monthLabel(selected);
  $('incomeTotal').textContent=money(income);$('expenseTotal').textContent=money(expense);
  const [year,month]=selected.split('-').map(Number),monthEnd=year+'-'+String(month).padStart(2,'0')+'-'+String(new Date(year,month,0).getDate()).padStart(2,'0');
@@ -304,7 +305,7 @@ function effectiveStatus(entry,today=localDateString()){return ['pending','plann
  const accumulated=openingBalance+total(throughMonth,'income',['paid','recorded'])-total(throughMonth,'expense',['paid','recorded']);
  $('accumulatedTotal').textContent=money(accumulated);
  $('paidSummary').textContent=money(total(list,'expense',['paid','recorded'])+total(list,'income',['paid','recorded']));
- $('pendingSummary').textContent=money(pending);$('plannedSummary').textContent=money(planned);
+ $('pendingSummary').textContent=money(total(list,'expense',['pending','planned']));$('plannedSummary').textContent=money(planned);
  if(document.activeElement!==$('openingBalance'))$('openingBalance').value=Number(openingBalance).toFixed(2);
  renderProjection();
  const typeFilter=$('typeFilter').value,statusFilter=$('statusFilter').value;
@@ -451,7 +452,7 @@ function initializeSupabase(){
  });
  setMessage('Autenticação pronta. Entre ou crie sua conta.','success');
 }
-function setupAuroraNavigation(){const nav=$('auroraBottomNav');if(!nav)return;nav.addEventListener('click',event=>{const button=event.target.closest('[data-target]');if(!button)return;const target=$(button.dataset.target);if(!target)return;nav.querySelectorAll('.nav-item').forEach(item=>{const active=item===button;item.classList.toggle('active',active);if(active)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});target.scrollIntoView({behavior:'smooth',block:'start'});});}
+function setupAuroraNavigation(){const nav=$('auroraBottomNav');if(!nav)return;const go=targetId=>{const target=$(targetId);if(target)target.scrollIntoView({behavior:'smooth',block:'start'})};nav.addEventListener('click',event=>{const button=event.target.closest('[data-target]');if(!button)return;nav.querySelectorAll('.nav-item').forEach(item=>{const active=item===button;item.classList.toggle('active',active);if(active)item.setAttribute('aria-current','page');else item.removeAttribute('aria-current')});go(button.dataset.target)});document.querySelectorAll('.simple-metric[data-target]').forEach(button=>button.addEventListener('click',()=>go(button.dataset.target)));}
 function initializeApp(){
  $('monthPicker').value=localDateString().slice(0,7);
  $('authForm').addEventListener('submit',handleAuthForm);$('resetBtn').addEventListener('click',requestPasswordReset);
