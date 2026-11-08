@@ -1,6 +1,6 @@
 # AURORA — Controle financeiro pessoal
 
-Aplicativo PWA de controle financeiro pessoal, desenvolvido com HTML, CSS e JavaScript, Supabase Auth/Postgres e uma Edge Function para assistente de lançamentos.
+Aplicativo PWA de controle financeiro pessoal, desenvolvido com HTML, CSS, JavaScript e Supabase Auth/Postgres.
 
 ## Acesso
 
