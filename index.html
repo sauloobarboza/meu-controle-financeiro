@@ -469,7 +469,7 @@ function openModal(type,id=null){
  $('amount').value=entry?Number(entry.amount).toFixed(2):'';$('category').value=entry?.category||'Outros';
  $('entryPaid').checked=entry?['paid','recorded'].includes(entry.status):true;
  $('entryPaidLabel').textContent=type==='income'?'Já recebi':'Já paguei';
- $('seriesMode').value='none';$('seriesMode').disabled=!!entry;$('seriesCountWrap').hidden=true;$('seriesUntilWrap').hidden=true;$('seriesCount').value='12';const now=new Date();$('seriesUntil').value=now.getFullYear()+'-'+String(now.getMonth()+12).padStart(2,'0');
+ $('seriesMode').value='none';$('seriesMode').disabled=!!entry;$('seriesCountWrap').hidden=true;$('seriesUntilWrap').hidden=true;$('seriesCount').value='12';const now=new Date(),defaultUntil=new Date(now.getFullYear(),now.getMonth()+11,1);$('seriesUntil').value=defaultUntil.getFullYear()+'-'+String(defaultUntil.getMonth()+1).padStart(2,'0');
  $('editScopeWrap').hidden=!(entry?.series_id);$('editScope').value='one';$('deleteFromForm').hidden=!entry;
  $('modal').classList.add('open');$('amount').focus();
 }
