@@ -13,7 +13,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 1080px)/2)) 26px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:750;font-size:20px}.month{display:flex;align-items:center;gap:8px;margin-top:20px}.month button{background:#293449;color:#fff;border:0;border-radius:9px;padding:8px 12px}.month input{background:#293449;color:white;border:0;border-radius:9px;padding:8px}.wrap{max-width:1080px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 3px 12px #17203308}.metric span{color:var(--muted);font-size:13px}.metric strong{display:block;font-size:25px;margin-top:6px;letter-spacing:-.6px}.income{color:var(--green)}.expense{color:var(--red)}.balance{color:var(--blue)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin:17px 0}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:650}.primary{background:var(--blue);color:white}.secondary{background:#e9edff;color:#2946b4}.danger{background:#fff0f1;color:#bd3341}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:22px 0 12px}.sectionhead h2{font-size:17px;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters select,.filters input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px;color:var(--ink)}.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}.transactions{padding:0;overflow:hidden}.tx{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 17px;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.txname{font-weight:650}.txmeta{color:var(--muted);font-size:12px;margin-top:3px}.txamount{font-weight:750;white-space:nowrap}.empty{padding:28px 16px;text-align:center;color:var(--muted)}.barrow{display:grid;grid-template-columns:85px 1fr auto;gap:9px;align-items:center;margin:15px 0;font-size:13px}.track{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue)}.modal{position:fixed;inset:0;background:#10182799;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal.open{display:flex}.dialog{width:min(100%,440px);background:#fff;border-radius:18px;padding:21px}.dialog h2{margin:0 0 16px;font-size:19px}.field{display:block;margin:12px 0}.field span{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:white}.formactions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}.foot{color:var(--muted);font-size:12px;text-align:center;padding:24px 10px}.install{background:#293449;color:white;border:1px solid #536078;border-radius:9px;padding:8px 11px;display:none}
 @media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:1/-1}.layout{grid-template-columns:1fr}.top{padding:18px}.wrap{padding:13px}.metric strong{font-size:22px}.brand{font-size:18px}}
 
-.authwrap{max-width:480px;margin:28px auto;padding:18px}.authcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.authcard h1{font-size:22px;margin:0 0 8px}.authcard p{color:var(--muted);margin:0 0 18px}.authcard input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 12px}.authactions{display:flex;gap:8px;flex-wrap:wrap}.authmsg{font-size:13px;margin-top:12px;color:var(--blue);min-height:20px}.account{display:flex;align-items:center;gap:8px;color:#fff;font-size:12px}.account button{background:#293449;color:#fff;border:1px solid #536078;border-radius:9px;padding:8px 10px}
+.authwrap{max-width:480px;margin:28px auto;padding:18px}.authcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.authcard h1{font-size:22px;margin:0 0 8px}.authcard p{color:var(--muted);margin:0 0 18px}.authcard input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 12px}.authactions{display:flex;gap:8px;flex-wrap:wrap}.password-field{position:relative}.authcard .password-field input{padding-right:52px}.toggle-password{position:absolute;right:7px;top:28px;height:36px;min-width:38px;border:0;border-radius:8px;background:#eef1f7;color:#263247;font-size:19px;display:grid;place-items:center}.toggle-password:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.authmsg{font-size:13px;margin-top:12px;color:var(--blue);min-height:20px}.account{display:flex;align-items:center;gap:8px;color:#fff;font-size:12px}.account button{background:#293449;color:#fff;border:1px solid #536078;border-radius:9px;padding:8px 10px}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -22,7 +22,7 @@
  <div class="toprow"><div class="brand">💰 Meu Controle Financeiro</div><div class="account"><span id="userEmail"></span><button id="logoutBtn" hidden>Sair</button><button id="installBtn" class="install">Instalar app</button></div></div>
  <div class="month"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
 </header>
-<section class="authwrap" id="authPanel"><div class="authcard"><h1>Acesse seu controle financeiro</h1><p>Entre ou crie sua conta para sincronizar seus lançamentos com segurança.</p><form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label><label class="field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"></label><div class="authactions"><button class="btn primary" type="submit" id="loginBtn">Entrar</button><button class="btn secondary" type="button" id="signupBtn">Criar conta</button><button class="btn secondary" type="button" id="resetBtn">Esqueci a senha</button></div></form><div class="authmsg" id="authMessage" role="status"></div></div></section>
+<section class="authwrap" id="authPanel"><div class="authcard"><h1>Acesse seu controle financeiro</h1><p>Entre ou crie sua conta para sincronizar seus lançamentos com segurança.</p><form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label><label class="field password-field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"><button class="toggle-password" id="togglePassword" type="button" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></label><div class="authactions"><button class="btn primary" type="submit" id="loginBtn">Entrar</button><button class="btn secondary" type="button" id="signupBtn">Criar conta</button><button class="btn secondary" type="button" id="resetBtn">Esqueci a senha</button></div></form><div class="authmsg" id="authMessage" role="status"></div></div></section>
 <main class="wrap" id="dashboard" hidden>
  <section class="grid">
   <div class="card metric"><span>Receitas do mês</span><strong class="income" id="incomeTotal">R$ 0,00</strong></div>
@@ -55,11 +55,11 @@
  </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
 <script>
 const SUPABASE_URL='https://dqhyiggxcxczdcopdyec.supabase.co';
 const SUPABASE_KEY='sb_publishable_vM-nl4k5Ilkk0_QUohutFw_2wuweUTP';
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const supabase=window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY) : null;
 const KEY='mcf_transactions_v1';
 const categories={income:['Salário','Renda extra','Investimentos','Outros'],expense:['Moradia','Alimentação','Transporte','Saúde','Lazer','Contas','Cartão de crédito','Educação','Outros']};
 let entries=[],currentType='expense',currentUser=null;
@@ -69,6 +69,8 @@ const today=()=>new Date().toISOString().slice(0,10);
 $('monthPicker').value=today().slice(0,7);
 function monthEntries(){const m=$('monthPicker').value;return entries.filter(e=>e.date.startsWith(m))}
 function setMessage(msg,isError=false){$('authMessage').textContent=msg;$('authMessage').style.color=isError?'#bd3341':'#3457d5'}
+if(!supabase)setMessage('Não foi possível carregar o serviço de login. Verifique sua conexão e atualize a página.',true);
+$('togglePassword').onclick=()=>{const field=$('authPassword'),show=field.type==='password';field.type=show?'text':'password';$('togglePassword').setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');$('togglePassword').setAttribute('aria-pressed',String(show));$('togglePassword').title=show?'Ocultar senha':'Mostrar senha'};
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function loadEntries(){
  const {data,error}=await supabase.from('transactions').select('*').order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
@@ -99,27 +101,33 @@ async function refreshSession(){
 async function renderAuthError(error){setMessage(error.message||String(error),true)}
 $('authForm').onsubmit=async e=>{
  e.preventDefault();const email=$('authEmail').value.trim(),password=$('authPassword').value;
+ if(!supabase)return setMessage('Serviço de login indisponível. Atualize a página e tente novamente.',true);
  $('loginBtn').disabled=true;setMessage('Entrando...');
- const {data,error}=await supabase.auth.signInWithPassword({email,password});
+ let result;try{result=await supabase.auth.signInWithPassword({email,password})}catch(err){$('loginBtn').disabled=false;return renderAuthError(err)}
+ const {data,error}=result;
  $('loginBtn').disabled=false;
  if(error)return renderAuthError(error);
  showDashboard(data.user);try{await loadEntries();setMessage('Login realizado.')}catch(err){setMessage(err.message,true)}
 };
 $('signupBtn').onclick=async()=>{
  const email=$('authEmail').value.trim(),password=$('authPassword').value;
- if(!email||password.length<6)return setMessage('Informe um e-mail válido e uma senha com pelo menos 6 caracteres.',true);
- setMessage('Criando sua conta...');
- const {data,error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}});
+ if(!supabase)return setMessage('Serviço de cadastro indisponível. Atualize a página e tente novamente.',true);
+ if(!$('authEmail').checkValidity())return setMessage('Digite um endereço de e-mail válido.',true);
+ if(password.length<6)return setMessage('A senha precisa ter pelo menos 6 caracteres.',true);
+ $('signupBtn').disabled=true;setMessage('Criando sua conta...');
+ let result;try{result=await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}})}catch(err){$('signupBtn').disabled=false;return renderAuthError(err)}
+ $('signupBtn').disabled=false;const {data,error}=result;
  if(error)return renderAuthError(error);
  if(data.session){showDashboard(data.user);try{await loadEntries()}catch(err){setMessage(err.message,true)}}
  else setMessage('Conta criada! Confira seu e-mail e confirme o cadastro antes de entrar.');
 };
 $('resetBtn').onclick=async()=>{
  const email=$('authEmail').value.trim();if(!email)return setMessage('Digite seu e-mail primeiro.',true);
+ if(!supabase)return setMessage('Serviço de recuperação indisponível. Atualize a página e tente novamente.',true);
  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.href.split('#')[0].split('?')[0]});
  if(error)return renderAuthError(error);setMessage('Se o e-mail estiver cadastrado, você receberá o link para redefinir a senha.');
 };
-$('logoutBtn').onclick=async()=>{const {error}=await supabase.auth.signOut();if(error)return alert(error.message);entries=[];showDashboard(null)};
+$('logoutBtn').onclick=async()=>{if(!supabase)return;const {error}=await supabase.auth.signOut();if(error)return alert(error.message);entries=[];showDashboard(null)};
 function render(){
  const list=monthEntries(),inc=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),out=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
  $('incomeTotal').textContent=money(inc);$('expenseTotal').textContent=money(out);$('balanceTotal').textContent=money(inc-out);
@@ -145,8 +153,8 @@ $('exportBtn').onclick=()=>{const rows=[['Data','Tipo','Descrição','Categoria'
 let installPrompt;$('installBtn').onclick=async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').style.display='none'}else alert('No Chrome, abra o menu ⋮ e escolha "Instalar app" ou "Adicionar à tela inicial".')};
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').style.display='block'});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-supabase.auth.onAuthStateChange(async(_event,session)=>{if(session&&currentUser?.id!==session.user.id){showDashboard(session.user);try{await loadEntries()}catch(err){setMessage(err.message,true)}}else if(!session)showDashboard(null)});
-refreshSession().catch(err=>setMessage(err.message,true));
+if(supabase)supabase.auth.onAuthStateChange(async(_event,session)=>{if(session&&currentUser?.id!==session.user.id){showDashboard(session.user);try{await loadEntries()}catch(err){setMessage(err.message,true)}}else if(!session)showDashboard(null)});
+if(supabase)refreshSession().catch(err=>setMessage(err.message,true));
 </script>
 
 </body></html>
