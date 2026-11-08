@@ -98,6 +98,25 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
 .voice-preview-item strong{display:block;color:#1a2f4a;font-size:13px}.voice-preview-item small{display:block;color:#6b7b90;margin-top:4px;font-size:11px}
 .voice-preview-item .voice-value{font-weight:750;color:#176b4c;margin-top:5px;font-size:14px}
 @media(max-width:700px){.voice-assistant{padding:14px}.voice-actions .btn{flex:1}.hero-actions{flex-wrap:wrap}.voice-launch{flex-basis:100%}}
+
+/* Central de melhorias do AURORA */
+.change-center{margin:18px 0;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 8px 28px #17203308}
+.change-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.change-head h2{font-size:19px;margin:0}.change-head p{font-size:12px;color:var(--muted);margin:5px 0 0}
+.change-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.change-form .field{margin:0}.change-form .field.full{grid-column:1/-1}
+.change-form input,.change-form select,.change-form textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.change-form textarea{min-height:95px;resize:vertical}
+.change-list{display:grid;gap:9px;margin-top:14px}
+.change-item{border:1px solid var(--line);border-radius:12px;padding:13px;display:grid;gap:7px}
+.change-item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.change-item strong{font-size:13px}.change-item p{font-size:12px;color:var(--muted);margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.change-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:10px;color:var(--muted)}
+.change-status{padding:4px 8px;border-radius:99px;font-size:10px;font-weight:750;background:#fff5df;color:#986313}
+.change-status.in_progress{background:#edf3ff;color:#2859ad}.change-status.completed{background:#e8f7ef;color:#16734d}.change-status.rejected{background:#fff0f1;color:#bd3341}
+.change-empty{padding:18px;text-align:center;color:var(--muted);font-size:12px;border:1px dashed var(--line);border-radius:12px}
+.change-refresh{border:1px solid var(--line);background:#f7f9fc;border-radius:9px;padding:8px 11px;color:var(--ink);font-size:11px;font-weight:700}
+@media(max-width:600px){.change-center{padding:14px}.change-form{grid-template-columns:1fr}.change-form .field.full{grid-column:auto}.change-item-top{display:grid}}
 </style>
 </head>
 <body>
@@ -138,6 +157,17 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
   <label class="field voice-transcript-label"><span>O que você falou (você também pode digitar)</span><textarea id="voiceTranscript" rows="3" maxlength="3000" placeholder="Ex.: Paguei 120 reais de internet hoje."></textarea></label>
   <div class="voice-actions"><button type="button" class="btn primary" id="voiceAnalyze">Interpretar com Gemini</button></div>
   <div class="voice-preview" id="voicePreview" hidden><p id="voiceAssistantMessage"></p><div id="voicePreviewItems"></div><div class="voice-actions"><button type="button" class="btn secondary" id="voiceEdit">Editar comando</button><button type="button" class="btn primary" id="voiceApply">Confirmar e salvar</button></div></div>
+ </section>
+ <section class="change-center" id="changeCenter" aria-label="Central de melhorias">
+  <div class="change-head"><div><span class="eyebrow-dark">EVOLUÇÃO DO AURORA</span><h2>Central de melhorias</h2><p>Peça mudanças de layout, gráficos, correções ou novas funcionalidades. Suas solicitações ficam registradas na sua conta.</p></div><button class="change-refresh" type="button" id="refreshChangeRequests">↻ Atualizar</button></div>
+  <form class="change-form" id="changeRequestForm">
+   <label class="field"><span>O que deseja mudar?</span><input id="changeTitle" maxlength="120" required placeholder="Ex.: Modernizar a tela inicial"></label>
+   <label class="field"><span>Área</span><select id="changeArea"><option>Geral</option><option>Layout</option><option>Dashboard</option><option>Gráficos</option><option>Funcionalidade</option><option>Correção</option><option>Outro</option></select></label>
+   <label class="field full"><span>Descreva como deve funcionar</span><textarea id="changeDescription" maxlength="5000" required placeholder="Conte o que você quer, como imagina a tela e o que precisa acontecer..."></textarea></label>
+   <div class="field full"><button class="btn primary" id="submitChangeRequest" type="submit">Enviar solicitação</button><span id="changeRequestMessage" role="status" style="display:block;margin-top:8px;color:var(--muted);font-size:11px"></span></div>
+  </form>
+  <div class="sectionhead" style="margin-top:8px"><h2>Minhas solicitações</h2></div>
+  <div class="change-list" id="changeRequestList"><div class="change-empty">Carregando solicitações...</div></div>
  </section>
  <section class="grid apartment-metrics">
   <button class="card metric simple-metric" type="button" data-target="bills-section"><span>Entrou no mês</span><strong class="income" id="incomeTotal">R$ 0,00</strong><small>Valores recebidos</small></button>
@@ -232,7 +262,7 @@ async function activateUser(user){
  showDashboard(user);
  if(activeUserId===user.id&&entriesLoadedForUser===user.id)return;
  if(activeUserId===user.id&&loadingPromise)return loadingPromise;
- activeUserId=user.id;loadingPromise=loadEntries(user.id);
+ activeUserId=user.id;loadingPromise=(async()=>{await loadEntries(user.id);await loadChangeRequests()})();
  try{await loadingPromise;entriesLoadedForUser=user.id}finally{loadingPromise=null}
 }
 async function createAccount(email,password){
@@ -591,6 +621,43 @@ async function applyVoiceActions(){
   $('voiceStatus').textContent=message;setMessage(message,'error',error);
  }finally{saveInProgress=false;button.disabled=false;button.textContent='Confirmar e salvar'}
 }
+
+const changeStatusLabels={pending:'Pendente',in_progress:'Em andamento',completed:'Concluído',rejected:'Não aprovado'};
+let changeRequests=[];
+async function loadChangeRequests(){
+ if(!supabaseClient||!currentUser?.id)return;
+ const list=$('changeRequestList');if(list)list.innerHTML='<div class="change-empty">Carregando solicitações...</div>';
+ const {data,error}=await supabaseClient.from('app_change_requests').select('id,title,description,area,status,github_issue_url,created_at,updated_at,completed_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
+ if(error)throw error;
+ changeRequests=data||[];renderChangeRequests();
+}
+function renderChangeRequests(){
+ const list=$('changeRequestList');if(!list)return;
+ if(!changeRequests.length){list.innerHTML='<div class="change-empty">Você ainda não enviou nenhuma solicitação. Sua primeira ideia pode começar aqui. ✨</div>';return}
+ list.innerHTML=changeRequests.map(item=>{
+  const date=new Date(item.created_at).toLocaleDateString('pt-BR');
+  const link=item.github_issue_url?'<a href="'+escapeHtml(item.github_issue_url)+'" target="_blank" rel="noopener noreferrer">Acompanhar no GitHub ↗</a>':'';
+  return '<article class="change-item"><div class="change-item-top"><strong>'+escapeHtml(item.title)+'</strong><span class="change-status '+escapeHtml(item.status)+'">'+escapeHtml(changeStatusLabels[item.status]||item.status)+'</span></div><p>'+escapeHtml(item.description)+'</p><div class="change-meta"><span>'+escapeHtml(item.area)+'</span><span>·</span><span>Enviada em '+date+'</span>'+link+'</div></article>';
+ }).join('');
+}
+async function submitChangeRequest(event){
+ event.preventDefault();
+ if(!currentUser?.id||!supabaseClient){$('changeRequestMessage').textContent='Entre na sua conta para enviar uma solicitação.';return}
+ const title=$('changeTitle').value.trim(),description=$('changeDescription').value.trim(),area=$('changeArea').value,button=$('submitChangeRequest'),message=$('changeRequestMessage');
+ if(title.length<3||description.length<5){message.textContent='Informe um título e uma descrição um pouco mais completos.';return}
+ button.disabled=true;button.textContent='Enviando...';message.textContent='';
+ try{
+  const {error}=await supabaseClient.from('app_change_requests').insert({user_id:currentUser.id,title,description,area});
+  if(error)throw error;
+  $('changeRequestForm').reset();message.textContent='Solicitação registrada! Ela já está guardada no Supabase.';await loadChangeRequests();
+ }catch(error){message.textContent='Não foi possível enviar: '+friendlyError(error);console.error('Erro ao registrar melhoria:',error)}
+ finally{button.disabled=false;button.textContent='Enviar solicitação'}
+}
+function setupChangeCenter(){
+ $('changeRequestForm').addEventListener('submit',submitChangeRequest);
+ $('refreshChangeRequests').addEventListener('click',async()=>{try{await loadChangeRequests();$('changeRequestMessage').textContent='Lista atualizada.'}catch(error){$('changeRequestMessage').textContent='Falha ao atualizar: '+friendlyError(error)}});
+}
+
 function setupVoiceAssistant(){
  $('openVoiceAssistant').addEventListener('click',openVoiceAssistant);
  $('voiceClose').addEventListener('click',()=>{$('voiceAssistant').hidden=true;if(voiceRecognition){try{voiceRecognition.stop()}catch{}}});
@@ -608,7 +675,7 @@ function initializeApp(){
  $('transactions').addEventListener('click',event=>{const payButton=event.target.closest('[data-paid]');if(payButton){updateEntryStatus(payButton.dataset.paid,payButton);return}const button=event.target.closest('[data-delete]');if(button)deleteEntry(button.dataset.delete,button)});
  $('typeFilter').addEventListener('change',render);$('statusFilter').addEventListener('change',render);$('projectionBalanceBtn').addEventListener('click',()=>setProjectionMode('balance'));$('projectionAccountsBtn').addEventListener('click',()=>setProjectionMode('accounts'));$('projectionMonthFilter').addEventListener('change',()=>renderProjectionAccounts(projectionMonths().map(m=>({...m}))));$('projectionMonths').addEventListener('click',event=>{const row=event.target.closest('[data-month-open]');if(!row)return;openProjectionMonth(row.dataset.monthOpen)});$('projectionMonths').addEventListener('keydown',event=>{if(event.key!=='Enter'&&event.key!==' ')return;const row=event.target.closest('[data-month-open]');if(!row)return;event.preventDefault();openProjectionMonth(row.dataset.monthOpen)});$('projectionBackBtn').addEventListener('click',()=>setProjectionMode('balance'));$('monthPicker').addEventListener('change',render);$('saveOpeningBalance').addEventListener('click',saveOpeningBalance);
  $('prevMonth').addEventListener('click',()=>shiftMonth(-1));$('nextMonth').addEventListener('click',()=>shiftMonth(1));$('exportBtn').addEventListener('click',exportCsv);
- setProjectionMode('balance');setupAuroraNavigation();setupVoiceAssistant();setupPasswordFeedback();setupInstallPrompt();setupServiceWorker();initializeSupabase();
+ setProjectionMode('balance');setupAuroraNavigation();setupVoiceAssistant();setupChangeCenter();setupPasswordFeedback();setupInstallPrompt();setupServiceWorker();initializeSupabase();
  window.addEventListener('error',event=>console.error('Erro JavaScript:',event.error||event.message));
  window.addEventListener('unhandledrejection',event=>{console.error('Falha assíncrona:',event.reason);setMessage('Uma operação não foi concluída: '+friendlyError(event.reason),'error',event.reason)});
 }
