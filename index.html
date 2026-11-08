@@ -766,7 +766,7 @@ function setScreen(screen){
  const allowed=['today','months','settings'];if(!allowed.includes(screen))screen='today';
  document.body.classList.remove('aurora-screen-today','aurora-screen-months','aurora-screen-settings');document.body.classList.add('aurora-screen-'+screen);
  const nav=$('auroraBottomNav');nav?.querySelectorAll('[data-screen-target]').forEach(button=>{const active=button.dataset.screenTarget===screen;button.classList.toggle('active',active);if(active)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current')});const monthControl=$('globalMonthControl');if(monthControl)monthControl.style.display=screen==='months'&&projectionMode==='month'?'flex':'none';
- if(screen==='settings'){const aside=document.querySelector('.advanced-details');if(aside&&aside.parentElement!==$('dashboard'))$('dashboard').appendChild(aside);const install=$('installBtn');if(install&&aside&&!aside.contains(install))aside.prepend(install)}
+ if(screen==='settings'){const aside=document.querySelector('.advanced-details');if(aside&&aside.parentElement!==$('dashboard'))$('dashboard').appendChild(aside);const install=$('installBtn'),logout=$('logoutBtn');if(install&&aside&&!aside.contains(install))aside.prepend(install);if(logout&&aside&&!aside.contains(logout))aside.prepend(logout)}
 }
 function setProjectionView(mode){
  projectionMode=mode;document.querySelectorAll('[data-projection-mode]').forEach(b=>b.classList.toggle('active',b.dataset.projectionMode===mode));
