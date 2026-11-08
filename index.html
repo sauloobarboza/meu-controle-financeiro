@@ -159,6 +159,7 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
 @media(max-width:700px){.wrap{padding-bottom:100px}.aurora-bottom-nav{padding-bottom:env(safe-area-inset-bottom)}}
 
 .review-category{display:block;color:#d4e7f3;font-size:12px;margin-top:3px}
+.year-account-row{width:100%;display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:10px;padding:10px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;color:var(--ink)}.year-account-bar{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.year-account-bar i{display:block;height:100%;background:var(--blue);border-radius:99px}.year-detail-row{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -262,7 +263,7 @@ const SUPABASE_KEY='sb_publishable_vM-nl4k5Ilkk0_QUohutFw_2wuweUTP';
 const STORAGE_KEY='sb-dqhyiggxcxczdcopdyec-auth-token';
 const LOCAL_DATA_KEY='mcf_transactions_v1';
 const $=id=>document.getElementById(id);
-let categories={income:['Aporte','Outros'],expense:['Aluguel','Água','Luz','Condomínio','IPTU','IPVA','Gás','Caução','Cartão','Faculdade','Seguro','Internet','MP','Itaú','Mercado','Transporte','Saúde','Lazer','Outros']};
+const defaultExpenseCategories=['Aluguel','Água','Luz','Condomínio','IPTU','IPVA','Gás','Caução','Cartão','Faculdade','Seguro','Internet','MP','Itaú','Mercado','Transporte','Saúde','Lazer','Outros'];let categories={income:['Aporte','Outros'],expense:[...defaultExpenseCategories]};
 const statusLabels={paid:'Pago / recebido',pending:'A pagar / a receber',planned:'A pagar / a receber',recorded:'Pago / recebido'};
 let supabaseClient=null,entries=[],currentUser=null,currentType='expense',installPrompt=null,activeUserId=null,entriesLoadedForUser=null,loadingPromise=null,saveInProgress=false,openingBalance=0,editingEntryId=null,projectionMode='month',undoRecord=null,undoTimer=null;
 
@@ -360,7 +361,22 @@ function total(list,type,statuses=null){return list.filter(e=>e.type===type&&(!s
 function situacao(entry,today=localDateString()){if(['paid','recorded'].includes(entry?.status))return 'paid';if(['pending','planned'].includes(entry?.status))return entry.date<today?'overdue':'pending';return 'pending'}
 function effectiveStatus(entry,today=localDateString()){return situacao(entry,today)}
 function statusText(entry){return situacao(entry)==='overdue'?'Atrasado':situacao(entry)==='paid'?'Pago / recebido':'A pagar / a receber'}
-const Calc={round(v){return Math.round((Number(v)||0)*100)/100},actualBalance(rows,opening=0){return this.round(opening+rows.filter(e=>situacao(e)==='paid').reduce((s,e)=>s+(e.type==='income'?1:-1)*Number(e.amount||0),0))},projectedBalance(rows,opening=0,through='9999-12-31'){return this.round(opening+rows.filter(e=>e.date<=through).reduce((s,e)=>s+(e.type==='income'?1:-1)*Number(e.amount||0),0))},monthlyNet(rows){return this.round(rows.reduce((s,e)=>s+(e.type==='income'?1:-1)*Number(e.amount||0),0))}};function projectionMonths(){const p=$('monthPicker').value.split('-').map(Number),a=[];for(let i=0;i<12;i++){const d=new Date(p[0],p[1]-1+i,1,12),key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),end=key+'-'+String(new Date(d.getFullYear(),d.getMonth()+1,0).getDate()).padStart(2,'0');a.push({key,end,label:d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}).replace('.','')})}return a}function renderProjection(){if(!$('projectionMonths'))return;const months=projectionMonths(),all=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));let running=openingBalance+all.filter(e=>e.date<months[0].key).reduce((s,e)=>s+(e.type==='income'?e.amount:-e.amount),0);const data=months.map(m=>{const rows=all.filter(e=>e.date>=m.key+'-01'&&e.date<=m.end),income=rows.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),expense=rows.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);running+=income-expense;return {...m,rows,income,expense,balance:running}});$('projectionEndBalance').textContent=money(data[11].balance);$('projectionMonths').innerHTML=data.map(m=>'<tr data-month-open="'+m.key+'" tabindex="0" role="button" aria-label="Abrir detalhes de '+escapeHtml(m.label)+'"><td><strong>'+escapeHtml(m.label)+'</strong></td><td class="num income">'+money(m.income)+'</td><td class="num expense">'+money(m.expense)+'</td><td class="num"><strong>'+money(m.balance)+'</strong></td></tr>').join('');const vals=data.map(m=>m.balance),min=Math.min(0,...vals),max=Math.max(1,...vals),w=720,h=205,L=58,R=18,T=16,B=34,pw=w-L-R,ph=h-T-B,x=i=>L+i/(vals.length-1)*pw,y=v=>T+(max-v)/(max-min||1)*ph;let svg='<svg class="chart-svg" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Projeção do saldo acumulado nos próximos doze meses">';for(let t=0;t<4;t++){const v=max-(max-min)*t/3,yy=y(v);svg+='<line x1="'+L+'" y1="'+yy+'" x2="'+(w-R)+'" y2="'+yy+'" stroke="#edf0f4"/><text x="'+(L-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="10" fill="#7b8493">'+chartMoney(v)+'</text>'}svg+='<polyline points="'+vals.map((v,i)=>x(i)+','+y(v)).join(' ')+'" fill="none" stroke="#16845b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';vals.forEach((v,i)=>{svg+='<circle cx="'+x(i)+'" cy="'+y(v)+'" r="4" fill="#16845b"><title>'+data[i].label+': '+money(v)+'</title></circle><text x="'+x(i)+'" y="'+(h-9)+'" text-anchor="middle" font-size="10" fill="#687386">'+escapeHtml(data[i].label)+'</text>'});$('projectionChart').innerHTML=svg+'</svg>';const sel=$('projectionMonthFilter'),old=sel.value;sel.innerHTML=data.map(m=>'<option value="'+m.key+'">'+escapeHtml(m.label)+'</option>').join('');if(data.some(m=>m.key===old))sel.value=old;renderProjectionAccounts(data);setProjectionView(projectionMode);renderReminders()}function renderProjectionAccounts(data){
+const Calc={round(v){return Math.round((Number(v)||0)*100)/100},actualBalance(rows,opening=0){return this.round(opening+rows.filter(e=>situacao(e)==='paid').reduce((s,e)=>s+(e.type==='income'?1:-1)*Number(e.amount||0),0))},projectedBalance(rows,opening=0,through='9999-12-31'){return this.round(opening+rows.filter(e=>e.date<=through).reduce((s,e)=>s+(e.type==='income'?1:-1)*Number(e.amount||0),0))},monthlyNet(rows){return this.round(rows.reduce((s,e)=>s+(e.type==='income'?1:-1)*Number(e.amount||0),0))}};function projectionMonths(){const p=$('monthPicker').value.split('-').map(Number),a=[];for(let i=0;i<12;i++){const d=new Date(p[0],p[1]-1+i,1,12),key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),end=key+'-'+String(new Date(d.getFullYear(),d.getMonth()+1,0).getDate()).padStart(2,'0');a.push({key,end,label:d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}).replace('.','')})}return a}function renderProjection(){
+ if(!$('projectionMonths'))return;
+ const months=projectionMonths(),all=entries.slice().sort((a,b)=>a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));
+ const firstDay=months[0].key+'-01';let running=openingBalance+all.filter(e=>e.date<firstDay).reduce((sum,e)=>sum+(e.type==='income'?e.amount:-e.amount),0);
+ const data=months.map(m=>{const rows=all.filter(e=>e.date>=m.key+'-01'&&e.date<=m.end),income=rows.filter(e=>e.type==='income').reduce((sum,e)=>sum+e.amount,0),expense=rows.filter(e=>e.type==='expense').reduce((sum,e)=>sum+e.amount,0);running+=income-expense;return {...m,rows,income,expense,balance:Calc.round(running)}});
+ $('projectionEndBalance').textContent=money(data[11].balance);
+ $('projectionMonths').innerHTML=data.map(m=>'<tr data-month-open="'+m.key+'" tabindex="0" role="button" aria-label="Abrir detalhes de '+escapeHtml(m.label)+'"><td><strong>'+escapeHtml(m.label)+'</strong></td><td class="num income">'+money(m.income)+'</td><td class="num expense">'+money(m.expense)+'</td><td class="num"><strong>'+money(m.balance)+'</strong></td></tr>').join('');
+ const vals=data.map(m=>m.balance),min=Math.min(0,...vals),max=Math.max(1,...vals),w=720,h=205,L=58,R=18,T=16,B=34,pw=w-L-R,ph=h-T-B,step=pw/vals.length,barW=Math.min(32,step*.58),y=v=>T+(max-v)/(max-min||1)*ph,zero=y(0);
+ let svg='<svg class="chart-svg" viewBox="0 0 '+w+' '+h+'" role="img" aria-label="Gráfico de barras do saldo acumulado nos próximos doze meses">';
+ for(let t=0;t<4;t++){const v=max-(max-min)*t/3,yy=y(v);svg+='<line x1="'+L+'" y1="'+yy+'" x2="'+(w-R)+'" y2="'+yy+'" stroke="#edf0f4"/><text x="'+(L-8)+'" y="'+(yy+4)+'" text-anchor="end" font-size="10" fill="#7b8493">'+chartMoney(v)+'</text>'}
+ vals.forEach((v,i)=>{const xx=L+i*step+(step-barW)/2,yy=y(v),top=Math.min(zero,yy),height=Math.max(2,Math.abs(zero-yy));svg+='<rect x="'+xx+'" y="'+top+'" width="'+barW+'" height="'+height+'" rx="4" fill="'+(v<0?'#d94b58':'#16845b')+'"><title>'+escapeHtml(data[i].label)+': '+money(v)+'</title></rect><text x="'+(xx+barW/2)+'" y="'+(h-9)+'" text-anchor="middle" font-size="10" fill="#687386">'+escapeHtml(data[i].label)+'</text>'});
+ $('projectionChart').innerHTML=svg+'</svg>';
+ const sel=$('projectionMonthFilter'),old=sel.value;sel.innerHTML=data.map(m=>'<option value="'+m.key+'">'+escapeHtml(m.label)+'</option>').join('');if(data.some(m=>m.key===old))sel.value=old;
+ renderProjectionAccounts(data);setProjectionView(projectionMode);renderReminders();
+}
+function renderProjectionAccounts(data){
  const key=$('projectionMonthFilter').value||data[0]?.key,m=data.find(x=>x.key===key);if(!m)return;
  $('projectionDetailTitle').textContent='Detalhes de '+m.label;
  const rows=entries.filter(e=>e.date>=m.key+'-01'&&e.date<=m.end).sort((a,b)=>a.date.localeCompare(b.date)||String(a.id).localeCompare(String(b.id)));
@@ -397,7 +413,7 @@ function openProjectionMonth(key){const select=$('projectionMonthFilter');select
  $('transactions').innerHTML=filtered.length?filtered.map(e=>{
   const cleanDescription=e.description.replace(/^(Planejado • |)/,'').replace(/^Aporte • /,'Aporte: ');
   const canPay=e.status==='pending'||e.status==='planned';
-  return '<div class="tx"><div style="min-width:0"><div class="txname">'+escapeHtml(cleanDescription)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+(e.offline?' · Enviando quando voltar a internet':'')+'</div></div><div class="tx-actions"><span class="tx-status '+(effectiveStatus(e)==='overdue'?'overdue':e.status)+'">'+statusText(e)+'</span><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span>'+(canPay?'<button class="tx-action" data-paid="'+escapeHtml(e.id)+'">'+(e.type==='income'?'Confirmar recebimento':'Marcar pago')+'</button>':'')+'<button class="tx-action" data-edit="'+escapeHtml(e.id)+'" aria-label="Editar lançamento">Editar</button><button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>';
+  return '<div class="tx"><div style="min-width:0"><div class="txname">'+escapeHtml(cleanDescription)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+(e.offline?' · Enviando quando voltar a internet':'')+'</div></div><div class="tx-actions"><span class="tx-status '+(effectiveStatus(e)==='overdue'?'overdue':e.status)+'">'+statusText(e)+'</span><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span>'+(canPay?'<button class="tx-action" data-paid="'+escapeHtml(e.id)+'">'+(e.type==='income'?'Confirmar recebimento':'Marcar pago')+'</button>':'')+'<button class="tx-action" data-edit="'+escapeHtml(e.id)+'" aria-label="Editar lançamento">Editar</button></div></div>';
  }).join(''):'<div class="empty">Nenhum item com esse filtro neste mês.</div>';
  const totals=categories.expense.map(category=>({name:category,value:list.filter(e=>e.type==='expense'&&e.category===category).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
  $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(total(list,'expense')||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">As contas aparecerão aqui.</div>';
@@ -470,13 +486,13 @@ async function saveEntry(event){
  event.preventDefault();if(saveInProgress)return;if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
  const amount=Calc.round(Number($('amount').value)),date=$('date').value,category=$('category').value||'Outros',description=$('description').value.trim()||category,paid=$('entryPaid').checked;
  if(!Number.isFinite(amount)||amount<=0||!date){$('entryValidation').textContent='Informe um valor válido e confira a data.';return}
- const needsReview=!$('category').value||!$('description').value.trim(),status=paid?'paid':'pending',button=$('entryForm').querySelector('button[type="submit"]');
+ const needsReview=category==='Outros'||!$('description').value.trim(),status=paid?'paid':'pending',button=$('entryForm').querySelector('button[type="submit"]');
  saveInProgress=true;button.disabled=true;button.textContent='Salvando…';$('entryValidation').textContent='';
  try{
   if(editingEntryId){
    const old=entries.find(e=>e.id===editingEntryId);if(!old)throw new Error('Lançamento não encontrado.');
    const futureScope=!!old.series_id&&$('editScope').value==='future',targets=futureScope?entries.filter(e=>e.series_id===old.series_id&&e.date>=old.date):[old];
-   const updates=targets.map(e=>{const suffix=e.id===old.id?'':(e.description.match(/\s\(\d+\/\d+\)$/)?.[0]||''),payload={description:description+suffix,amount,category,status:e.id===old.id?status:'pending',needs_review:needsReview};if(e.id===old.id)payload.transaction_date=date;return {id:e.id,payload}});
+   const updates=targets.map(e=>{const suffix=e.description.match(/\s\(\d+\/\d+\)$/)?.[0]||'',payload={description:description+suffix,amount,category,status:e.id===old.id?status:'pending',needs_review:needsReview};if(e.id===old.id)payload.transaction_date=date;return {id:e.id,payload}});
    const {error}=await supabaseClient.rpc('apply_transaction_batch',{p_creates:[],p_updates:updates});if(error)throw error;
    entries.forEach(e=>{const update=updates.find(x=>x.id===e.id);if(update)Object.assign(e,{description:update.payload.description,amount,category,date:update.payload.transaction_date||e.date,status:update.payload.status,needs_review:needsReview})});
    $('modal').classList.remove('open');render();setMessage('Lançamento atualizado.','success');
@@ -721,6 +737,7 @@ function renderSeriesSettings(){
  if(soon&&!localStorage.getItem(warnKey)){localStorage.setItem(warnKey,'1');setMessage('Uma conta recorrente termina em menos de 3 meses. Você pode estendê-la em Ajustes.','info')}
 }
 function loadUserCategories(userId){
+ categories={income:['Aporte','Outros'],expense:[...defaultExpenseCategories]};
  try{const saved=JSON.parse(localStorage.getItem('aurora_categories_'+userId)||'null');if(saved&&Array.isArray(saved.expense)&&saved.expense.length)categories.expense=[...new Set(saved.expense.map(x=>String(x).trim()).filter(Boolean))].slice(0,40)}catch{}
  const input=$('categoryListInput');if(input)input.value=categories.expense.join(', ');
 }
@@ -756,6 +773,7 @@ function setProjectionView(mode){
  $('projectionBalanceView').hidden=mode==='year'||mode==='month';
  $('projectionAccountsView').hidden=mode!=='month';
  const sel=$('projectionMonthFilter');if(sel)sel.hidden=true;
+ const monthControl=$('globalMonthControl');if(monthControl)monthControl.style.display=mode==='month'?'flex':'none';
  if(mode==='year')renderProjectionYear();
  if(mode==='month'){const data=projectionMonths(),key=$('monthPicker').value;sel.value=key;renderProjectionAccounts(data)}
 }
@@ -763,7 +781,11 @@ function renderProjectionYear(){
  const months=projectionMonths(),start=months[0].key+'-01',end=months[11].end,rows=entries.filter(e=>e.type==='expense'&&e.date>=start&&e.date<=end),totals={};
  rows.forEach(e=>totals[e.category]=(totals[e.category]||0)+e.amount);
  const data=Object.entries(totals).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...data.map(x=>x[1]));
- $('projectionYearView').innerHTML='<h3>Quanto cada conta representa nos próximos 12 meses</h3><p class="chart-subtitle">Período móvel: '+months[0].label+' a '+months[11].label+'</p>'+(data.length?data.map(([name,value])=>'<div class="barrow"><span>'+escapeHtml(name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(2,value/max*100)+'%"></div></div><strong>'+money(value)+'</strong></div>').join(''):'<div class="empty">Cadastre contas para montar a visão anual.</div>');
+ $('projectionYearView').innerHTML='<h3>Quanto cada conta representa nos próximos 12 meses</h3><p class="chart-subtitle">Período móvel: '+months[0].label+' a '+months[11].label+'</p>'+(data.length?data.map(([name,value])=>'<button type="button" class="year-account-row" data-year-account="'+escapeHtml(name)+'"><span>'+escapeHtml(name)+'</span><span class="year-account-bar"><i style="width:'+Math.max(2,value/max*100)+'%"></i></span><strong>'+money(value)+'</strong></button>').join(''):'<div class="empty">Cadastre contas para montar a visão anual.</div>')+'<div id="projectionYearDetail" hidden></div>';
+}
+function renderProjectionYearDetail(category){
+ const months=projectionMonths();const rows=months.map(m=>({month:m,amount:entries.filter(e=>e.type==='expense'&&e.category===category&&e.date>=m.key+'-01'&&e.date<=m.end).reduce((sum,e)=>sum+e.amount,0)}));
+ const host=$('projectionYearDetail');host.hidden=false;host.innerHTML='<h3>'+escapeHtml(category)+' · detalhamento mensal</h3>'+rows.map(x=>'<div class="year-detail-row"><span>'+escapeHtml(x.month.label)+'</span><strong>'+money(x.amount)+'</strong></div>').join('');
 }
 function renderQuickChips(){
  const host=$('quickChips');if(!host)return;const grouped=new Map();
@@ -772,7 +794,7 @@ function renderQuickChips(){
  host.innerHTML=recent.map(x=>'<button type="button" class="quick-chip" data-chip="'+escapeHtml(x.entry.id)+'">'+escapeHtml(x.entry.description)+'</button>').join('');
 }
 function renderHomeMiniChart(){
- const months=projectionMonths().slice(0,6);let balance=Calc.projectedBalance(entries,openingBalance,months[0].key+'-01');
+ const months=projectionMonths().slice(0,6),[y,m]=months[0].key.split('-').map(Number),prior=localDateString(new Date(y,m-1,0,12));let balance=Calc.projectedBalance(entries,openingBalance,prior);
  const values=months.map(m=>{const rows=entries.filter(e=>e.date>=m.key+'-01'&&e.date<=m.end);balance+=Calc.monthlyNet(rows);return {label:m.label,value:balance}});
  const max=Math.max(1,...values.map(x=>Math.abs(x.value)));
  $('homeMiniChart').innerHTML='<div class="home-mini-bars">'+values.map(x=>'<span title="'+escapeHtml(x.label)+' · '+money(x.value)+'" style="height:'+Math.max(6,Math.abs(x.value)/max*42)+'px" class="'+(x.value<0?'negative':'')+'"></span>').join('')+'</div><small>'+money(values[5]?.value||0)+' ao final</small>';
@@ -802,7 +824,7 @@ async function syncOfflineQueue(){
 function setupAuroraNavigation(){
  const nav=$('auroraBottomNav');if(nav)nav.addEventListener('click',event=>{const b=event.target.closest('[data-screen-target]');if(b)setScreen(b.dataset.screenTarget)});
  document.querySelectorAll('.simple-metric[data-target]').forEach(b=>b.addEventListener('click',()=>setScreen('today')));
- document.querySelectorAll('[data-projection-mode]').forEach(b=>b.addEventListener('click',()=>setProjectionView(b.dataset.projectionMode)));
+ document.querySelectorAll('[data-projection-mode]').forEach(b=>b.addEventListener('click',()=>setProjectionView(b.dataset.projectionMode)));$('projectionYearView').addEventListener('click',event=>{const b=event.target.closest('[data-year-account]');if(b)renderProjectionYearDetail(b.dataset.yearAccount)});
  const projectionHead=document.querySelector('.projection-head');if(projectionHead&&$('projectionMonthFilter'))projectionHead.appendChild($('projectionMonthFilter'));
  $('quickCommand').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();$('openVoiceAssistant').click()}});
  $('quickChips').addEventListener('click',event=>{const b=event.target.closest('[data-chip]');if(!b)return;const e=entries.find(x=>x.id===b.dataset.chip);if(e){openModal(e.type);$('description').value=e.description;$('amount').value=Number(e.amount).toFixed(2);$('category').value=e.category;$('entryPaid').checked=true}});$('description').addEventListener('input',()=>{const value=$('description').value.trim().toLowerCase();const match=entries.find(e=>e.description.trim().toLowerCase()===value);if(match){$('amount').value=Number(match.amount).toFixed(2);$('category').value=match.category}});$('homeMiniProjection').addEventListener('click',()=>{setScreen('months');setProjectionView('accumulated')});
