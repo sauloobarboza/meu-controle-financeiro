@@ -562,7 +562,7 @@ function initializeSupabase(){
  setMessage('Autenticação pronta. Entre ou crie sua conta.','success');
 }
 
-function loadChangeRequests(){
+async function loadChangeRequests(){
  if(!supabaseClient||!currentUser?.id)return;
  const list=$('changeRequestList');if(list)list.innerHTML='<div class="change-empty">Carregando solicitações...</div>';
  const {data,error}=await supabaseClient.from('app_change_requests').select('id,title,description,area,status,github_issue_url,created_at,updated_at,completed_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
