@@ -158,6 +158,7 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
 :focus-visible{outline:3px solid #5b9bd5;outline-offset:2px}
 @media(max-width:700px){.wrap{padding-bottom:100px}.aurora-bottom-nav{padding-bottom:env(safe-area-inset-bottom)}}
 
+.review-category{display:block;color:#d4e7f3;font-size:12px;margin-top:3px}
 </style>
 </head>
 <body>
@@ -481,7 +482,7 @@ function openModal(type,id=null){
  $('modalTitle').textContent=entry?'Editar lançamento':type==='income'?'Registrar recebimento':'Lançar despesa';
  $('entryForm').reset();$('entryValidation').textContent='';
  $('category').innerHTML=categories[type].map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join('');
- $('date').value=entry?.date||localDateString();$('description').value=entry?.description||'';
+ $('date').value=entry?.date||localDateString();$('description').value=entry?.description?.replace(/\s\(\d+\/\d+\)$/,'')||'';
  $('amount').value=entry?Number(entry.amount).toFixed(2):'';$('category').value=entry?.category||'Outros';
  $('entryPaid').checked=entry?['paid','recorded'].includes(entry.status):type==='income';
  $('entryPaidLabel').textContent=type==='income'?'Já recebi':'Já paguei';
@@ -508,18 +509,17 @@ async function saveEntry(event){
  try{
   if(editingEntryId){
    const old=entries.find(e=>e.id===editingEntryId);if(!old)throw new Error('Lançamento não encontrado.');
-   const row={description,amount,category,transaction_date:date,status,needs_review:needsReview};
-   let query=supabaseClient.from('transactions').update(row).eq('id',old.id).eq('user_id',currentUser.id);
-   if(old.series_id&&$('editScope').value==='future')query=query.eq('series_id',old.series_id).gte('transaction_date',old.date);
-   const {error}=await query;if(error)throw error;
-   entries.forEach(e=>{if(e.id===old.id||(old.series_id&&$('editScope').value==='future'&&e.series_id===old.series_id&&e.date>=old.date))Object.assign(e,{description,amount,category,date:e.id===old.id?date:e.date,status,needs_review:needsReview})});
+   const futureScope=!!old.series_id&&$('editScope').value==='future',targets=futureScope?entries.filter(e=>e.series_id===old.series_id&&e.date>=old.date):[old];
+   const updates=targets.map(e=>{const suffix=e.id===old.id?'':(e.description.match(/\s\(\d+\/\d+\)$/)?.[0]||''),payload={description:description+suffix,amount,category,status:e.id===old.id?status:'pending',needs_review:needsReview};if(e.id===old.id)payload.transaction_date=date;return {id:e.id,payload}});
+   const {error}=await supabaseClient.rpc('apply_transaction_batch',{p_creates:[],p_updates:updates});if(error)throw error;
+   entries.forEach(e=>{const update=updates.find(x=>x.id===e.id);if(update)Object.assign(e,{description:update.payload.description,amount,category,date:update.payload.transaction_date||e.date,status:update.payload.status,needs_review:needsReview})});
    $('modal').classList.remove('open');render();setMessage('Lançamento atualizado.','success');
   }else{
    const mode=$('seriesMode').value,count=mode==='none'?1:Math.min(36,Math.max(2,Number($('seriesCount').value)||12)),seriesId=mode==='none'?null:crypto.randomUUID(),rows=[];
    for(let i=0;i<count;i++){const rowDate=makeSeriesDate(date,i),suffix=mode==='installments'?' ('+(i+1)+'/'+count+')':'';rows.push({id:crypto.randomUUID(),user_id:currentUser.id,type:currentType,description:description+suffix,amount,category,transaction_date:rowDate,status:i===0?status:'pending',series_id:seriesId,needs_review:needsReview})}
    if(!navigator.onLine){const key='aurora_offline_queue_'+currentUser.id,queue=JSON.parse(localStorage.getItem(key)||'[]');queue.push(...rows);localStorage.setItem(key,JSON.stringify(queue));rows.forEach(r=>entries.unshift({id:r.id,type:r.type,description:r.description,amount:r.amount,category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review,offline:true}));setMessage('Salvo neste aparelho. Enviaremos quando a internet voltar.','success')}
    else{const {data,error}=await supabaseClient.from('transactions').insert(rows).select('id,type,description,amount,category,transaction_date,status,series_id,needs_review');if(error)throw error;(data||[]).forEach(r=>entries.unshift({id:r.id,type:r.type,description:r.description,amount:Number(r.amount),category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review}));saveUndo({kind:'insert',rows:data||[],message:(data||[]).length+' lançamento(s) salvo(s).'});setMessage((data||[]).length+' lançamento(s) salvo(s).','success')}
-   $('entryForm').reset();$('amount').focus();render();if(mode==='none')$('modal').classList.remove('open');
+   $('entryForm').reset();$('date').value=localDateString();$('category').value='Outros';$('entryPaid').checked=currentType==='income';$('seriesMode').value='none';$('seriesCountWrap').hidden=true;$('amount').focus();render();if(mode==='none')$('modal').classList.remove('open');
   }
  }catch(error){$('entryValidation').textContent='Não foi possível salvar: '+friendlyError(error);setMessage('Seu lançamento não foi salvo. '+friendlyError(error),'error',error)}
  finally{saveInProgress=false;button.disabled=false;button.textContent='Salvar lançamento'}
@@ -527,10 +527,10 @@ async function saveEntry(event){
 
 async function deleteEntry(id,button){
  if(!currentUser||!id)return;const entry=entries.find(e=>e.id===id);if(!entry)return;if(button)button.disabled=true;
- const targets=entry.series_id&&$('editScope').value==='future'?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry];
+ const futureScope=$('modal').classList.contains('open')&&editingEntryId===id&&entry.series_id&&$('editScope').value==='future',targets=futureScope?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry];
  try{
   let query=supabaseClient.from('transactions').delete().eq('user_id',currentUser.id);
-  if(entry.series_id&&$('editScope').value==='future')query=query.eq('series_id',entry.series_id).gte('transaction_date',entry.date);else query=query.eq('id',id);
+  if(futureScope)query=query.eq('series_id',entry.series_id).gte('transaction_date',entry.date);else query=query.eq('id',id);
   const {error}=await query;if(error)throw error;
   const ids=targets.map(e=>e.id);entries=entries.filter(e=>!ids.includes(e.id));
   const rows=targets.map(e=>({id:e.id,user_id:currentUser.id,type:e.type,description:e.description,amount:e.amount,category:e.category,transaction_date:e.date,status:e.status,series_id:e.series_id,needs_review:e.needs_review}));
@@ -817,7 +817,7 @@ function renderWeeklySummary(){
 }
 function renderReviewPanel(){
  const host=$('reviewPanel');if(!host)return;const items=entries.filter(e=>e.needs_review);if(!items.length){host.hidden=true;return}
- host.hidden=false;host.innerHTML='<h3>Para revisar ('+items.length+')</h3>'+items.slice(0,5).map(e=>'<div class="review-row"><span>'+escapeHtml(e.description)+' · '+money(e.amount)+'</span><button type="button" data-review="'+escapeHtml(e.id)+'">Revisar</button></div>').join('')+(items.length>1?'<button type="button" id="confirmAllReview">Confirmar todos</button>':'');
+ host.hidden=false;host.innerHTML='<h3>Para revisar ('+items.length+')</h3>'+items.slice(0,5).map(e=>'<div class="review-row"><span>'+escapeHtml(e.description)+' · '+money(e.amount)+'<small class="review-category">'+escapeHtml(e.category||'Outros')+'</small></span><button type="button" data-review="'+escapeHtml(e.id)+'">Confirmar</button></div>').join('')+(items.length>1?'<button type="button" id="confirmAllReview">Confirmar todos</button>':'');
 }
 async function confirmAllReview(){
  if(!currentUser)return;const ids=entries.filter(e=>e.needs_review).map(e=>e.id);if(!ids.length)return;
@@ -825,7 +825,8 @@ async function confirmAllReview(){
  entries.forEach(e=>{if(ids.includes(e.id))e.needs_review=false});render();setMessage('Itens revisados.','success');
 }
 async function syncOfflineQueue(){
- if(!currentUser||!navigator.onLine)return;const key='aurora_offline_queue_'+currentUser.id;let queue=[];try{queue=JSON.parse(localStorage.getItem(key)||'[]')}catch{return}if(!queue.length)return;
+ if(!currentUser)return;const key='aurora_offline_queue_'+currentUser.id;let queue=[];try{queue=JSON.parse(localStorage.getItem(key)||'[]')}catch{return}if(!queue.length)return;
+ const localRows=queue.map(r=>({id:r.id,type:r.type,description:r.description,amount:Number(r.amount),category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:!!r.needs_review,offline:true}));localRows.forEach(row=>{if(!entries.some(e=>e.id===row.id))entries.unshift(row)});if(!navigator.onLine){render();return}
  const {data,error}=await supabaseClient.from('transactions').upsert(queue,{onConflict:'id'}).select('id,type,description,amount,category,transaction_date,status,series_id,needs_review');
  if(error){console.warn('Fila offline permanece no aparelho:',error);return}
  const sent=new Set((data||[]).map(x=>x.id));localStorage.setItem(key,JSON.stringify(queue.filter(x=>!sent.has(x.id))));
