@@ -615,30 +615,25 @@ function showVoicePreview(result){
  const needsClarification=voiceActions.some(a=>['clarify','none'].includes(a.action));
  $('voiceApply').hidden=!hasWork;$('voiceApply').disabled=!hasWork||needsClarification;
 }
-async function analyzeVoiceCommand(){
- const transcript=$('voiceTranscript').value.trim();
- if(!transcript){$('voiceStatus').textContent='Fale ou digite um comando primeiro.';return}
+async async function analyzeVoiceCommand(){
+ const transcript=$('voiceTranscript').value.trim();if(!transcript){$('voiceStatus').textContent='Fale ou digite um comando primeiro.';return}
  if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
- const button=$('voiceAnalyze');button.disabled=true;button.textContent='Analisando…';$('voiceStatus').textContent='Entendendo seu comando…';$('voicePreview').hidden=true;
+ const today=localDateString(),now=new Date(),start=localDateString(new Date(now.getFullYear(),now.getMonth()-1,1)),end=localDateString(new Date(now.getFullYear(),now.getMonth()+2,0));
+ const relevant=entries.filter(e=>(e.date>=start&&e.date<=end)||(['pending','planned'].includes(e.status)&&e.date<today)).sort((a,b)=>Math.abs(new Date(a.date+'T12:00:00')-now)-Math.abs(new Date(b.date+'T12:00:00')-now)).slice(0,150);
+ const button=$('voiceAnalyze');button.disabled=true;button.textContent='Entendendo…';$('voiceStatus').textContent='Entendendo…';$('voicePreview').hidden=true;
  try{
-  const {data,error}=await supabaseClient.functions.invoke('aurora-assistant',{body:{transcript,today:localDateString(),categories,existingEntries:entries.map(e=>({id:e.id,type:e.type,description:e.description,amount:e.amount,category:e.category,date:e.date,status:e.status}))}});
-  if(error)throw error;if(data?.error)throw new Error(data.error);
-  showVoicePreview(data||{});$('voiceStatus').textContent='Interpretação pronta. Revise antes de salvar.';
+  const {data,error}=await supabaseClient.functions.invoke('aurora-assistant',{body:{transcript,today,categories,existingEntries:relevant.map(e=>({id:e.id,type:e.type,description:e.description,amount:e.amount,category:e.category,date:e.date,status:e.status}))}});
+  if(error)throw error;if(data?.error)throw new Error(data.error);showVoicePreview(data||{});$('voiceStatus').textContent='Interpretação pronta. Revise antes de salvar.';
  }catch(error){
   let message=error?.message||'Não foi possível interpretar o comando.';
   if(error?.context&&typeof error.context.json==='function'){try{const body=await error.context.json();if(body?.error)message=body.error}catch{}}
   const normalized=String(message).toLowerCase();
-  if(/alta demanda|high demand|overloaded|resource_exhausted|temporarily unavailable|tempo limite|timed out|timeout|worker_resource_limit|http 546/.test(normalized)){
-   message='A assistente está com alta demanda ou demorando para responder. Seu lançamento não foi salvo. Aguarde alguns instantes e toque em “Interpretar com Gemini” novamente.';
-  }else if(/quota|rate.?limit|429/.test(normalized)){
-   message='O limite temporário de solicitações da IA foi atingido. Seu lançamento não foi salvo. Aguarde um pouco e tente novamente.';
-  }else if(/api key|unauthorized|permission denied|403/.test(normalized)){
-   message='A integração com a IA precisa de uma verificação de acesso. Nenhum lançamento foi salvo.';
-  }else{
-   message='Não foi possível interpretar agora. Seu texto continua preenchido; tente novamente em instantes. ;
-  }
-  $('voiceStatus').textContent=message;setMessage('Assistente: '+message,'error');
- }finally{button.disabled=false;button.textContent='Interpretar com Gemini'}
+  if(/alta demanda|high demand|overloaded|resource_exhausted|temporarily unavailable|tempo limite|timed out|timeout|worker_resource_limit|http 546/.test(normalized))message='A assistente está temporariamente indisponível. Seu lançamento não foi salvo. Tente novamente em instantes.';
+  else if(/quota|rate.?limit|429/.test(normalized))message='O limite temporário da assistente foi atingido. Seu lançamento não foi salvo. Tente novamente em instantes.';
+  else if(/api key|unauthorized|permission denied|403/.test(normalized))message='A integração precisa de uma verificação de acesso. Nenhum lançamento foi salvo.';
+  else message='Não foi possível interpretar agora. Seu texto continua preenchido. Tente novamente.';
+  $('voiceStatus').textContent=message;setMessage(message,'error');
+ }finally{button.disabled=false;button.textContent='Entender comando'}
 }
 function validVoiceDate(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(value||'')))return false;
@@ -646,63 +641,46 @@ function validVoiceDate(value){
 }
 function prepareVoiceActions(){
  if(!Array.isArray(voiceActions)||!voiceActions.length)throw new Error('Não há alterações para salvar.');
+ if(voiceActions.length>10)throw new Error('O limite é de 10 lançamentos por comando.');
  if(voiceActions.some(a=>['clarify','none'].includes(a.action)))throw new Error('Ainda há uma informação para esclarecer. Ajuste o comando antes de salvar.');
  const prepared=[],updatedIds=new Set();
  for(const action of voiceActions){
   if(action.action==='create'){
-   const type=action.type,description=String(action.description||'').trim(),amount=Math.round(Number(action.amount)*100)/100,category=String(action.category||''),date=String(action.transaction_date||''),status=action.status;
-   if(!['income','expense'].includes(type)||!description||!Number.isFinite(amount)||amount<=0||!categories[type].includes(category)||!validVoiceDate(date)||!['paid','pending','planned','recorded'].includes(status))throw new Error('Um dos novos lançamentos veio incompleto ou inválido. Ajuste o comando e tente novamente.');
-   prepared.push({kind:'create',row:{user_id:currentUser.id,type,description,amount,category,transaction_date:date,status}});
+   const type=action.type,category=categories[type]?.includes(action.category)?action.category:'Outros',description=String(action.description||category).trim(),amount=Calc.round(Number(action.amount)),date=String(action.transaction_date||''),status=action.status,repeat=Math.min(36,Math.max(0,Number(action.repeat_months)||0)),count=repeat>0?repeat:1,seriesId=count>1?crypto.randomUUID():null;
+   if(!['income','expense'].includes(type)||!description||!Number.isFinite(amount)||amount<=0||!validVoiceDate(date)||!['paid','pending'].includes(status))throw new Error('Um lançamento veio incompleto ou inválido. Ajuste o comando e tente novamente.');
+   const rows=[];for(let i=0;i<count;i++){const suffix=repeat>0&&/parcel/i.test(String(action.note||''))?' ('+(i+1)+'/'+count+')':'';rows.push({id:crypto.randomUUID(),type,description:description+suffix,amount,category,transaction_date:makeSeriesDate(date,i),status:i===0?status:'pending',series_id:seriesId,needs_review:false})}
+   prepared.push({kind:'create',rows});
   }else if(action.action==='update'||action.action==='mark_paid'){
-   const target=entries.find(e=>e.id===action.target_id);
-   if(!target)throw new Error('Não encontrei o lançamento que o Gemini tentou alterar. Nenhuma alteração foi salva.');
-   if(updatedIds.has(target.id))throw new Error('O mesmo lançamento apareceu mais de uma vez na alteração. Separe os comandos para evitar conflito.');
-   updatedIds.add(target.id);
-   const payload={};
-   if(action.action==='mark_paid')payload.status='paid';
-   else{
+   const target=entries.find(e=>e.id===action.target_id);if(!target)throw new Error('Não encontrei o lançamento que a assistente tentou alterar. Nenhuma alteração foi salva.');
+   if(updatedIds.has(target.id))throw new Error('O mesmo lançamento apareceu mais de uma vez na alteração.');updatedIds.add(target.id);
+   const payload={};if(action.action==='mark_paid')payload.status='paid';else{
     const fields=Array.isArray(action.fields)?action.fields:[];
-    if(fields.includes('type')){if(!['income','expense'].includes(action.type))throw new Error('Tipo de lançamento inválido.');payload.type=action.type}
+    if(fields.includes('type')){if(!['income','expense'].includes(action.type))throw new Error('Tipo inválido.');payload.type=action.type}
     if(fields.includes('description')){const value=String(action.description||'').trim();if(!value)throw new Error('A descrição não pode ficar vazia.');payload.description=value}
-    if(fields.includes('amount')){const value=Math.round(Number(action.amount)*100)/100;if(!Number.isFinite(value)||value<=0)throw new Error('O valor precisa ser maior que zero.');payload.amount=value}
+    if(fields.includes('amount')){const value=Calc.round(Number(action.amount));if(!Number.isFinite(value)||value<=0)throw new Error('O valor precisa ser maior que zero.');payload.amount=value}
     if(fields.includes('category'))payload.category=String(action.category||'');
     if(fields.includes('transaction_date')){if(!validVoiceDate(action.transaction_date))throw new Error('A data informada é inválida.');payload.transaction_date=action.transaction_date}
-    if(fields.includes('status')){if(!['paid','pending','planned','recorded'].includes(action.status))throw new Error('Situação inválida.');payload.status=action.status}
+    if(fields.includes('status')){if(!['paid','pending'].includes(action.status))throw new Error('Situação inválida.');payload.status=action.status}
     if(!Object.keys(payload).length)throw new Error('Não identifiquei quais campos devem ser alterados.');
-    const nextType=payload.type||target.type,nextCategory=payload.category||target.category;
-    if(!categories[nextType].includes(nextCategory))throw new Error('A categoria não corresponde ao tipo de lançamento.');
+    const nextType=payload.type||target.type,nextCategory=payload.category||target.category;if(!categories[nextType].includes(nextCategory))throw new Error('A categoria não corresponde ao tipo de lançamento.');
    }
    prepared.push({kind:'update',id:target.id,payload});
-  }else throw new Error('O Gemini retornou uma ação que não é permitida.');
+  }else throw new Error('A assistente retornou uma ação que não é permitida.');
  }
  return prepared;
 }
 async function applyVoiceActions(){
- if(saveInProgress||!currentUser)return;
- let operations;try{operations=prepareVoiceActions()}catch(error){$('voiceStatus').textContent=error.message;return}
- const button=$('voiceApply');button.disabled=true;button.textContent='Salvando…';saveInProgress=true;let completed=0;
+ if(saveInProgress||!currentUser)return;let operations;try{operations=prepareVoiceActions()}catch(error){$('voiceStatus').textContent=error.message;return}
+ const creates=operations.filter(x=>x.kind==='create').flatMap(x=>x.rows),updates=operations.filter(x=>x.kind==='update').map(x=>({id:x.id,payload:x.payload}));
+ const button=$('voiceApply');button.disabled=true;button.textContent='Salvando…';saveInProgress=true;
  try{
-  for(const operation of operations){
-   if(operation.kind==='create'){
-    const {data,error}=await supabaseClient.from('transactions').insert(operation.row).select('id,type,description,amount,category,transaction_date,status').single();if(error)throw error;
-    entries.unshift({id:data.id,type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date,status:data.status||'recorded'});
-   }else{
-    const {data,error}=await supabaseClient.from('transactions').update(operation.payload).eq('id',operation.id).eq('user_id',currentUser.id).select('id,type,description,amount,category,transaction_date,status').single();if(error)throw error;
-    const existing=entries.find(e=>e.id===operation.id);if(existing)Object.assign(existing,{type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date,status:data.status||'recorded'});
-   }
-   completed++;
-  }
-  render();$('voiceAssistant').hidden=true;$('voicePreview').hidden=true;$('voiceTranscript').value='';voiceActions=[];$('voiceStatus').textContent='Pronto para ouvir.';
-  setMessage(completed+' lançamento(s) atualizado(s) ou criado(s) e sincronizado(s).','success');
- }catch(error){
-  render();const message=completed?completed+' alteração(ões) foram salvas antes de ocorrer um erro: '+(error.message||'erro desconhecido'):error.message||'Não foi possível salvar as alterações.';
-  $('voiceStatus').textContent=message;setMessage(message,'error',error);
- }finally{saveInProgress=false;button.disabled=false;button.textContent='Confirmar e salvar'}
+  const {data,error}=await supabaseClient.rpc('apply_transaction_batch',{p_creates:creates,p_updates:updates});if(error)throw error;
+  await loadEntries(currentUser.id);entriesLoadedForUser=currentUser.id;render();$('voiceAssistant').hidden=true;$('voicePreview').hidden=true;$('voiceTranscript').value='';voiceActions=[];$('quickCommand').value='';$('voiceStatus').textContent='Pronto para ouvir.';
+  const created=Number(data?.created||0),updated=Number(data?.updated||0);setMessage(created+' lançamento(s) criado(s) e '+updated+' atualizado(s), em uma única operação.','success');
+ }catch(error){const message='Nenhuma alteração foi salva. '+friendlyError(error);$('voiceStatus').textContent=message;setMessage(message,'error',error)}
+ finally{saveInProgress=false;button.disabled=false;button.textContent='Confirmar e salvar'}
 }
-
-const changeStatusLabels={pending:'Pendente',in_progress:'Em andamento',completed:'Concluído',rejected:'Não aprovado'};
-let changeRequests=[];
-async function loadChangeRequests(){
+function loadChangeRequests(){
  if(!supabaseClient||!currentUser?.id)return;
  const list=$('changeRequestList');if(list)list.innerHTML='<div class="change-empty">Carregando solicitações...</div>';
  const {data,error}=await supabaseClient.from('app_change_requests').select('id,title,description,area,status,github_issue_url,created_at,updated_at,completed_at').eq('user_id',currentUser.id).order('created_at',{ascending:false}).limit(50);
