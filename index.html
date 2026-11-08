@@ -56,8 +56,8 @@
  </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.102.0"></script>
 <script>
 const SUPABASE_URL='https://dqhyiggxcxczdcopdyec.supabase.co';
 const SUPABASE_KEY='sb_publishable_vM-nl4k5Ilkk0_QUohutFw_2wuweUTP';
@@ -97,6 +97,8 @@ function authErrorText(error){
  if(/failed to fetch|network|load failed/i.test(msg))return 'Não foi possível conectar ao serviço. Verifique sua internet e tente novamente.';
  return msg;
 }
+window.addEventListener('error',event=>{if(typeof setMessage==='function')setMessage('Ocorreu um erro interno na página. Atualize o aplicativo.','error',{message:event.message||'JavaScript error',name:'ClientError'});});
+window.addEventListener('unhandledrejection',event=>{const reason=event.reason||new Error('Falha assíncrona desconhecida');if(typeof setMessage==='function')setMessage('Uma operação foi interrompida: '+authErrorText(reason),'error',reason);});
 function setAuthBusy(busy,action){
  $('loginBtn').disabled=busy;$('signupBtn').disabled=busy;$('resetBtn').disabled=busy;
  $('loginBtn').textContent=busy&&action==='login'?'Entrando...':'Entrar';
@@ -220,35 +222,6 @@ async function refreshSession(){
  if(error)throw error;
  if(data.session){showDashboard(data.session.user);await loadEntries()}else showDashboard(null);
 }
-async function renderAuthError(error){setMessage(error.message||String(error),true)}
-$('authForm').onsubmit=async e=>{
- e.preventDefault();const email=$('authEmail').value.trim(),password=$('authPassword').value;
- if(!supabase)return setMessage('Serviço de login indisponível. Atualize a página e tente novamente.',true);
- $('loginBtn').disabled=true;setMessage('Entrando...');
- let result;try{result=await supabase.auth.signInWithPassword({email,password})}catch(err){$('loginBtn').disabled=false;return renderAuthError(err)}
- const {data,error}=result;
- $('loginBtn').disabled=false;
- if(error)return renderAuthError(error);
- showDashboard(data.user);try{await loadEntries();setMessage('Login realizado.')}catch(err){setMessage(err.message,true)}
-};
-$('signupBtn').onclick=async()=>{
- const email=$('authEmail').value.trim(),password=$('authPassword').value;
- if(!supabase)return setMessage('Serviço de cadastro indisponível. Atualize a página e tente novamente.',true);
- if(!$('authEmail').checkValidity())return setMessage('Digite um endereço de e-mail válido.',true);
- if(password.length<6)return setMessage('A senha precisa ter pelo menos 6 caracteres.',true);
- $('signupBtn').disabled=true;setMessage('Criando sua conta...');
- let result;try{result=await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}})}catch(err){$('signupBtn').disabled=false;return renderAuthError(err)}
- $('signupBtn').disabled=false;const {data,error}=result;
- if(error)return renderAuthError(error);
- if(data.session){showDashboard(data.user);try{await loadEntries()}catch(err){setMessage(err.message,true)}}
- else setMessage('Conta criada! Confira seu e-mail e confirme o cadastro antes de entrar.');
-};
-$('resetBtn').onclick=async()=>{
- const email=$('authEmail').value.trim();if(!email)return setMessage('Digite seu e-mail primeiro.',true);
- if(!supabase)return setMessage('Serviço de recuperação indisponível. Atualize a página e tente novamente.',true);
- const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.href.split('#')[0].split('?')[0]});
- if(error)return renderAuthError(error);setMessage('Se o e-mail estiver cadastrado, você receberá o link para redefinir a senha.');
-};
 $('logoutBtn').onclick=async()=>{if(!supabase)return;const {error}=await supabase.auth.signOut();if(error)return alert(error.message);entries=[];showDashboard(null)};
 function render(){
  const list=monthEntries(),inc=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),out=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
@@ -274,7 +247,7 @@ $('prevMonth').onclick=()=>shiftMonth(-1);$('nextMonth').onclick=()=>shiftMonth(
 $('exportBtn').onclick=()=>{const rows=[['Data','Tipo','Descrição','Categoria','Valor'],...entries.map(e=>[e.date,e.type==='income'?'Receita':'Despesa',e.description,e.category,e.amount.toFixed(2).replace('.',',')])];const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='controle-financeiro.csv';a.click();URL.revokeObjectURL(a.href)};
 let installPrompt;$('installBtn').onclick=async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').style.display='none'}else alert('No Chrome, abra o menu ⋮ e escolha "Instalar app" ou "Adicionar à tela inicial".')};
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').style.display='block'});
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+if('serviceWorker'in navigator){window.addEventListener('load',()=>{const hadController=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!hadController||sessionStorage.getItem('mcf_sw_reloaded')==='1')return;sessionStorage.setItem('mcf_sw_reloaded','1');window.location.reload()});navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update().catch(()=>{})).catch(()=>{})})}
 // Session is restored once on startup. Auth state callbacks are intentionally not async,
 // avoiding nested Supabase requests while the auth client is processing a state change.
 if(supabase)refreshSession().catch(err=>setMessage('Não foi possível restaurar a sessão: '+authErrorText(err),'error',err));
