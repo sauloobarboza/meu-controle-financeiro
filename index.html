@@ -161,6 +161,7 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
 .review-category{display:block;color:#d4e7f3;font-size:12px;margin-top:3px}
 .year-account-row{width:100%;display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:10px;padding:10px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;color:var(--ink)}.year-account-bar{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.year-account-bar i{display:block;height:100%;background:var(--blue);border-radius:99px}.year-detail-row{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid var(--line)}
 .projected-end-line{font-size:12px;color:#d8e6f1;margin:8px 0 0}.projected-end-line strong{color:#fff;font-size:14px}
+.nav-icon svg,.aurora-command button svg,.voice-record svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}.nav-icon svg{display:block;margin:auto}.aurora-command button svg{display:block;margin:auto}.voice-record{display:inline-flex;align-items:center;gap:8px}
 </style>
 </head>
 <body>
@@ -173,13 +174,13 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
  <div class="authvisual" aria-label="Prévia do controle financeiro">
   <div class="visual-glow"></div><div class="visual-top"><span class="visual-mark">✦</span><span>SEU DINHEIRO, SOB CONTROLE</span></div>
   <div class="visual-copy"><span class="eyebrow">PLANEJE · ACOMPANHE · CONQUISTE</span><h2>Mais clareza.<br><em>Mais tranquilidade.</em></h2><p>Uma visão simples e inteligente para cuidar do seu dinheiro todos os meses.</p></div>
-  <div class="preview-card"><div class="preview-head"><span>Visão do mês</span><span class="live-dot">● AO VIVO</span></div><div class="preview-label">Saldo disponível</div><div class="preview-value" id="previewBalance">R$ 4.280,50</div><div class="preview-chart"><i style="height:35%"></i><i style="height:52%"></i><i style="height:43%"></i><i style="height:68%"></i><i style="height:58%"></i><i style="height:82%"></i><i style="height:100%"></i><i style="height:76%"></i><i style="height:91%"></i></div><div class="preview-foot"><span><b class="mini-green">↗</b> Receitas</span><strong>R$ 5.800,00</strong><span><b class="mini-red">↘</b> Despesas</span><strong>R$ 1.519,50</strong></div></div>
+  <div class="preview-card"><div class="preview-head"><span>Visão do mês</span><span class="live-dot">● AO VIVO</span></div><div class="preview-label">Saldo disponível</div><div class="preview-value" id="previewBalance">R$ 4.280,50</div><div class="preview-chart"><i style="height:35%"></i><i style="height:52%"></i><i style="height:43%"></i><i style="height:68%"></i><i style="height:58%"></i><i style="height:82%"></i><i style="height:100%"></i><i style="height:76%"></i><i style="height:91%"></i></div><div class="preview-foot"><span><b class="mini-green">↑</b> Receitas</span><strong>R$ 5.800,00</strong><span><b class="mini-red">↓</b> Despesas</span><strong>R$ 1.519,50</strong></div></div>
   <div class="visual-bottom"><span>●</span> Seus dados protegidos e sincronizados</div>
  </div>
  <div class="auth-side"><div class="auth-brand"><span class="brand-icon">₿</span><span>Meu Controle <b>Financeiro</b></span></div>
   <div class="auth-intro"><span class="eyebrow blue-eyebrow">BEM-VINDO DE VOLTA</span><h1>Entre na sua conta</h1><p>Acesse seus lançamentos e acompanhe sua vida financeira.</p></div>
   <form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
-   <label class="field password-field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Digite sua senha"><button class="toggle-password" id="togglePassword" type="button" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></label>
+   <label class="field password-field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Digite sua senha"><button class="toggle-password" id="togglePassword" type="button" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">Mostrar</button></label>
    <div class="password-meter" id="passwordMeter" aria-live="polite"><span></span><span></span><span></span><small id="passwordHint">Sua senha deve ter ao menos 6 caracteres</small></div>
    <div class="auth-row"><label class="remember"><input type="checkbox" id="rememberLogin" checked> Manter conectado</label><button class="text-button" type="button" id="resetBtn">Esqueci a senha</button></div>
    <div class="authactions"><button class="btn primary auth-submit" type="submit" id="loginBtn" data-auth-action="login">Entrar na minha conta <span>→</span></button><button class="btn secondary auth-signup" type="submit" id="signupBtn" data-auth-action="signup">Criar minha conta</button></div>
@@ -192,12 +193,12 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
  <section class="aurora-hero" id="home-section" data-screen="today">
   <div class="hero-topline"><div><span class="hero-kicker">CONTROLE FINANCEIRO</span><h1>Seu dinheiro, em ordem</h1><p>Seu planejamento, com clareza em cada decisão.</p></div><div class="hero-period"><span>VISÃO DO MÊS</span><strong id="monthReadable"></strong></div></div>
   <div class="hero-balance"><div><span class="hero-balance-label">SALDO REAL DISPONÍVEL</span><strong id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + valores efetivamente recebidos − pagos</small><p class="projected-end-line">Previsto para o fim do mês: <strong id="projectedMonthEnd">R$ 0,00</strong></p></div></div>
-  <div class="hero-actions"><button class="hero-action-main" id="addExpense">＋ Lançar gasto</button><button class="hero-action-light" id="addIncome">＋ Novo recebimento</button></div><div class="aurora-command"><input id="quickCommand" type="text" autocomplete="off" placeholder="Ex.: Paguei 120 de internet hoje"><button type="button" id="quickVoice" aria-label="Falar comando">🎙</button><button type="button" id="openVoiceAssistant" class="voice-launch">Enviar</button></div><div class="quick-chips" id="quickChips" aria-label="Lançamentos frequentes"></div><div class="review-panel" id="reviewPanel" hidden></div><button type="button" class="home-mini-card" id="homeMiniProjection"><span>Saldo previsto · próximos 6 meses</span><div id="homeMiniChart"></div></button><div class="week-summary" id="weekSummary"></div>
+  <div class="hero-actions"><button class="hero-action-main" id="addExpense">＋ Lançar gasto</button><button class="hero-action-light" id="addIncome">＋ Novo recebimento</button></div><div class="aurora-command"><input id="quickCommand" type="text" autocomplete="off" placeholder="Ex.: Paguei 120 de internet hoje"><button type="button" id="quickVoice" aria-label="Falar comando"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/></svg></button><button type="button" id="openVoiceAssistant" class="voice-launch">Enviar</button></div><div class="quick-chips" id="quickChips" aria-label="Lançamentos frequentes"></div><div class="review-panel" id="reviewPanel" hidden></div><button type="button" class="home-mini-card" id="homeMiniProjection"><span>Saldo previsto · próximos 6 meses</span><div id="homeMiniChart"></div></button><div class="week-summary" id="weekSummary"></div>
  </section>
  <section class="voice-assistant" id="voiceAssistant" data-screen="today" hidden aria-label="Assistente por voz">
   <div class="voice-head"><div><span class="eyebrow-dark">AURORA IA</span><h2>Fale com suas finanças</h2></div><button type="button" class="voice-close" id="voiceClose" aria-label="Fechar assistente">×</button></div>
   <p class="voice-help">Diga o que entrou, o que você pagou ou qual conta deseja alterar. A fala vira texto no navegador e a assistente entende o comando. Nada é salvo sem sua confirmação.</p>
-  <div class="voice-recorder"><button type="button" class="voice-record" id="voiceStart">🎙 Começar a falar</button><span id="voiceStatus" role="status">Pronto para ouvir.</span></div>
+  <div class="voice-recorder"><button type="button" class="voice-record" id="voiceStart"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v4m-4 0h8"/></svg> Começar a falar</button><span id="voiceStatus" role="status">Pronto para ouvir.</span></div>
   <label class="field voice-transcript-label"><span>O que você falou (você também pode digitar)</span><textarea id="voiceTranscript" rows="3" maxlength="3000" placeholder="Ex.: Paguei 120 reais de internet hoje."></textarea></label>
   <div class="voice-actions"><button type="button" class="btn primary" id="voiceAnalyze">Entender comando</button></div>
   <div class="voice-preview" id="voicePreview" hidden><p id="voiceAssistantMessage"></p><div id="voicePreviewItems"></div><div class="voice-actions"><button type="button" class="btn secondary" id="voiceEdit">Editar comando</button><button type="button" class="btn primary" id="voiceApply">Confirmar e salvar</button></div></div>
@@ -241,9 +242,9 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
  <div class="foot">AURORA · Controle financeiro pessoal. Seus dados ficam sincronizados com sua conta.</div>
 </main>
 <nav class="aurora-bottom-nav" id="auroraBottomNav" aria-label="Navegação principal">
- <button type="button" class="nav-item active" data-screen-target="today" aria-current="page"><span class="nav-icon">⌂</span><span>Hoje</span></button>
- <button type="button" class="nav-item" data-screen-target="months"><span class="nav-icon">▦</span><span>Meses</span></button>
- <button type="button" class="nav-item" data-screen-target="settings"><span class="nav-icon">⚙</span><span>Ajustes</span></button>
+ <button type="button" class="nav-item active" data-screen-target="today" aria-current="page"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg></span><span>Hoje</span></button>
+ <button type="button" class="nav-item" data-screen-target="months"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 9h18"/></svg></span><span>Meses</span></button>
+ <button type="button" class="nav-item" data-screen-target="settings"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.6.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.6-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.9l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.6-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.6.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.9z"/></svg></span><span>Ajustes</span></button>
 </nav>
 <div id="undoToast" class="undo-toast" hidden role="status" aria-live="polite"></div><div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
  <form class="dialog" id="entryForm">
@@ -540,7 +541,7 @@ function exportCsv(){
 function setupPasswordFeedback(){
  $('togglePassword').addEventListener('click',()=>{
   const field=$('authPassword'),visible=field.type==='password';field.type=visible?'text':'password';
-  $('togglePassword').setAttribute('aria-label',visible?'Ocultar senha':'Mostrar senha');$('togglePassword').setAttribute('aria-pressed',String(visible));$('togglePassword').textContent=visible?'🙈':'👁';
+  $('togglePassword').setAttribute('aria-label',visible?'Ocultar senha':'Mostrar senha');$('togglePassword').setAttribute('aria-pressed',String(visible));$('togglePassword').textContent=visible?'Ocultar':'Mostrar';
  });
  $('authPassword').addEventListener('input',()=>{
   const p=$('authPassword').value;let level=0;if(p.length>=6)level=1;if(p.length>=8&&/[A-Z]/.test(p)&&/[0-9]/.test(p))level=2;if(p.length>=10&&/[A-Z]/.test(p)&&/[0-9]/.test(p)&&/[^A-Za-z0-9]/.test(p))level=3;
@@ -602,7 +603,7 @@ function startVoiceCapture(){
  $('voiceStart').classList.add('listening');$('voiceStart').textContent='■ Parar de ouvir';$('voiceStatus').textContent='Estou ouvindo… fale seu comando.';
  recognition.onresult=event=>{const text=event.results?.[0]?.[0]?.transcript||'';$('voiceTranscript').value=($('voiceTranscript').value.trim()?$('voiceTranscript').value.trim()+' ':'')+text;$('voiceStatus').textContent='Transcrição concluída. Confira o texto e toque em Entender comando.'};
  recognition.onerror=event=>{$('voiceStatus').textContent=event.error==='not-allowed'?'Permita o acesso ao microfone nas configurações do navegador.':'Não consegui captar sua fala. Tente novamente ou digite o comando.'};
- recognition.onend=()=>{$('voiceStart').classList.remove('listening');$('voiceStart').textContent='🎙 Começar a falar';voiceRecognition=null;if($('voiceTranscript').value.trim()){ $('voiceStatus').textContent='Entendendo…';analyzeVoiceCommand() }else $('voiceStatus').textContent='Pronto para ouvir.'};
+ recognition.onend=()=>{$('voiceStart').classList.remove('listening');$('voiceStart').textContent='Começar a falar';voiceRecognition=null;if($('voiceTranscript').value.trim()){ $('voiceStatus').textContent='Entendendo…';analyzeVoiceCommand() }else $('voiceStatus').textContent='Pronto para ouvir.'};
  try{recognition.start()}catch(error){$('voiceStatus').textContent='Não foi possível iniciar o microfone. Tente novamente.';$('voiceStart').classList.remove('listening');$('voiceStart').textContent='🎙 Começar a falar';voiceRecognition=null}
 }
 function voiceActionCard(action,index){
@@ -700,7 +701,7 @@ async function loadChangeRequests(){
 }
 function renderChangeRequests(){
  const list=$('changeRequestList');if(!list)return;
- if(!changeRequests.length){list.innerHTML='<div class="change-empty">Você ainda não enviou nenhuma solicitação. Sua primeira ideia pode começar aqui. ✨</div>';return}
+ if(!changeRequests.length){list.innerHTML='<div class="change-empty">Você ainda não enviou nenhuma solicitação. Sua primeira ideia pode começar aqui.</div>';return}
  list.innerHTML=changeRequests.map(item=>{
   const date=new Date(item.created_at).toLocaleDateString('pt-BR');
   const link=item.github_issue_url?'<a href="'+escapeHtml(item.github_issue_url)+'" target="_blank" rel="noopener noreferrer">Acompanhar no GitHub ↗</a>':'';
