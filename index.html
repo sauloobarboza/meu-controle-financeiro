@@ -88,6 +88,8 @@ function authErrorText(error){
  const code=error?.code||'';
  const msg=String(error?.message||error||'Erro desconhecido');
  if(code==='email_not_confirmed')return 'Seu e-mail ainda não foi confirmado. Abra a mensagem de confirmação que enviamos e tente entrar novamente.';
+ if(code==='email_address_not_authorized')return 'O Supabase bloqueou o envio para este endereço porque o projeto ainda usa o SMTP padrão. Configure um SMTP próprio para enviar confirmações a qualquer endereço.';
+ if(code==='over_email_send_rate_limit'||code==='over_request_rate_limit')return 'O limite de tentativas ou de envio de e-mails foi atingido. Aguarde alguns minutos e tente novamente.';
  if(code==='user_already_exists'||/already registered|user exists/i.test(msg))return 'Este e-mail já possui cadastro. Tente entrar ou use “Esqueci a senha”.';
  if(/signup is disabled|signups not allowed/i.test(msg))return 'O cadastro de novos usuários está desativado nas configurações do Supabase.';
  if(/email rate limit|rate limit/i.test(msg))return 'O limite de envio de e-mails foi atingido. Aguarde um pouco antes de tentar novamente.';
