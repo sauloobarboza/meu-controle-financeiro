@@ -517,7 +517,7 @@ async function saveEntry(event){
  finally{saveInProgress=false;button.disabled=false;button.textContent='Salvar lançamento'}
 }
 
-async async function deleteEntry(id,button){
+async function deleteEntry(id,button){
  if(!currentUser||!id)return;const entry=entries.find(e=>e.id===id);if(!entry)return;if(button)button.disabled=true;
  const targets=entry.series_id&&$('editScope').value==='future'?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry];
  try{
@@ -635,7 +635,7 @@ function showVoicePreview(result){
  const needsClarification=voiceActions.some(a=>['clarify','none'].includes(a.action));
  $('voiceApply').hidden=!hasWork;$('voiceApply').disabled=!hasWork||needsClarification;
 }
-async async function analyzeVoiceCommand(){
+async function analyzeVoiceCommand(){
  const transcript=$('voiceTranscript').value.trim();if(!transcript){$('voiceStatus').textContent='Fale ou digite um comando primeiro.';return}
  if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
  const today=localDateString(),now=new Date(),start=localDateString(new Date(now.getFullYear(),now.getMonth()-1,1)),end=localDateString(new Date(now.getFullYear(),now.getMonth()+2,0));
