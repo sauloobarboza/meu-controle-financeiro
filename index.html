@@ -134,6 +134,49 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
 
 /* Texto mínimo de 12 px em todos os rótulos auxiliares */
 .eyebrow-dark,.metric small,.status-tile small,.tx-status,.tx-action,.chart-subtitle,.chart-legend,.donut-center,.donut-legend,.visual-top,.eyebrow,.live-dot,.preview-label,.preview-foot,.visual-bottom,.password-meter small,.remember,.text-button,.auth-privacy,.projection-kpi small,.projection-table th,.projection-account small,.reminder-item small,.hero-kicker,.hero-period span,.hero-balance-label,.hero-balance small,.hero-trend small,.metric span,.txmeta,.nav-item,.hero-period strong,.simple-metric small,.simple-projection-table th,.simple-projection-table td,.simple-detail-head .btn,.change-meta,.change-status,.change-refresh,.projection-pay-toggle,.quick-chip,.projection-row-main small,.home-mini-card small,.series-row small{font-size:12px!important}
+
+/* AURORA 3.0 — interface azul, leve e mobile-first */
+:root{--aurora-blue:#1768d5;--aurora-deep:#071d3c;--aurora-cyan:#6ed7ff;--aurora-bg:#f3f7fd;--aurora-ink:#10213b}
+body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
+.top,.aurora-bottom-nav,.aurora-hero,.change-center,.apartment-metrics,.simple-months,.simple-reminders,#bills-section,.foot{display:none!important}
+#dashboard{max-width:900px;margin:auto;padding:0 0 34px}
+#auroraNewUI{display:block;padding:22px 22px 35px}
+.aurora-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 20px}
+.aurora-logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:850;letter-spacing:.5px}
+.aurora-symbol{width:36px;height:36px;display:grid;place-items:center;color:#fff;border-radius:13px;background:linear-gradient(145deg,#3da6ff,#1456bd);box-shadow:0 8px 20px #1768d544;transform:rotate(-8deg)}
+.aurora-user{display:flex;align-items:center;gap:9px;color:#74839a;font-size:12px}.aurora-user button{border:1px solid #dce6f3;background:#fff;color:#35516f;border-radius:10px;padding:8px 11px}
+.aurora-page{display:none;animation:pageIn .35s ease both}.aurora-page.active{display:block}@keyframes pageIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.aurora-balance{position:relative;isolation:isolate;overflow:hidden;padding:25px 25px 22px;border-radius:26px;color:#fff;background:linear-gradient(125deg,#071d3c 0%,#0b3c7d 55%,#1678d4 100%);box-shadow:0 18px 38px #0a39702b;transform:perspective(900px) rotateX(0deg);transition:transform .35s,box-shadow .35s}
+.aurora-balance:hover{transform:perspective(900px) rotateX(1.2deg) translateY(-2px);box-shadow:0 24px 46px #0a397036}
+.aurora-balance:before,.aurora-balance:after{content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none}
+.aurora-balance:before{width:280px;height:280px;right:-85px;top:-155px;background:radial-gradient(circle,#5acbff80,transparent 68%);animation:orb 8s ease-in-out infinite alternate}
+.aurora-balance:after{width:180px;height:180px;right:65px;bottom:-145px;border:1px solid #ffffff25;box-shadow:0 0 0 22px #ffffff08,0 0 0 48px #ffffff05}
+@keyframes orb{to{transform:translate(-22px,20px) scale(1.15)}}
+.aurora-kicker{font-size:10px;letter-spacing:1.7px;color:#b5d9ff;font-weight:800}.aurora-money{font-size:clamp(32px,7vw,43px);font-weight:850;letter-spacing:-1.8px;margin:10px 0 3px;font-variant-numeric:tabular-nums}.aurora-balance-sub{font-size:12px;color:#c5dcf7}
+.aurora-balance-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:23px}.aurora-balance-foot span{font-size:11px;color:#c3ddfa}.aurora-balance-foot strong{font-size:13px;color:#fff}
+.aurora-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:15px 0}
+.aurora-action{border:0;border-radius:16px;padding:15px 14px;display:flex;align-items:center;gap:11px;text-align:left;font-weight:750;box-shadow:0 8px 18px #173b6610;transition:transform .2s,box-shadow .2s}
+.aurora-action:hover{transform:translateY(-3px);box-shadow:0 13px 23px #173b6619}.aurora-action .action-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;font-size:19px}
+.aurora-action.out{background:#fff;color:#17385f;border:1px solid #e6edf6}.aurora-action.out .action-icon{background:#fff0f0;color:#d64e62}.aurora-action.in{background:#1768d5;color:#fff}.aurora-action.in .action-icon{background:#ffffff22;color:#fff}
+.aurora-action small{display:block;font-size:10px;font-weight:500;opacity:.72;margin-top:2px}
+.aurora-section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:25px 2px 11px}.aurora-section-head h2{font-size:16px;margin:0;letter-spacing:-.3px}.aurora-section-head p{font-size:11px;color:#8794a8;margin:4px 0 0}.aurora-link{border:0;background:transparent;color:#1768d5;font-size:12px;font-weight:750;padding:7px}
+.aurora-stats{display:grid;grid-template-columns:1fr 1fr;gap:11px}.aurora-stat{background:#fff;border:1px solid #e6edf5;border-radius:17px;padding:15px;box-shadow:0 5px 16px #19385b08}.aurora-stat small{display:block;color:#7d8ba0;font-size:11px}.aurora-stat strong{display:block;font-size:19px;margin-top:7px;font-weight:800}.aurora-stat .positive{color:#15956b}.aurora-stat .negative{color:#dc5968}
+.aurora-list{background:#fff;border:1px solid #e6edf5;border-radius:18px;overflow:hidden;box-shadow:0 5px 18px #19385b08}.aurora-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 15px;border-bottom:1px solid #eff3f8}.aurora-row:last-child{border:0}.aurora-row-main{min-width:0;display:flex;align-items:center;gap:11px}.aurora-row-icon{width:37px;height:37px;flex:0 0 37px;display:grid;place-items:center;border-radius:13px;background:#eef5ff;color:#2367bb;font-size:16px}.aurora-row-title{font-size:13px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.aurora-row-meta{font-size:10px;color:#8996a9;margin-top:3px}.aurora-row-value{text-align:right;white-space:nowrap;font-size:13px;font-weight:800}.aurora-row-value.income{color:#15956b}.aurora-row-value.expense{color:#d95365}
+.aurora-empty{padding:27px 16px;text-align:center;color:#8492a6;font-size:12px}
+.aurora-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.aurora-toolbar input,.aurora-toolbar select{min-width:0;flex:1;border:1px solid #dfe8f3;border-radius:12px;padding:11px 12px;background:#fff;color:#29415f;font-size:12px}
+.aurora-analysis-hero{padding:19px;border-radius:20px;background:linear-gradient(120deg,#e7f2ff,#f7fbff);border:1px solid #dceaff;margin:14px 0}.aurora-analysis-hero small{color:#6481a7;font-size:11px}.aurora-analysis-hero strong{display:block;font-size:27px;margin:5px 0;color:#1456a6;letter-spacing:-.8px}
+.aurora-chart{height:170px;display:flex;align-items:end;gap:9px;padding:18px 5px 4px;border-bottom:1px solid #e8eef6}.aurora-chart-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;gap:7px}.aurora-chart-bars{height:125px;width:100%;display:flex;align-items:end;justify-content:center;gap:3px}.aurora-chart-bars i{width:min(15px,42%);min-height:2px;border-radius:5px 5px 2px 2px;display:block;transform-origin:bottom;animation:barRise .7s cubic-bezier(.2,.8,.2,1) both}.aurora-chart-bars .bar-in{background:linear-gradient(180deg,#58c7ff,#1973dc)}.aurora-chart-bars .bar-out{background:linear-gradient(180deg,#ff9aa5,#df536a)}@keyframes barRise{from{transform:scaleY(.08)}to{transform:scaleY(1)}}
+.aurora-chart-col small{font-size:9px;color:#8392a7}.aurora-legend{display:flex;gap:16px;margin:12px 2px 0;font-size:10px;color:#74849b}.aurora-legend i{display:inline-block;width:7px;height:7px;border-radius:3px;margin-right:5px}
+.aurora-month-table{background:#fff;border:1px solid #e6edf5;border-radius:17px;overflow:hidden}.aurora-month-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:13px 14px;border-bottom:1px solid #eff3f8}.aurora-month-row:last-child{border:0}.aurora-month-row small{display:block;font-size:9px;color:#8996a9;margin-bottom:4px}.aurora-month-row strong{font-size:11px;white-space:nowrap}.aurora-month-row .accum{color:#145eb8}
+.aurora-bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;display:flex;justify-content:center;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#ffffffed;border-top:1px solid #e6edf5;backdrop-filter:blur(18px)}
+.aurora-bottom-inner{width:min(100%,520px);display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.aurora-tab{border:0;background:transparent;color:#8a98ad;border-radius:13px;padding:8px 6px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:700}.aurora-tab b{font-size:19px;font-weight:500}.aurora-tab.active{color:#1768d5;background:#edf5ff}
+.aurora-month-control{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:15px 0}.aurora-month-control input{border:1px solid #dfe8f3;border-radius:11px;background:#fff;padding:10px;color:#31506f}
+#auroraNewUI .aurora-badge{font-size:9px;color:#6682a4;background:#edf5ff;border-radius:99px;padding:5px 8px}
+#modal .dialog{max-height:90dvh;overflow:auto;border-radius:22px;box-shadow:0 24px 80px #071d3c44}#modal .field{margin:10px 0}#modal .field input,#modal .field select{border-radius:12px;padding:12px}#seriesUntilWrap,#seriesCountWrap,#editScopeWrap{display:none!important}
+@media(max-width:600px){#auroraNewUI{padding:17px 15px 30px}.aurora-balance{padding:22px 20px;border-radius:23px}.aurora-actions{gap:9px}.aurora-action{padding:12px 10px;font-size:12px}.aurora-action .action-icon{width:31px;height:31px}.aurora-stat{padding:13px}.aurora-stat strong{font-size:17px}.aurora-month-row{padding:12px 10px}.aurora-month-row strong{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.aurora-page,.aurora-balance:before,.aurora-chart-bars i{animation:none!important;transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -162,6 +205,35 @@ small,.eyebrow,.eyebrow-dark,.chart-subtitle,.tx-status,.quick-chip,.simple-metr
  </div>
 </section>
 <main class="wrap" id="dashboard" hidden>
+
+<div id="auroraNewUI" hidden>
+ <header class="aurora-head"><div class="aurora-logo"><span class="aurora-symbol">✦</span><span>AURORA</span></div><div class="aurora-user"><span id="newUserEmail"></span><button type="button" id="newLogout">Sair</button></div></header>
+ <section class="aurora-page active" data-new-page="home">
+  <div class="aurora-balance"><div class="aurora-kicker">MEU DINHEIRO HOJE</div><div class="aurora-money" id="newBalance">R$ 0,00</div><div class="aurora-balance-sub">Seu saldo acumulado até agora</div><div class="aurora-balance-foot"><span id="newBalanceHint">Tudo em um só lugar.</span><strong id="newCurrentMonth"></strong></div></div>
+  <div class="aurora-actions"><button class="aurora-action out" id="newExpense"><span class="action-icon">↗</span><span>Lançar saída<small>Registre um gasto</small></span></button><button class="aurora-action in" id="newIncome"><span class="action-icon">↙</span><span>Adicionar entrada<small>Registre um recebimento</small></span></button></div>
+  <div class="aurora-stats"><div class="aurora-stat"><small>Entrou neste mês</small><strong class="positive" id="newHomeIncome">R$ 0,00</strong></div><div class="aurora-stat"><small>Saiu neste mês</small><strong class="negative" id="newHomeExpense">R$ 0,00</strong></div></div>
+  <div class="aurora-section-head"><div><h2>Últimas movimentações</h2><p>O que aconteceu recentemente</p></div><button class="aurora-link" data-go-page="history">Ver histórico →</button></div>
+  <div class="aurora-list" id="newRecent"></div>
+  <div class="aurora-section-head"><div><h2>Próximas contas</h2><p>Compromissos que estão chegando</p></div></div><div class="aurora-list" id="newUpcoming"></div>
+ </section>
+ <section class="aurora-page" data-new-page="history">
+  <div class="aurora-section-head"><div><span class="aurora-kicker">SEU CAMINHO FINANCEIRO</span><h2>Histórico</h2><p>Entradas e saídas, sem complicação</p></div></div>
+  <div class="aurora-month-control"><label class="aurora-badge">MÊS</label><input type="month" id="newHistoryMonth"></div>
+  <div class="aurora-toolbar"><input id="newHistorySearch" type="search" placeholder="Buscar lançamento..."><select id="newHistoryType"><option value="all">Tudo</option><option value="income">Entradas</option><option value="expense">Saídas</option></select><select id="newHistoryStatus"><option value="all">Todas</option><option value="paid">Realizadas</option><option value="pending">Pendentes</option></select></div>
+  <div class="aurora-stats"><div class="aurora-stat"><small>Total de entradas</small><strong class="positive" id="newHistoryIncome">R$ 0,00</strong></div><div class="aurora-stat"><small>Total de saídas</small><strong class="negative" id="newHistoryExpense">R$ 0,00</strong></div></div>
+  <div class="aurora-section-head"><div><h2>Movimentações</h2><p id="newHistoryCount">0 lançamentos</p></div></div><div class="aurora-list" id="newHistoryRows"></div>
+ </section>
+ <section class="aurora-page" data-new-page="analysis">
+  <div class="aurora-section-head"><div><span class="aurora-kicker">VISÃO GERAL</span><h2>Análise mensal</h2><p>Entrou, saiu e quanto ficou acumulado</p></div></div>
+  <div class="aurora-month-control"><label class="aurora-badge">PERÍODO</label><select id="newAnalysisPeriod"><option value="6">Últimos 6 meses</option><option value="12" selected>Últimos 12 meses</option></select></div>
+  <div class="aurora-analysis-hero"><small>ACUMULADO ATÉ O MÊS SELECIONADO</small><strong id="newAnalysisBalance">R$ 0,00</strong><small id="newAnalysisLabel">Saldo que foi ficando ao longo do tempo</small></div>
+  <div class="aurora-stats"><div class="aurora-stat"><small>Entradas no período</small><strong class="positive" id="newAnalysisIncome">R$ 0,00</strong></div><div class="aurora-stat"><small>Saídas no período</small><strong class="negative" id="newAnalysisExpense">R$ 0,00</strong></div></div>
+  <div class="aurora-section-head"><div><h2>Movimento por mês</h2><p>Azul: entradas · Coral: saídas</p></div></div><div class="aurora-list" style="padding:8px 13px"><div class="aurora-chart" id="newAnalysisChart"></div><div class="aurora-legend"><span><i style="background:#2588e8"></i>Entradas</span><span><i style="background:#e36a7a"></i>Saídas</span></div></div>
+  <div class="aurora-section-head"><div><h2>Acumulado mês a mês</h2><p>O saldo continua de um mês para o outro</p></div></div><div class="aurora-month-table" id="newAnalysisRows"></div>
+ </section>
+</div>
+<nav class="aurora-bottom" id="auroraNewNav" hidden><div class="aurora-bottom-inner"><button class="aurora-tab active" data-new-tab="home"><b>⌂</b>Início</button><button class="aurora-tab" data-new-tab="history"><b>↕</b>Histórico</button><button class="aurora-tab" data-new-tab="analysis"><b>◷</b>Análise</button></div></nav>
+
  <section class="aurora-hero" id="home-section" data-screen="today">
   <div class="hero-topline"><div><span class="hero-kicker">CONTROLE FINANCEIRO</span><h1>Seu dinheiro, em ordem</h1><p>Seu planejamento, com clareza em cada decisão.</p></div><div class="hero-period"><span>VISÃO DO MÊS</span><strong id="monthReadable"></strong></div></div>
   <div class="hero-balance"><div><span class="hero-balance-label">SALDO REAL DISPONÍVEL</span><strong id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + valores efetivamente recebidos − pagos</small><p class="projected-end-line">Previsto para o fim do mês: <strong id="projectedMonthEnd">R$ 0,00</strong></p></div></div>
@@ -714,4 +786,74 @@ function initializeApp(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initializeApp,{once:true});else initializeApp();
 </script>
 
+
+<script>
+(function(){
+ const root=document.getElementById('auroraNewUI');
+ const fmt=v=>money(v);
+ const realized=e=>['paid','recorded'].includes(e.status);
+ const sign=e=>e.type==='income'?1:-1;
+ const safe=s=>escapeHtml(s||'');
+ const dateBR=s=>new Date(s+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+ const monthKey=(d)=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+ const monthTitle=k=>{const [y,m]=k.split('-').map(Number);return new Date(y,m-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})};
+ let activePage='home';
+ function page(name){activePage=name;root.querySelectorAll('[data-new-page]').forEach(x=>x.classList.toggle('active',x.dataset.newPage===name));document.querySelectorAll('[data-new-tab]').forEach(x=>{const on=x.dataset.newTab===name;x.classList.toggle('active',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});renderNewUI()}
+ function renderNewUI(){
+  if(!root||!currentUser)return;
+  const today=localDateString(),now=new Date(),selected=monthKey(now),current=entries.filter(e=>e.date.slice(0,7)===selected);
+  const actual=entries.filter(e=>realized(e)&&e.date<=today);
+  const balance=openingBalance+actual.reduce((s,e)=>s+sign(e)*Number(e.amount||0),0);
+  const inc=current.filter(e=>e.type==='income'&&realized(e)).reduce((s,e)=>s+e.amount,0);
+  const out=current.filter(e=>e.type==='expense'&&realized(e)).reduce((s,e)=>s+e.amount,0);
+  $('newBalance').textContent=fmt(balance);$('newHomeIncome').textContent=fmt(inc);$('newHomeExpense').textContent=fmt(out);$('newCurrentMonth').textContent=monthTitle(selected);
+  $('newUserEmail').textContent=currentUser.email||'';
+  const recent=entries.slice().sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id))).slice(0,5);
+  $('newRecent').innerHTML=recent.length?recent.map(rowHtml).join(''):'<div class="aurora-empty">Seu histórico começa no primeiro lançamento. ✨</div>';
+  const due=entries.filter(e=>e.type==='expense'&&!realized(e)&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
+  $('newUpcoming').innerHTML=due.length?due.map(rowHtml).join(''):'<div class="aurora-empty">Nenhuma conta futura cadastrada.</div>';
+  renderNewHistory();renderNewAnalysis();
+ }
+ function rowHtml(e){return '<div class="aurora-row"><div class="aurora-row-main"><span class="aurora-row-icon">'+(e.type==='income'?'↙':'↗')+'</span><div style="min-width:0"><div class="aurora-row-title">'+safe(e.description)+'</div><div class="aurora-row-meta">'+safe(e.category)+' · '+dateBR(e.date)+(realized(e)?'':' · Pendente')+'</div></div></div><div class="aurora-row-value '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+':'−')+' '+fmt(e.amount)+'</div></div>'}
+ function renderNewHistory(){
+  if(!$('newHistoryRows'))return;
+  const key=$('newHistoryMonth').value||monthKey(new Date()),type=$('newHistoryType').value,status=$('newHistoryStatus').value,query=$('newHistorySearch').value.trim().toLowerCase();
+  const rows=entries.filter(e=>e.date.startsWith(key)&&(type==='all'||e.type===type)&&(status==='all'||(status==='paid'?realized(e):!realized(e)))&&(!query||(e.description+' '+e.category).toLowerCase().includes(query))).sort((a,b)=>b.date.localeCompare(a.date));
+  const all=entries.filter(e=>e.date.startsWith(key)),sum=(list,t)=>list.filter(e=>e.type===t&&realized(e)).reduce((s,e)=>s+e.amount,0);
+  $('newHistoryIncome').textContent=fmt(sum(all,'income'));$('newHistoryExpense').textContent=fmt(sum(all,'expense'));$('newHistoryCount').textContent=rows.length+' lançamento(s)';
+  $('newHistoryRows').innerHTML=rows.length?rows.map(e=>'<div class="aurora-row" data-new-edit="'+safe(e.id)+'"><div class="aurora-row-main"><span class="aurora-row-icon">'+(e.type==='income'?'↙':'↗')+'</span><div style="min-width:0"><div class="aurora-row-title">'+safe(e.description)+'</div><div class="aurora-row-meta">'+safe(e.category)+' · '+dateBR(e.date)+' · '+(realized(e)?'Realizado':'Pendente')+'</div></div></div><div class="aurora-row-value '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+':'−')+' '+fmt(e.amount)+'</div></div>').join(''):'<div class="aurora-empty">Nenhum lançamento encontrado neste mês.</div>';
+ }
+ function monthData(n){
+  const today=new Date(),end=monthKey(today),[ey,em]=end.split('-').map(Number),start=new Date(ey,em-1-(n-1),1,12),keys=[];
+  for(let i=0;i<n;i++){const d=new Date(start.getFullYear(),start.getMonth()+i,1,12);keys.push(monthKey(d))}
+  let running=openingBalance;
+  const prior=entries.filter(e=>e.date<keys[0]+'-01'&&realized(e));running+=prior.reduce((s,e)=>s+sign(e)*e.amount,0);
+  return keys.map(k=>{const list=entries.filter(e=>e.date.startsWith(k)&&realized(e)),income=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),expense=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);running+=income-expense;return {key:k,label:monthTitle(k).split(' ')[0].slice(0,3),income,expense,balance:running}});
+ }
+ function renderNewAnalysis(){
+  if(!$('newAnalysisRows'))return;
+  const n=Number($('newAnalysisPeriod').value||12),data=monthData(n),totalIn=data.reduce((s,x)=>s+x.income,0),totalOut=data.reduce((s,x)=>s+x.expense,0);
+  $('newAnalysisBalance').textContent=fmt(data[data.length-1]?.balance||openingBalance);$('newAnalysisIncome').textContent=fmt(totalIn);$('newAnalysisExpense').textContent=fmt(totalOut);$('newAnalysisLabel').textContent='Acumulado até '+monthTitle(data[data.length-1].key);
+  const max=Math.max(1,...data.flatMap(x=>[x.income,x.expense]));
+  $('newAnalysisChart').innerHTML=data.map(m=>'<div class="aurora-chart-col"><div class="aurora-chart-bars"><i class="bar-in" style="height:'+Math.max(2,m.income/max*100)+'%"></i><i class="bar-out" style="height:'+Math.max(2,m.expense/max*100)+'%"></i></div><small>'+m.label+'</small></div>').join('');
+  $('newAnalysisRows').innerHTML=data.slice().reverse().map(m=>'<div class="aurora-month-row"><div><small>'+monthTitle(m.key)+'</small><strong style="color:#15956b">'+fmt(m.income)+'</strong></div><div><small>SAÍDAS</small><strong style="color:#d95365">'+fmt(m.expense)+'</strong></div><div><small>ACUMULADO</small><strong class="accum">'+fmt(m.balance)+'</strong></div></div>').join('');
+ }
+ const oldRender=render;
+ render=function(){oldRender();renderNewUI()};
+ document.addEventListener('DOMContentLoaded',()=>{
+  $('newHistoryMonth').value=monthKey(new Date());
+  $('newExpense').addEventListener('click',()=>openModal('expense'));
+  $('newIncome').addEventListener('click',()=>openModal('income'));
+  $('newLogout').addEventListener('click',logout);
+  $('auroraNewNav').addEventListener('click',e=>{const b=e.target.closest('[data-new-tab]');if(b)page(b.dataset.newTab)});
+  root.addEventListener('click',e=>{const go=e.target.closest('[data-go-page]');if(go){page(go.dataset.goPage);return}const edit=e.target.closest('[data-new-edit]');if(edit)openModal(entries.find(x=>x.id===edit.dataset.newEdit)?.type||'expense',edit.dataset.newEdit)});
+  ['newHistoryMonth','newHistoryType','newHistoryStatus','newHistorySearch'].forEach(id=>$(id).addEventListener(id==='newHistorySearch'?'input':'change',renderNewHistory));
+  $('newAnalysisPeriod').addEventListener('change',renderNewAnalysis);
+  const observer=new MutationObserver(()=>{const visible=!$('dashboard').hidden;root.hidden=!visible;$('auroraNewNav').hidden=!visible;if(visible)renderNewUI()});
+  observer.observe($('dashboard'),{attributes:true,attributeFilter:['hidden']});
+  document.querySelectorAll('#seriesUntilWrap,#seriesCountWrap,#editScopeWrap').forEach(x=>x.hidden=true);
+  root.hidden=$('dashboard').hidden;$('auroraNewNav').hidden=$('dashboard').hidden;
+ });
+})();
+</script>
 </body></html>
