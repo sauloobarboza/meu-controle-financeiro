@@ -92,215 +92,240 @@ body:has(#authPanel:not([hidden])){background:#f4f7ff}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script>
-<script src="https://unpkg.com/@supabase/supabase-js@2.102.0"></script>
 <script>
+'use strict';
 const SUPABASE_URL='https://dqhyiggxcxczdcopdyec.supabase.co';
 const SUPABASE_KEY='sb_publishable_vM-nl4k5Ilkk0_QUohutFw_2wuweUTP';
-const supabase=window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY) : null;
-const KEY='mcf_transactions_v1';
-const categories={income:['Salário','Renda extra','Investimentos','Outros'],expense:['Moradia','Alimentação','Transporte','Saúde','Lazer','Contas','Cartão de crédito','Educação','Outros']};
-let entries=[],currentType='expense',currentUser=null;
+const STORAGE_KEY='sb-dqhyiggxcxczdcopdyec-auth-token';
+const LOCAL_DATA_KEY='mcf_transactions_v1';
 const $=id=>document.getElementById(id);
-const money=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-const today=()=>new Date().toISOString().slice(0,10);
-$('monthPicker').value=today().slice(0,7);
-function monthEntries(){const m=$('monthPicker').value;return entries.filter(e=>e.date.startsWith(m))}
-function setMessage(message,state='info',details=null){
- const box=$('authMessage');
- box.textContent=message;
- box.dataset.state=state;
- const debug=$('authDebug');
- debug.hidden=!details;
- if(details)$('authDebugText').textContent=JSON.stringify({
-  name:details.name||null,code:details.code||null,status:details.status||null,
-  message:details.message||String(details),details:details.details||null,hint:details.hint||null
- },null,2);
- const notice=$('appNotice');
- if($('dashboard').hidden){notice.hidden=true}
- else{notice.hidden=false;$('appNoticeMessage').textContent=message;$('appNoticeMessage').dataset.state=state}
+const categories={income:['Salário','Renda extra','Investimentos','Outros'],expense:['Moradia','Alimentação','Transporte','Saúde','Lazer','Contas','Cartão de crédito','Educação','Outros']};
+let supabaseClient=null,entries=[],currentUser=null,currentType='expense',installPrompt=null,activeUserId=null,entriesLoadedForUser=null,loadingPromise=null,saveInProgress=false;
+
+function localDateString(date=new Date()){
+ const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');
+ return y+'-'+m+'-'+d;
 }
-function authErrorText(error){
- const code=error?.code||'';
- const msg=String(error?.message||error||'Erro desconhecido');
- if(code==='email_not_confirmed')return 'Seu e-mail ainda não foi confirmado. Abra a mensagem de confirmação que enviamos e tente entrar novamente.';
- if(code==='email_address_not_authorized')return 'O Supabase bloqueou o envio para este endereço porque o projeto ainda usa o SMTP padrão. Configure um SMTP próprio para enviar confirmações a qualquer endereço.';
- if(code==='over_email_send_rate_limit'||code==='over_request_rate_limit')return 'O limite de tentativas ou de envio de e-mails foi atingido. Aguarde alguns minutos e tente novamente.';
- if(code==='user_already_exists'||/already registered|user exists/i.test(msg))return 'Este e-mail já possui cadastro. Tente entrar ou use “Esqueci a senha”.';
- if(/signup is disabled|signups not allowed/i.test(msg))return 'O cadastro de novos usuários está desativado nas configurações do Supabase.';
- if(/email rate limit|rate limit/i.test(msg))return 'O limite de envio de e-mails foi atingido. Aguarde um pouco antes de tentar novamente.';
+function money(value){return Number(value||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function setMessage(message,state='info',error=null){
+ const box=$('authMessage');if(box){box.textContent=message;box.dataset.state=state}
+ const notice=$('appNotice');
+ if(notice&&!$('dashboard').hidden){notice.hidden=false;$('appNoticeMessage').textContent=message;$('appNoticeMessage').dataset.state=state}
+ const debug=$('authDebug');
+ if(debug){debug.hidden=!error;if(error)$('authDebugText').textContent=JSON.stringify({name:error.name||null,code:error.code||null,status:error.status||null,message:error.message||String(error),details:error.details||null,hint:error.hint||null},null,2)}
+}
+function friendlyError(error){
+ const code=error?.code||'',msg=String(error?.message||error||'Erro desconhecido');
+ if(code==='email_not_confirmed')return 'Seu e-mail ainda não foi confirmado. Abra o link enviado e tente entrar novamente.';
+ if(code==='email_address_not_authorized')return 'O SMTP padrão do Supabase bloqueou o envio. Configure um provedor SMTP próprio.';
+ if(code==='over_email_send_rate_limit'||code==='over_request_rate_limit'||/rate limit/i.test(msg))return 'O limite de tentativas ou de envio de e-mails foi atingido. Aguarde alguns minutos.';
+ if(code==='user_already_exists'||/already registered|user exists/i.test(msg))return 'Não foi possível criar a conta com esse endereço. Tente entrar ou recuperar a senha.';
+ if(/signup is disabled|signups not allowed/i.test(msg))return 'O cadastro de novos usuários está desativado no Supabase.';
  if(/invalid login credentials/i.test(msg))return 'E-mail ou senha incorretos. Confira os dados ou recupere sua senha.';
- if(/failed to fetch|network|load failed/i.test(msg))return 'Não foi possível conectar ao serviço. Verifique sua internet e tente novamente.';
+ if(/failed to fetch|network|load failed|fetch failed/i.test(msg))return 'Não foi possível conectar ao servidor. Verifique sua internet e tente novamente.';
  return msg;
 }
-window.addEventListener('error',event=>{if(typeof setMessage==='function')setMessage('Ocorreu um erro interno na página. Atualize o aplicativo.','error',{message:event.message||'JavaScript error',name:'ClientError'});});
-window.addEventListener('unhandledrejection',event=>{const reason=event.reason||new Error('Falha assíncrona desconhecida');if(typeof setMessage==='function')setMessage('Uma operação foi interrompida: '+authErrorText(reason),'error',reason);});
-function setAuthBusy(busy,action){
+function setAuthBusy(busy,action=''){
  $('loginBtn').disabled=busy;$('signupBtn').disabled=busy;$('resetBtn').disabled=busy;
- $('loginBtn').textContent=busy&&action==='login'?'Entrando...':'Entrar';
- $('signupBtn').textContent=busy&&action==='signup'?'Criando conta...':'Criar conta';
+ $('loginBtn').innerHTML=busy&&action==='login'?'Entrando...':'Entrar na minha conta <span>→</span>';
+ $('signupBtn').textContent=busy&&action==='signup'?'Criando conta...':'Criar minha conta';
+}
+function showDashboard(user){
+ currentUser=user||null;$('authPanel').hidden=!!user;$('dashboard').hidden=!user;$('logoutBtn').hidden=!user;$('userEmail').textContent=user?.email||'';
+ if(!user)$('appNotice').hidden=true;
+}
+function resetUserData(){entries=[];currentUser=null;activeUserId=null;entriesLoadedForUser=null;loadingPromise=null;render()}
+async function activateUser(user){
+ if(!user?.id){showDashboard(null);resetUserData();return}
+ showDashboard(user);
+ if(activeUserId===user.id&&entriesLoadedForUser===user.id)return;
+ if(activeUserId===user.id&&loadingPromise)return loadingPromise;
+ activeUserId=user.id;loadingPromise=loadEntries(user.id);
+ try{await loadingPromise;entriesLoadedForUser=user.id}finally{loadingPromise=null}
 }
 async function createAccount(email,password){
- setAuthBusy(true,'signup');
- setMessage('Enviando seu cadastro ao Supabase...','info');
+ setAuthBusy(true,'signup');setMessage('Enviando seu cadastro com segurança...','info');
  try{
   const redirectUrl=new URL('./',window.location.href).href;
-  const {data,error}=await supabase.auth.signUp({
-   email,password,
-   options:{emailRedirectTo:redirectUrl}
-  });
-  if(error){
-   setMessage('Não foi possível criar sua conta. '+authErrorText(error),'error',error);
-   return;
-  }
-  if(data?.user?.identities?.length===0){
-   setMessage('Não foi possível confirmar um novo cadastro para esse e-mail. Ele pode já estar cadastrado. Tente entrar ou recuperar a senha.','error');
-   return;
-  }
-  if(data?.session&&data?.user){
-   showDashboard(data.user);
-   setMessage('Conta criada com sucesso! Você já está conectado.','success');
-   try{await loadEntries()}catch(loadError){setMessage('Sua conta foi criada e o login funcionou, mas não consegui carregar os lançamentos: '+authErrorText(loadError),'error',loadError)}
-   return;
-  }
-  if(data?.user){
-   setMessage('Cadastro recebido com sucesso! O Supabase aceitou a criação da conta. Enviamos (ou solicitamos) um e-mail de confirmação para '+email+'. Abra a mensagem e confirme seu endereço antes de entrar. Confira também Spam e Promoções.','success');
-   return;
-  }
-  setMessage('O serviço respondeu, mas não confirmou a criação da conta. Tente novamente e, se persistir, consulte os detalhes técnicos.','error');
- }catch(error){
-  setMessage('Falha ao tentar criar a conta: '+authErrorText(error),'error',error);
- }finally{setAuthBusy(false,'signup')}
+  const {data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:redirectUrl}});
+  if(error)throw error;
+  if(data?.session&&data?.user){await activateUser(data.user);setMessage('Conta criada e acesso liberado com sucesso!','success');return}
+  if(data?.user){setMessage('Recebemos sua solicitação. Se a confirmação por e-mail estiver ativa, abra o link enviado para '+email+' e depois volte para entrar. Confira Spam e Promoções.','success');return}
+  setMessage('O serviço respondeu sem confirmar o cadastro. Tente novamente.','error');
+ }catch(error){setMessage('Não foi possível criar sua conta. '+friendlyError(error),'error',error)}
+ finally{setAuthBusy(false)}
 }
 async function login(email,password){
- setAuthBusy(true,'login');
- setMessage('Verificando seus dados...','info');
+ setAuthBusy(true,'login');setMessage('Validando seus dados...','info');
  try{
-  const {data,error}=await supabase.auth.signInWithPassword({email,password});
-  if(error){setMessage('Não foi possível entrar. '+authErrorText(error),'error',error);return}
-  if(!data?.user){setMessage('O Supabase não retornou um usuário para esta tentativa.','error');return}
-  showDashboard(data.user);
-  setMessage('Login realizado com sucesso!','success');
-  try{await loadEntries()}catch(loadError){setMessage('Login realizado, mas houve um problema ao carregar seus lançamentos: '+authErrorText(loadError),'error',loadError)}
- }catch(error){setMessage('Falha ao entrar: '+authErrorText(error),'error',error)}
- finally{setAuthBusy(false,'login')}
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error)throw error;if(!data?.user)throw new Error('O serviço não retornou os dados do usuário.');
+  await activateUser(data.user);setMessage('Login realizado. Seus lançamentos foram sincronizados.','success');
+ }catch(error){setMessage('Não foi possível entrar. '+friendlyError(error),'error',error)}
+ finally{setAuthBusy(false)}
 }
-$('togglePassword').addEventListener('click',()=>{
- const field=$('authPassword'),show=field.type==='password';
- field.type=show?'text':'password';
- $('togglePassword').setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');
- $('togglePassword').setAttribute('aria-pressed',String(show));
- $('togglePassword').textContent=show?'🙈':'👁';
-});
-
-// Dynamic password feedback for the refreshed login screen.
-$('authPassword').addEventListener('input',()=>{
- const p=$('authPassword').value;let level=0;
- if(p.length>=6)level=1;
- if(p.length>=8&&/[A-Z]/.test(p)&&/[0-9]/.test(p))level=2;
- if(p.length>=10&&/[A-Z]/.test(p)&&/[0-9]/.test(p)&&/[^A-Za-z0-9]/.test(p))level=3;
- $('passwordMeter').dataset.level=String(level);
- $('passwordHint').textContent=!p?'Sua senha deve ter ao menos 6 caracteres':level===1?'Senha básica':level===2?'Senha razoável':'Senha forte';
-});
-$('authEmail').addEventListener('input',()=>{
- const email=$('authEmail').value.trim();
- $('authEmail').setAttribute('aria-label',email?'E-mail de acesso: '+email:'E-mail');
-});
-
-let requestedAuthAction='login';
-$('loginBtn').addEventListener('click',()=>requestedAuthAction='login');
-$('signupBtn').addEventListener('click',()=>requestedAuthAction='signup');
-$('authForm').addEventListener('submit',async event=>{
- event.preventDefault();
- const action=event.submitter?.dataset?.authAction||requestedAuthAction;
- requestedAuthAction='login';
+async function requestPasswordReset(){
  const email=$('authEmail').value.trim().toLowerCase();
- const password=$('authPassword').value;
- if(!supabase){
-  setMessage('A biblioteca de autenticação não carregou. Recarregue a página com internet ativa.','error');
-  return;
- }
- if(!$('authEmail').checkValidity()||!email){
-  setMessage('Digite um endereço de e-mail válido.','error');$('authEmail').focus();return;
- }
- if(password.length<6){
-  setMessage('A senha precisa ter pelo menos 6 caracteres.','error');$('authPassword').focus();return;
- }
- if(action==='signup')await createAccount(email,password);
- else await login(email,password);
-});
-$('resetBtn').addEventListener('click',async()=>{
- const email=$('authEmail').value.trim().toLowerCase();
- if(!supabase){setMessage('A biblioteca de autenticação não carregou.','error');return}
- if(!$('authEmail').checkValidity()||!email){setMessage('Digite seu e-mail válido primeiro.','error');$('authEmail').focus();return}
+ if(!$('authEmail').checkValidity()||!email){setMessage('Digite um endereço de e-mail válido primeiro.','error');$('authEmail').focus();return}
  $('resetBtn').disabled=true;setMessage('Solicitando recuperação de senha...','info');
  try{
-  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:new URL('./',window.location.href).href});
-  if(error)setMessage('Não foi possível solicitar a recuperação: '+authErrorText(error),'error',error);
-  else setMessage('Solicitação aceita. Se esse e-mail estiver cadastrado, o Supabase enviará um link para redefinir a senha. Confira Spam e Promoções.','success');
- }catch(error){setMessage('Falha ao solicitar recuperação: '+authErrorText(error),'error',error)}
+  const redirectTo=new URL('./',window.location.href).href;
+  const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;
+  setMessage('Se esse endereço estiver cadastrado, você receberá um link para redefinir a senha. Confira Spam e Promoções.','success');
+ }catch(error){setMessage('Não foi possível solicitar a recuperação. '+friendlyError(error),'error',error)}
  finally{$('resetBtn').disabled=false}
-});
-if(!supabase){
- setMessage('Não foi possível carregar o Supabase. Confira sua conexão e tente atualizar a página.','error');
-}else{
- setMessage('Autenticação pronta. Entre ou crie sua conta.','success');
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-async function loadEntries(){
- const {data,error}=await supabase.from('transactions').select('*').order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
+function handleAuthForm(event){
+ event.preventDefault();
+ if(!supabaseClient){setMessage('A biblioteca do Supabase não carregou. Verifique sua conexão e atualize a página.','error');return}
+ const email=$('authEmail').value.trim().toLowerCase(),password=$('authPassword').value,action=event.submitter?.dataset?.authAction||'login';
+ if(!$('authEmail').checkValidity()||!email){setMessage('Informe um endereço de e-mail válido.','error');$('authEmail').focus();return}
+ if(password.length<6){setMessage('A senha precisa ter pelo menos 6 caracteres.','error');$('authPassword').focus();return}
+ if(action==='signup')createAccount(email,password);else login(email,password);
+}
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+function monthEntries(){const selected=$('monthPicker').value;return entries.filter(entry=>entry.date.startsWith(selected))}
+function render(){
+ if(!$('transactions'))return;
+ const list=monthEntries();
+ const income=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0);
+ const expense=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
+ $('incomeTotal').textContent=money(income);$('expenseTotal').textContent=money(expense);$('balanceTotal').textContent=money(income-expense);
+ const filter=$('typeFilter').value,filtered=list.filter(e=>filter==='all'||e.type===filter).sort((a,b)=>b.date.localeCompare(a.date));
+ $('transactions').innerHTML=filtered.length?filtered.map(e=>'<div class="tx"><div><div class="txname">'+escapeHtml(e.description)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div style="display:flex;align-items:center;gap:10px"><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span><button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>').join(''):'<div class="empty">Nenhum lançamento neste mês.<br>Adicione sua primeira receita ou despesa.</div>';
+ const totals=categories.expense.map(category=>({name:category,value:list.filter(e=>e.type==='expense'&&e.category===category).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
+ $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(expense||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">Suas despesas por categoria aparecerão aqui.</div>';
+ const count=list.filter(e=>e.type==='expense').length;
+ $('summary').innerHTML='<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Quantidade de lançamentos</span><strong>'+list.length+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Média por despesa</span><strong>'+money(expense/(count||1))+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Resultado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div>';
+}
+async function loadEntries(userId){
+ if(!userId||!currentUser||currentUser.id!==userId)throw new Error('Sessão inválida. Entre novamente.');
+ const {data,error}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,created_at').eq('user_id',userId).order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
  if(error)throw error;
- entries=(data||[]).map(e=>({id:e.id,type:e.type,description:e.description,amount:Number(e.amount),category:e.category,date:e.transaction_date}));
- const local=JSON.parse(localStorage.getItem(KEY)||'[]');
- if(entries.length===0&&local.length>0&&!localStorage.getItem('mcf_cloud_migrated_'+currentUser.id)){
-  if(confirm('Encontramos '+local.length+' lançamento(s) salvos neste aparelho. Deseja importar para sua conta na nuvem?')){
-   const rows=local.map(e=>({user_id:currentUser.id,type:e.type,description:e.description,amount:e.amount,category:e.category,transaction_date:e.date}));
-   const {error:insertError}=await supabase.from('transactions').insert(rows);
-   if(insertError)throw insertError;
-   localStorage.setItem('mcf_cloud_migrated_'+currentUser.id,'1');
-   const {data:newData,error:newError}=await supabase.from('transactions').select('*').order('transaction_date',{ascending:false});
-   if(newError)throw newError;
-   entries=(newData||[]).map(e=>({id:e.id,type:e.type,description:e.description,amount:Number(e.amount),category:e.category,date:e.transaction_date}));
-  }
- } else if(!localStorage.getItem('mcf_cloud_migrated_'+currentUser.id)) {
-  localStorage.setItem('mcf_cloud_migrated_'+currentUser.id,'1');
- }
+ entries=(data||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date}));
+ const migrationKey='mcf_cloud_migrated_'+userId;
+ let localEntries=[];
+ try{localEntries=JSON.parse(localStorage.getItem(LOCAL_DATA_KEY)||'[]');if(!Array.isArray(localEntries))localEntries=[]}catch{localEntries=[]}
+ if(entries.length===0&&localEntries.length&&!localStorage.getItem(migrationKey)){
+  const shouldImport=window.confirm('Encontramos '+localEntries.length+' lançamento(s) salvos neste aparelho. Deseja importar para sua conta?');
+  if(shouldImport){
+   const rows=localEntries.filter(item=>['income','expense'].includes(item.type)&&String(item.description||'').trim()&&Number(item.amount)>0&&item.category&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)).map(item=>({user_id:userId,type:item.type,description:String(item.description).trim(),amount:Number(item.amount),category:String(item.category),transaction_date:item.date}));
+   if(rows.length){const {error:insertError}=await supabaseClient.from('transactions').insert(rows);if(insertError)throw insertError}
+   localStorage.setItem(migrationKey,'1');
+   const {data:refreshed,error:refreshError}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,created_at').eq('user_id',userId).order('transaction_date',{ascending:false});
+   if(refreshError)throw refreshError;
+   entries=(refreshed||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date}));
+  }else localStorage.setItem(migrationKey,'skipped');
+ }else if(!localStorage.getItem(migrationKey))localStorage.setItem(migrationKey,'1');
  render();
 }
-function showDashboard(user){currentUser=user;$('authPanel').hidden=!!user;$('dashboard').hidden=!user;$('logoutBtn').hidden=!user;$('userEmail').textContent=user?user.email:''}
-async function refreshSession(){
- const {data,error}=await supabase.auth.getSession();
- if(error)throw error;
- if(data.session){showDashboard(data.session.user);await loadEntries()}else showDashboard(null);
+function openModal(type){
+ if(!currentUser){setMessage('Entre na sua conta antes de adicionar lançamentos.','error');return}
+ currentType=type;$('modalTitle').textContent=type==='income'?'Nova receita':'Nova despesa';$('entryForm').reset();
+ $('category').innerHTML=categories[type].map(c=>'<option value="'+escapeHtml(c)+'">'+escapeHtml(c)+'</option>').join('');
+ $('date').value=localDateString();$('modal').classList.add('open');$('description').focus();
 }
-$('logoutBtn').onclick=async()=>{if(!supabase)return;const {error}=await supabase.auth.signOut();if(error)return alert(error.message);entries=[];showDashboard(null)};
-function render(){
- const list=monthEntries(),inc=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),out=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
- $('incomeTotal').textContent=money(inc);$('expenseTotal').textContent=money(out);$('balanceTotal').textContent=money(inc-out);
- const filtered=list.filter(e=>$('typeFilter').value==='all'||e.type===$('typeFilter').value).sort((a,b)=>b.date.localeCompare(a.date));
- $('transactions').innerHTML=filtered.length?filtered.map(e=>'<div class="tx"><div><div class="txname">'+escapeHtml(e.description)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div style="display:flex;align-items:center;gap:10px"><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span><button class="btn secondary" style="padding:6px 9px" data-delete="'+e.id+'" aria-label="Excluir lançamento">×</button></div></div>').join(''):'<div class="empty">Nenhum lançamento neste mês.<br>Adicione sua primeira receita ou despesa.</div>';
- const totals=categories.expense.map(c=>({name:c,value:list.filter(e=>e.type==='expense'&&e.category===c).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
- $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(out||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">Suas despesas por categoria aparecerão aqui.</div>';
- $('summary').innerHTML='<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Quantidade de lançamentos</span><strong>'+list.length+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Média por despesa</span><strong>'+money(out/(list.filter(e=>e.type==='expense').length||1))+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Resultado</span><strong class="'+(inc-out>=0?'income':'expense')+'">'+money(inc-out)+'</strong></div>';
+async function saveEntry(event){
+ event.preventDefault();if(saveInProgress)return;
+ if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
+ const description=$('description').value.trim(),amount=Math.round(Number($('amount').value)*100)/100,date=$('date').value,category=$('category').value;
+ if(!description||!Number.isFinite(amount)||amount<=0||!date||!category){window.alert('Confira a descrição, o valor, a categoria e a data.');return}
+ saveInProgress=true;const button=$('entryForm').querySelector('button[type="submit"]');button.disabled=true;button.textContent='Salvando...';
+ try{
+  const row={user_id:currentUser.id,type:currentType,description,amount,category,transaction_date:date};
+  const {data,error}=await supabaseClient.from('transactions').insert(row).select('id,type,description,amount,category,transaction_date').single();if(error)throw error;
+  entries.unshift({id:data.id,type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date});
+  render();$('modal').classList.remove('open');setMessage('Lançamento salvo e sincronizado.','success');
+ }catch(error){window.alert('Não foi possível salvar: '+friendlyError(error))}
+ finally{saveInProgress=false;button.disabled=false;button.textContent='Salvar lançamento'}
 }
-function openModal(type){currentType=type;$('modalTitle').textContent=type==='income'?'Nova receita':'Nova despesa';$('category').innerHTML=categories[type].map(c=>'<option>'+c+'</option>').join('');$('entryForm').reset();$('date').value=today();$('category').innerHTML=categories[type].map(c=>'<option>'+c+'</option>').join('');$('modal').classList.add('open');$('description').focus()}
-$('addIncome').onclick=()=>openModal('income');$('addExpense').onclick=()=>openModal('expense');$('cancelBtn').onclick=()=>$('modal').classList.remove('open');
-$('entryForm').onsubmit=async e=>{
- e.preventDefault();const row={user_id:currentUser.id,type:currentType,description:$('description').value.trim(),amount:Math.round(Number($('amount').value)*100)/100,category:$('category').value,transaction_date:$('date').value};
- const {data,error}=await supabase.from('transactions').insert(row).select().single();
- if(error)return alert('Não foi possível salvar: '+error.message);
- entries.unshift({id:data.id,type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date});render();$('modal').classList.remove('open');
-};
-$('transactions').onclick=async e=>{const b=e.target.closest('[data-delete]');if(!b||!confirm('Excluir este lançamento?'))return;const id=b.dataset.delete;const {error}=await supabase.from('transactions').delete().eq('id',id);if(error)return alert('Não foi possível excluir: '+error.message);entries=entries.filter(x=>x.id!==id);render()};
-$('typeFilter').onchange=render;$('monthPicker').onchange=render;
-function shiftMonth(n){const d=new Date($('monthPicker').value+'-15T12:00:00');d.setMonth(d.getMonth()+n);$('monthPicker').value=d.toISOString().slice(0,7);render()}
-$('prevMonth').onclick=()=>shiftMonth(-1);$('nextMonth').onclick=()=>shiftMonth(1);
-$('exportBtn').onclick=()=>{const rows=[['Data','Tipo','Descrição','Categoria','Valor'],...entries.map(e=>[e.date,e.type==='income'?'Receita':'Despesa',e.description,e.category,e.amount.toFixed(2).replace('.',',')])];const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='controle-financeiro.csv';a.click();URL.revokeObjectURL(a.href)};
-let installPrompt;$('installBtn').onclick=async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').style.display='none'}else alert('No Chrome, abra o menu ⋮ e escolha "Instalar app" ou "Adicionar à tela inicial".')};
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').style.display='block'});
-if('serviceWorker'in navigator){window.addEventListener('load',()=>{const hadController=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!hadController||sessionStorage.getItem('mcf_sw_reloaded')==='1')return;sessionStorage.setItem('mcf_sw_reloaded','1');window.location.reload()});navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update().catch(()=>{})).catch(()=>{})})}
-// Session is restored once on startup. Auth state callbacks are intentionally not async,
-// avoiding nested Supabase requests while the auth client is processing a state change.
-if(supabase)refreshSession().catch(err=>setMessage('Não foi possível restaurar a sessão: '+authErrorText(err),'error',err));
+async function deleteEntry(id,button){
+ if(!currentUser||!id||!window.confirm('Deseja realmente excluir este lançamento?'))return;
+ button.disabled=true;
+ try{
+  const {error}=await supabaseClient.from('transactions').delete().eq('id',id).eq('user_id',currentUser.id);if(error)throw error;
+  entries=entries.filter(e=>e.id!==id);render();setMessage('Lançamento excluído.','success');
+ }catch(error){button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}
+}
+async function logout(){
+ if(!supabaseClient)return;$('logoutBtn').disabled=true;
+ try{const {error}=await supabaseClient.auth.signOut();if(error)throw error;resetUserData();showDashboard(null);setMessage('Você saiu da sua conta.','success')}
+ catch(error){setMessage('Não foi possível sair: '+friendlyError(error),'error',error)}
+ finally{$('logoutBtn').disabled=false}
+}
+function shiftMonth(offset){
+ const [year,month]=$('monthPicker').value.split('-').map(Number),date=new Date(year,month-1+offset,1,12);
+ $('monthPicker').value=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0');render();
+}
+function exportCsv(){
+ if(!entries.length){window.alert('Não há lançamentos para exportar.');return}
+ const rows=[['Data','Tipo','Descrição','Categoria','Valor'],...entries.map(e=>[e.date,e.type==='income'?'Receita':'Despesa',e.description,e.category,e.amount.toFixed(2).replace('.',',')])];
+ const csv='\uFEFF'+rows.map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(';')).join('\r\n');
+ const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='meu-controle-financeiro.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function setupPasswordFeedback(){
+ $('togglePassword').addEventListener('click',()=>{
+  const field=$('authPassword'),visible=field.type==='password';field.type=visible?'text':'password';
+  $('togglePassword').setAttribute('aria-label',visible?'Ocultar senha':'Mostrar senha');$('togglePassword').setAttribute('aria-pressed',String(visible));$('togglePassword').textContent=visible?'🙈':'👁';
+ });
+ $('authPassword').addEventListener('input',()=>{
+  const p=$('authPassword').value;let level=0;if(p.length>=6)level=1;if(p.length>=8&&/[A-Z]/.test(p)&&/[0-9]/.test(p))level=2;if(p.length>=10&&/[A-Z]/.test(p)&&/[0-9]/.test(p)&&/[^A-Za-z0-9]/.test(p))level=3;
+  $('passwordMeter').dataset.level=String(level);$('passwordHint').textContent=!p?'Sua senha deve ter ao menos 6 caracteres':level===1?'Senha básica':level===2?'Senha razoável':'Senha forte';
+ });
+}
+function setupInstallPrompt(){
+ $('installBtn').addEventListener('click',async()=>{
+  if(!installPrompt){window.alert('No Chrome, abra o menu ⋮ e escolha “Instalar app” ou “Adicionar à tela inicial”.');return}
+  installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').style.display='none';
+ });
+ window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;$('installBtn').style.display='block'});
+}
+function setupServiceWorker(){
+ if(!('serviceWorker'in navigator))return;
+ window.addEventListener('load',()=>{
+  let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded)return;reloaded=true;window.location.reload()});
+  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update().catch(()=>{})).catch(error=>console.warn('Service Worker não registrado:',error));
+ });
+}
+function initializeSupabase(){
+ if(!window.supabase?.createClient){setMessage('Não foi possível carregar o Supabase. Verifique sua conexão e atualize a página.','error');return}
+ const storageAdapter={
+  getItem(key){try{const preferred=$('rememberLogin').checked?localStorage:sessionStorage,other=$('rememberLogin').checked?sessionStorage:localStorage;let value=preferred.getItem(key);if(value!==null)return value;value=other.getItem(key);if(value!==null){preferred.setItem(key,value);other.removeItem(key)}return value}catch{return null}},
+  setItem(key,value){try{const preferred=$('rememberLogin').checked?localStorage:sessionStorage,other=$('rememberLogin').checked?sessionStorage:localStorage;preferred.setItem(key,value);other.removeItem(key)}catch(error){console.warn('Falha ao persistir sessão:',error)}},
+  removeItem(key){try{localStorage.removeItem(key);sessionStorage.removeItem(key)}catch(error){console.warn('Falha ao limpar sessão:',error)}}
+ };
+ supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storage:storageAdapter,storageKey:STORAGE_KEY,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ $('rememberLogin').addEventListener('change',()=>{const stored=storageAdapter.getItem(STORAGE_KEY);if(stored!==null)storageAdapter.setItem(STORAGE_KEY,stored)});
+ supabaseClient.auth.onAuthStateChange((event,session)=>{
+  // O callback deve permanecer síncrono; operações Supabase são agendadas após seu retorno.
+  if(event==='SIGNED_OUT'){resetUserData();showDashboard(null);return}
+  if(session&&['INITIAL_SESSION','SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED'].includes(event)){
+   queueMicrotask(()=>activateUser(session.user).catch(error=>setMessage('Sessão ativa, mas não foi possível carregar os lançamentos: '+friendlyError(error),'error',error)));
+  }
+  if(event==='PASSWORD_RECOVERY'){
+   queueMicrotask(async()=>{
+    const password=window.prompt('Digite sua nova senha (mínimo de 6 caracteres):');if(!password)return;
+    if(password.length<6){setMessage('A nova senha precisa ter pelo menos 6 caracteres.','error');return}
+    const {error}=await supabaseClient.auth.updateUser({password});
+    if(error)setMessage('Não foi possível atualizar a senha: '+friendlyError(error),'error',error);else setMessage('Senha atualizada com sucesso.','success');
+   });
+  }
+ });
+ setMessage('Autenticação pronta. Entre ou crie sua conta.','success');
+}
+function initializeApp(){
+ $('monthPicker').value=localDateString().slice(0,7);
+ $('authForm').addEventListener('submit',handleAuthForm);$('resetBtn').addEventListener('click',requestPasswordReset);
+ $('logoutBtn').addEventListener('click',logout);$('addIncome').addEventListener('click',()=>openModal('income'));$('addExpense').addEventListener('click',()=>openModal('expense'));
+ $('cancelBtn').addEventListener('click',()=>$('modal').classList.remove('open'));$('entryForm').addEventListener('submit',saveEntry);
+ $('transactions').addEventListener('click',event=>{const button=event.target.closest('[data-delete]');if(button)deleteEntry(button.dataset.delete,button)});
+ $('typeFilter').addEventListener('change',render);$('monthPicker').addEventListener('change',render);
+ $('prevMonth').addEventListener('click',()=>shiftMonth(-1));$('nextMonth').addEventListener('click',()=>shiftMonth(1));$('exportBtn').addEventListener('click',exportCsv);
+ setupPasswordFeedback();setupInstallPrompt();setupServiceWorker();initializeSupabase();
+ window.addEventListener('error',event=>console.error('Erro JavaScript:',event.error||event.message));
+ window.addEventListener('unhandledrejection',event=>{console.error('Falha assíncrona:',event.reason);setMessage('Uma operação não foi concluída: '+friendlyError(event.reason),'error',event.reason)});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initializeApp,{once:true});else initializeApp();
 </script>
 
 </body></html>
