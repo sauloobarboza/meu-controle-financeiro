@@ -167,7 +167,7 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 .aurora-analysis-hero{padding:19px;border-radius:20px;background:linear-gradient(120deg,#e7f2ff,#f7fbff);border:1px solid #dceaff;margin:14px 0}.aurora-analysis-hero small{color:#6481a7;font-size:11px}.aurora-analysis-hero strong{display:block;font-size:27px;margin:5px 0;color:#1456a6;letter-spacing:-.8px}
 .aurora-chart{height:170px;display:flex;align-items:end;gap:9px;padding:18px 5px 4px;border-bottom:1px solid #e8eef6}.aurora-chart-col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;gap:7px}.aurora-chart-bars{height:125px;width:100%;display:flex;align-items:end;justify-content:center;gap:3px}.aurora-chart-bars i{width:min(15px,42%);min-height:2px;border-radius:5px 5px 2px 2px;display:block;transform-origin:bottom;animation:barRise .7s cubic-bezier(.2,.8,.2,1) both}.aurora-chart-bars .bar-in{background:linear-gradient(180deg,#58c7ff,#1973dc)}.aurora-chart-bars .bar-out{background:linear-gradient(180deg,#ff9aa5,#df536a)}@keyframes barRise{from{transform:scaleY(.08)}to{transform:scaleY(1)}}
 .aurora-chart-col small{font-size:9px;color:#8392a7}.aurora-legend{display:flex;gap:16px;margin:12px 2px 0;font-size:10px;color:#74849b}.aurora-legend i{display:inline-block;width:7px;height:7px;border-radius:3px;margin-right:5px}
-.aurora-month-table{background:#fff;border:1px solid #e6edf5;border-radius:17px;overflow:hidden}.aurora-month-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:13px 14px;border-bottom:1px solid #eff3f8}.aurora-month-row:last-child{border:0}.aurora-month-row small{display:block;font-size:9px;color:#8996a9;margin-bottom:4px}.aurora-month-row strong{font-size:11px;white-space:nowrap}.aurora-month-row .accum{color:#145eb8}
+.aurora-month-table{background:#fff;border:1px solid #e6edf5;border-radius:17px;overflow:hidden}.aurora-month-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 9px;padding:14px;border-bottom:1px solid #eff3f8}.aurora-month-row:last-child{border:0}.aurora-month-row small{display:block;font-size:9px;color:#8996a9;margin-bottom:4px}.aurora-month-row strong{font-size:11px;white-space:nowrap}.aurora-month-row .accum{color:#145eb8}
 .aurora-bottom{position:fixed;z-index:10;bottom:0;left:0;right:0;display:flex;justify-content:center;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:#ffffffed;border-top:1px solid #e6edf5;backdrop-filter:blur(18px)}
 .aurora-bottom-inner{width:min(100%,520px);display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .aurora-tab{border:0;background:transparent;color:#8a98ad;border-radius:13px;padding:8px 6px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:700}.aurora-tab b{font-size:19px;font-weight:500}.aurora-tab.active{color:#1768d5;background:#edf5ff}
@@ -225,11 +225,11 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
  </section>
  <section class="aurora-page" data-new-page="analysis">
   <div class="aurora-section-head"><div><span class="aurora-kicker">VISÃO GERAL</span><h2>Análise mensal</h2><p>Projeção mensal: entradas, saídas e resultado</p></div></div>
-  <div class="aurora-month-control"><label class="aurora-badge">PERÍODO</label><select id="newAnalysisPeriod"><option value="6">Últimos 6 meses</option><option value="12" selected>Últimos 12 meses</option></select></div>
-  <div class="aurora-analysis-hero"><small>RESULTADO DO PERÍODO</small><strong id="newAnalysisBalance">R$ 0,00</strong><small id="newAnalysisLabel">Entradas menos saídas nos meses exibidos</small></div>
+  <div class="aurora-month-control"><label class="aurora-badge">PERÍODO</label><select id="newAnalysisPeriod"><option value="6" selected>Próximos 6 meses</option><option value="12">Próximos 12 meses</option></select></div>
+  <div class="aurora-analysis-hero"><small>SALDO PROJETADO AO FINAL DO PERÍODO</small><strong id="newAnalysisBalance">R$ 0,00</strong><small id="newAnalysisLabel">Quanto você deverá ter ao final da projeção</small></div>
   <div class="aurora-stats"><div class="aurora-stat"><small>Entradas no período</small><strong class="positive" id="newAnalysisIncome">R$ 0,00</strong></div><div class="aurora-stat"><small>Saídas no período</small><strong class="negative" id="newAnalysisExpense">R$ 0,00</strong></div></div>
   <div class="aurora-section-head"><div><h2>Movimento por mês</h2><p>Azul: entradas · Coral: saídas</p></div></div><div class="aurora-list" style="padding:8px 13px"><div class="aurora-chart" id="newAnalysisChart"></div><div class="aurora-legend"><span><i style="background:#2588e8"></i>Entradas</span><span><i style="background:#e36a7a"></i>Saídas</span></div></div>
-  <div class="aurora-section-head"><div><h2>Resultado mês a mês</h2><p>Verde: sobrou · Vermelho: faltou · Amarelo: ficou zerado</p></div></div><div class="aurora-month-table" id="newAnalysisRows"></div>
+  <div class="aurora-section-head"><div><h2>Previsão mês a mês</h2><p>Resultado e saldo estimado após receitas e contas previstas</p></div></div><div class="aurora-month-table" id="newAnalysisRows"></div>
  </section>
 </div>
 <nav class="aurora-bottom" id="auroraNewNav" hidden><div class="aurora-bottom-inner"><button class="aurora-tab active" data-new-tab="home"><b>⌂</b>Início</button><button class="aurora-tab" data-new-tab="history"><b>↕</b>Histórico</button><button class="aurora-tab" data-new-tab="analysis"><b>◷</b>Análise</button></div></nav>
@@ -818,18 +818,27 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   $('newHistoryRows').innerHTML=rows.length?rows.map(e=>'<div class="aurora-row" data-new-edit="'+safe(e.id)+'"><div class="aurora-row-main"><span class="aurora-row-icon">'+(e.type==='income'?'↙':'↗')+'</span><div style="min-width:0"><div class="aurora-row-title">'+safe(e.description)+'</div><div class="aurora-row-meta">'+safe(e.category)+' · '+dateBR(e.date)+' · '+(realized(e)?'Realizado':'Pendente')+'</div></div></div><div class="aurora-row-value '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+':'−')+' '+fmt(e.amount)+'</div></div>').join(''):'<div class="aurora-empty">Nenhum lançamento encontrado neste mês.</div>';
  }
  function monthData(n){
-  const today=new Date(),end=monthKey(today),[ey,em]=end.split('-').map(Number),start=new Date(ey,em-1-(n-1),1,12),keys=[];
-  for(let i=0;i<n;i++){const d=new Date(start.getFullYear(),start.getMonth()+i,1,12);keys.push(monthKey(d))}
-  return keys.map(k=>{const list=entries.filter(e=>e.date.startsWith(k)),income=list.filter(e=>e.type==='income').reduce((s,e)=>s+Number(e.amount||0),0),expense=list.filter(e=>e.type==='expense').reduce((s,e)=>s+Number(e.amount||0),0);return {key:k,label:monthTitle(k).split(' ')[0].slice(0,3),income,expense,result:Math.round((income-expense)*100)/100}});
+  const now=new Date(),today=localDateString(),currentKey=monthKey(now),[cy,cm]=currentKey.split('-').map(Number),keys=[];
+  for(let i=0;i<n;i++){const d=new Date(cy,cm-1+i,1,12);keys.push(monthKey(d))}
+  const currentBalance=openingBalance+entries.filter(e=>realized(e)&&e.date<=today).reduce((s,e)=>s+sign(e)*Number(e.amount||0),0);
+  let projectedBalance=currentBalance;
+  return keys.map((k,index)=>{
+   const list=entries.filter(e=>e.date.startsWith(k));
+   const income=list.filter(e=>e.type==='income').reduce((s,e)=>s+Number(e.amount||0),0);
+   const expense=list.filter(e=>e.type==='expense').reduce((s,e)=>s+Number(e.amount||0),0);
+   const expected=index===0?list.filter(e=>e.date>today||(e.date===today&&!realized(e))):list;
+   projectedBalance+=expected.reduce((s,e)=>s+sign(e)*Number(e.amount||0),0);
+   return {key:k,label:monthTitle(k).split(' ')[0].slice(0,3),income,expense,result:Math.round((income-expense)*100)/100,projectedBalance:Math.round(projectedBalance*100)/100};
+  });
  }
  function resultColor(value){return value>0?'#15956b':value<0?'#dc5968':'#d49a16'}
  function renderNewAnalysis(){
   if(!$('newAnalysisRows'))return;
-  const n=Number($('newAnalysisPeriod').value||12),data=monthData(n),totalIn=data.reduce((s,x)=>s+x.income,0),totalOut=data.reduce((s,x)=>s+x.expense,0),totalResult=Math.round((totalIn-totalOut)*100)/100;
-  $('newAnalysisBalance').textContent=fmt(totalResult);$('newAnalysisBalance').style.color=resultColor(totalResult);$('newAnalysisIncome').textContent=fmt(totalIn);$('newAnalysisExpense').textContent=fmt(totalOut);$('newAnalysisLabel').textContent='Resultado somado dos '+data.length+' meses exibidos';
+  const n=Number($('newAnalysisPeriod').value||6),data=monthData(n),totalIn=data.reduce((s,x)=>s+x.income,0),totalOut=data.reduce((s,x)=>s+x.expense,0),finalBalance=data[data.length-1]?.projectedBalance||0;
+  $('newAnalysisBalance').textContent=fmt(finalBalance);$('newAnalysisBalance').style.color=resultColor(finalBalance);$('newAnalysisIncome').textContent=fmt(totalIn);$('newAnalysisExpense').textContent=fmt(totalOut);$('newAnalysisLabel').textContent='Saldo estimado ao final de '+monthTitle(data[data.length-1].key);
   const max=Math.max(1,...data.flatMap(x=>[x.income,x.expense]));
   $('newAnalysisChart').innerHTML=data.map(m=>'<div class="aurora-chart-col"><div class="aurora-chart-bars"><i class="bar-in" style="height:'+Math.max(2,m.income/max*100)+'%"></i><i class="bar-out" style="height:'+Math.max(2,m.expense/max*100)+'%"></i></div><small>'+m.label+'</small></div>').join('');
-  $('newAnalysisRows').innerHTML=data.slice().reverse().map(m=>'<div class="aurora-month-row"><div><small>'+monthTitle(m.key)+'</small><strong style="color:#15956b">'+fmt(m.income)+'</strong></div><div><small>SAÍDAS</small><strong style="color:#d95365">'+fmt(m.expense)+'</strong></div><div><small>RESULTADO</small><strong style="color:'+resultColor(m.result)+'">'+fmt(m.result)+'</strong></div></div>').join('');
+  $('newAnalysisRows').innerHTML=data.map(m=>'<div class="aurora-month-row"><div><small>'+monthTitle(m.key)+'</small><strong>PREVISÃO DO MÊS</strong></div><div><small>ENTRADAS</small><strong style="color:#15956b">'+fmt(m.income)+'</strong></div><div><small>SAÍDAS</small><strong style="color:#d95365">'+fmt(m.expense)+'</strong></div><div><small>RESULTADO</small><strong style="color:'+resultColor(m.result)+'">'+fmt(m.result)+'</strong></div><div><small>SALDO PROJETADO</small><strong style="color:'+resultColor(m.projectedBalance)+'">'+fmt(m.projectedBalance)+'</strong></div></div>').join('');
  }
  const oldRender=render;
  render=function(){oldRender();renderNewUI()};
