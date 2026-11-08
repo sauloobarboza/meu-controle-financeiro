@@ -13,7 +13,7 @@
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 1080px)/2)) 26px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:750;font-size:20px}.month{display:flex;align-items:center;gap:8px;margin-top:20px}.month button{background:#293449;color:#fff;border:0;border-radius:9px;padding:8px 12px}.month input{background:#293449;color:white;border:0;border-radius:9px;padding:8px}.wrap{max-width:1080px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 3px 12px #17203308}.metric span{color:var(--muted);font-size:13px}.metric strong{display:block;font-size:25px;margin-top:6px;letter-spacing:-.6px}.income{color:var(--green)}.expense{color:var(--red)}.balance{color:var(--blue)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin:17px 0}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:650}.primary{background:var(--blue);color:white}.secondary{background:#e9edff;color:#2946b4}.danger{background:#fff0f1;color:#bd3341}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:22px 0 12px}.sectionhead h2{font-size:17px;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters select,.filters input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px;color:var(--ink)}.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}.transactions{padding:0;overflow:hidden}.tx{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 17px;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.txname{font-weight:650}.txmeta{color:var(--muted);font-size:12px;margin-top:3px}.txamount{font-weight:750;white-space:nowrap}.empty{padding:28px 16px;text-align:center;color:var(--muted)}.barrow{display:grid;grid-template-columns:85px 1fr auto;gap:9px;align-items:center;margin:15px 0;font-size:13px}.track{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue)}.modal{position:fixed;inset:0;background:#10182799;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal.open{display:flex}.dialog{width:min(100%,440px);background:#fff;border-radius:18px;padding:21px}.dialog h2{margin:0 0 16px;font-size:19px}.field{display:block;margin:12px 0}.field span{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:white}.formactions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}.foot{color:var(--muted);font-size:12px;text-align:center;padding:24px 10px}.install{background:#293449;color:white;border:1px solid #536078;border-radius:9px;padding:8px 11px;display:none}
 @media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:1/-1}.layout{grid-template-columns:1fr}.top{padding:18px}.wrap{padding:13px}.metric strong{font-size:22px}.brand{font-size:18px}}
 
-.authwrap{max-width:480px;margin:28px auto;padding:18px}.authcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.authcard h1{font-size:22px;margin:0 0 8px}.authcard p{color:var(--muted);margin:0 0 18px}.authcard input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 12px}.authactions{display:flex;gap:8px;flex-wrap:wrap}.password-field{position:relative}.authcard .password-field input{padding-right:52px}.toggle-password{position:absolute;right:7px;top:28px;height:36px;min-width:38px;border:0;border-radius:8px;background:#eef1f7;color:#263247;font-size:19px;display:grid;place-items:center}.toggle-password:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.authmsg{font-size:13px;margin-top:12px;color:var(--blue);min-height:20px}.account{display:flex;align-items:center;gap:8px;color:#fff;font-size:12px}.account button{background:#293449;color:#fff;border:1px solid #536078;border-radius:9px;padding:8px 10px}
+.authwrap{max-width:480px;margin:28px auto;padding:18px}.authcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.authcard h1{font-size:22px;margin:0 0 8px}.authcard p{color:var(--muted);margin:0 0 18px}.authcard input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 12px}.authactions{display:flex;gap:8px;flex-wrap:wrap}.password-field{position:relative}.authcard .password-field input{padding-right:52px}.toggle-password{position:absolute;right:7px;top:28px;height:36px;min-width:38px;border:0;border-radius:8px;background:#eef1f7;color:#263247;font-size:19px;display:grid;place-items:center}.toggle-password:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.authmsg{font-size:13px;margin-top:12px;padding:12px;border-radius:10px;background:#eef2ff;color:var(--blue);min-height:20px;white-space:pre-wrap}.authmsg[data-state="error"]{background:#fff0f1;color:#bd3341}.authmsg[data-state="success"]{background:#eaf8f1;color:#14734f}.notice{max-width:1080px;margin:14px auto 0;padding:0 18px}.notice .authmsg{margin:0}.authdebug{margin-top:10px;font-size:12px;color:var(--muted)}.authdebug pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f6f7fa;padding:10px;border-radius:8px}.account{display:flex;align-items:center;gap:8px;color:#fff;font-size:12px}.account button{background:#293449;color:#fff;border:1px solid #536078;border-radius:9px;padding:8px 10px}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -22,7 +22,8 @@
  <div class="toprow"><div class="brand">💰 Meu Controle Financeiro</div><div class="account"><span id="userEmail"></span><button id="logoutBtn" hidden>Sair</button><button id="installBtn" class="install">Instalar app</button></div></div>
  <div class="month"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
 </header>
-<section class="authwrap" id="authPanel"><div class="authcard"><h1>Acesse seu controle financeiro</h1><p>Entre ou crie sua conta para sincronizar seus lançamentos com segurança.</p><form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label><label class="field password-field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"><button class="toggle-password" id="togglePassword" type="button" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></label><div class="authactions"><button class="btn primary" type="submit" id="loginBtn">Entrar</button><button class="btn secondary" type="button" id="signupBtn">Criar conta</button><button class="btn secondary" type="button" id="resetBtn">Esqueci a senha</button></div></form><div class="authmsg" id="authMessage" role="status"></div></div></section>
+<div class="notice" id="appNotice" hidden><div class="authmsg" id="appNoticeMessage" role="status" aria-live="polite"></div></div>
+<section class="authwrap" id="authPanel"><div class="authcard"><h1>Acesse seu controle financeiro</h1><p>Entre ou crie sua conta para sincronizar seus lançamentos com segurança.</p><form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label><label class="field password-field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"><button class="toggle-password" id="togglePassword" type="button" aria-label="Mostrar senha" aria-pressed="false" title="Mostrar senha">👁</button></label><div class="authactions"><button class="btn primary" type="submit" id="loginBtn" data-auth-action="login">Entrar</button><button class="btn secondary" type="submit" id="signupBtn" data-auth-action="signup">Criar conta</button><button class="btn secondary" type="button" id="resetBtn">Esqueci a senha</button></div></form><div class="authmsg" id="authMessage" data-state="info" role="status" aria-live="polite">Carregando autenticação...</div><details class="authdebug" id="authDebug" hidden><summary>Detalhes técnicos do erro</summary><pre id="authDebugText"></pre></details></div></section>
 <main class="wrap" id="dashboard" hidden>
  <section class="grid">
   <div class="card metric"><span>Receitas do mês</span><strong class="income" id="incomeTotal">R$ 0,00</strong></div>
@@ -56,6 +57,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL='https://dqhyiggxcxczdcopdyec.supabase.co';
 const SUPABASE_KEY='sb_publishable_vM-nl4k5Ilkk0_QUohutFw_2wuweUTP';
@@ -68,9 +70,127 @@ const money=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'B
 const today=()=>new Date().toISOString().slice(0,10);
 $('monthPicker').value=today().slice(0,7);
 function monthEntries(){const m=$('monthPicker').value;return entries.filter(e=>e.date.startsWith(m))}
-function setMessage(msg,isError=false){$('authMessage').textContent=msg;$('authMessage').style.color=isError?'#bd3341':'#3457d5'}
-if(!supabase)setMessage('Não foi possível carregar o serviço de login. Verifique sua conexão e atualize a página.',true);
-$('togglePassword').onclick=()=>{const field=$('authPassword'),show=field.type==='password';field.type=show?'text':'password';$('togglePassword').setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');$('togglePassword').setAttribute('aria-pressed',String(show));$('togglePassword').title=show?'Ocultar senha':'Mostrar senha'};
+function setMessage(message,state='info',details=null){
+ const box=$('authMessage');
+ box.textContent=message;
+ box.dataset.state=state;
+ const debug=$('authDebug');
+ debug.hidden=!details;
+ if(details)$('authDebugText').textContent=JSON.stringify({
+  name:details.name||null,code:details.code||null,status:details.status||null,
+  message:details.message||String(details),details:details.details||null,hint:details.hint||null
+ },null,2);
+ const notice=$('appNotice');
+ if($('dashboard').hidden){notice.hidden=true}
+ else{notice.hidden=false;$('appNoticeMessage').textContent=message;$('appNoticeMessage').dataset.state=state}
+}
+function authErrorText(error){
+ const code=error?.code||'';
+ const msg=String(error?.message||error||'Erro desconhecido');
+ if(code==='email_not_confirmed')return 'Seu e-mail ainda não foi confirmado. Abra a mensagem de confirmação que enviamos e tente entrar novamente.';
+ if(code==='user_already_exists'||/already registered|user exists/i.test(msg))return 'Este e-mail já possui cadastro. Tente entrar ou use “Esqueci a senha”.';
+ if(/signup is disabled|signups not allowed/i.test(msg))return 'O cadastro de novos usuários está desativado nas configurações do Supabase.';
+ if(/email rate limit|rate limit/i.test(msg))return 'O limite de envio de e-mails foi atingido. Aguarde um pouco antes de tentar novamente.';
+ if(/invalid login credentials/i.test(msg))return 'E-mail ou senha incorretos. Confira os dados ou recupere sua senha.';
+ if(/failed to fetch|network|load failed/i.test(msg))return 'Não foi possível conectar ao serviço. Verifique sua internet e tente novamente.';
+ return msg;
+}
+function setAuthBusy(busy,action){
+ $('loginBtn').disabled=busy;$('signupBtn').disabled=busy;$('resetBtn').disabled=busy;
+ $('loginBtn').textContent=busy&&action==='login'?'Entrando...':'Entrar';
+ $('signupBtn').textContent=busy&&action==='signup'?'Criando conta...':'Criar conta';
+}
+async function createAccount(email,password){
+ setAuthBusy(true,'signup');
+ setMessage('Enviando seu cadastro ao Supabase...','info');
+ try{
+  const redirectUrl=new URL('./',window.location.href).href;
+  const {data,error}=await supabase.auth.signUp({
+   email,password,
+   options:{emailRedirectTo:redirectUrl}
+  });
+  if(error){
+   setMessage('Não foi possível criar sua conta. '+authErrorText(error),'error',error);
+   return;
+  }
+  if(data?.user?.identities?.length===0){
+   setMessage('Não foi possível confirmar um novo cadastro para esse e-mail. Ele pode já estar cadastrado. Tente entrar ou recuperar a senha.','error');
+   return;
+  }
+  if(data?.session&&data?.user){
+   showDashboard(data.user);
+   setMessage('Conta criada com sucesso! Você já está conectado.','success');
+   try{await loadEntries()}catch(loadError){setMessage('Sua conta foi criada e o login funcionou, mas não consegui carregar os lançamentos: '+authErrorText(loadError),'error',loadError)}
+   return;
+  }
+  if(data?.user){
+   setMessage('Cadastro recebido com sucesso! O Supabase aceitou a criação da conta. Enviamos (ou solicitamos) um e-mail de confirmação para '+email+'. Abra a mensagem e confirme seu endereço antes de entrar. Confira também Spam e Promoções.','success');
+   return;
+  }
+  setMessage('O serviço respondeu, mas não confirmou a criação da conta. Tente novamente e, se persistir, consulte os detalhes técnicos.','error');
+ }catch(error){
+  setMessage('Falha ao tentar criar a conta: '+authErrorText(error),'error',error);
+ }finally{setAuthBusy(false,'signup')}
+}
+async function login(email,password){
+ setAuthBusy(true,'login');
+ setMessage('Verificando seus dados...','info');
+ try{
+  const {data,error}=await supabase.auth.signInWithPassword({email,password});
+  if(error){setMessage('Não foi possível entrar. '+authErrorText(error),'error',error);return}
+  if(!data?.user){setMessage('O Supabase não retornou um usuário para esta tentativa.','error');return}
+  showDashboard(data.user);
+  setMessage('Login realizado com sucesso!','success');
+  try{await loadEntries()}catch(loadError){setMessage('Login realizado, mas houve um problema ao carregar seus lançamentos: '+authErrorText(loadError),'error',loadError)}
+ }catch(error){setMessage('Falha ao entrar: '+authErrorText(error),'error',error)}
+ finally{setAuthBusy(false,'login')}
+}
+$('togglePassword').addEventListener('click',()=>{
+ const field=$('authPassword'),show=field.type==='password';
+ field.type=show?'text':'password';
+ $('togglePassword').setAttribute('aria-label',show?'Ocultar senha':'Mostrar senha');
+ $('togglePassword').setAttribute('aria-pressed',String(show));
+ $('togglePassword').textContent=show?'🙈':'👁';
+});
+let requestedAuthAction='login';
+$('loginBtn').addEventListener('click',()=>requestedAuthAction='login');
+$('signupBtn').addEventListener('click',()=>requestedAuthAction='signup');
+$('authForm').addEventListener('submit',async event=>{
+ event.preventDefault();
+ const action=event.submitter?.dataset?.authAction||requestedAuthAction;
+ requestedAuthAction='login';
+ const email=$('authEmail').value.trim().toLowerCase();
+ const password=$('authPassword').value;
+ if(!supabase){
+  setMessage('A biblioteca de autenticação não carregou. Recarregue a página com internet ativa.','error');
+  return;
+ }
+ if(!$('authEmail').checkValidity()||!email){
+  setMessage('Digite um endereço de e-mail válido.','error');$('authEmail').focus();return;
+ }
+ if(password.length<6){
+  setMessage('A senha precisa ter pelo menos 6 caracteres.','error');$('authPassword').focus();return;
+ }
+ if(action==='signup')await createAccount(email,password);
+ else await login(email,password);
+});
+$('resetBtn').addEventListener('click',async()=>{
+ const email=$('authEmail').value.trim().toLowerCase();
+ if(!supabase){setMessage('A biblioteca de autenticação não carregou.','error');return}
+ if(!$('authEmail').checkValidity()||!email){setMessage('Digite seu e-mail válido primeiro.','error');$('authEmail').focus();return}
+ $('resetBtn').disabled=true;setMessage('Solicitando recuperação de senha...','info');
+ try{
+  const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:new URL('./',window.location.href).href});
+  if(error)setMessage('Não foi possível solicitar a recuperação: '+authErrorText(error),'error',error);
+  else setMessage('Solicitação aceita. Se esse e-mail estiver cadastrado, o Supabase enviará um link para redefinir a senha. Confira Spam e Promoções.','success');
+ }catch(error){setMessage('Falha ao solicitar recuperação: '+authErrorText(error),'error',error)}
+ finally{$('resetBtn').disabled=false}
+});
+if(!supabase){
+ setMessage('Não foi possível carregar o Supabase. Confira sua conexão e tente atualizar a página.','error');
+}else{
+ setMessage('Autenticação pronta. Entre ou crie sua conta.','success');
+}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function loadEntries(){
  const {data,error}=await supabase.from('transactions').select('*').order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
@@ -153,8 +273,9 @@ $('exportBtn').onclick=()=>{const rows=[['Data','Tipo','Descrição','Categoria'
 let installPrompt;$('installBtn').onclick=async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').style.display='none'}else alert('No Chrome, abra o menu ⋮ e escolha "Instalar app" ou "Adicionar à tela inicial".')};
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').style.display='block'});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-if(supabase)supabase.auth.onAuthStateChange(async(_event,session)=>{if(session&&currentUser?.id!==session.user.id){showDashboard(session.user);try{await loadEntries()}catch(err){setMessage(err.message,true)}}else if(!session)showDashboard(null)});
-if(supabase)refreshSession().catch(err=>setMessage(err.message,true));
+// Session is restored once on startup. Auth state callbacks are intentionally not async,
+// avoiding nested Supabase requests while the auth client is processing a state change.
+if(supabase)refreshSession().catch(err=>setMessage('Não foi possível restaurar a sessão: '+authErrorText(err),'error',err));
 </script>
 
 </body></html>
