@@ -302,10 +302,10 @@ function resetUserData(){entries=[];currentUser=null;activeUserId=null;entriesLo
 async function activateUser(user){
  if(!user?.id){showDashboard(null);resetUserData();return}
  showDashboard(user);
- if(activeUserId===user.id&&entriesLoadedForUser===user.id){syncOfflineQueue();return}
+ if(activeUserId===user.id&&entriesLoadedForUser===user.id){syncOfflineQueue();handlePwaShortcut();return}
  if(activeUserId===user.id&&loadingPromise)return loadingPromise;
  activeUserId=user.id;loadingPromise=(async()=>{await loadEntries(user.id);await loadChangeRequests();await syncOfflineQueue()})();
- try{await loadingPromise;entriesLoadedForUser=user.id}finally{loadingPromise=null}
+ try{await loadingPromise;entriesLoadedForUser=user.id;handlePwaShortcut()}finally{loadingPromise=null}
 }
 async function createAccount(email,password){
  setAuthBusy(true,'signup');setMessage('Enviando seu cadastro com segurança...','info');
@@ -431,7 +431,7 @@ function openProjectionMonth(key){const select=$('projectionMonthFilter');select
  $('transactions').innerHTML=filtered.length?filtered.map(e=>{
   const cleanDescription=e.description.replace(/^(Planejado • |)/,'').replace(/^Aporte • /,'Aporte: ');
   const canPay=e.status==='pending'||e.status==='planned';
-  return '<div class="tx"><div style="min-width:0"><div class="txname">'+escapeHtml(cleanDescription)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div class="tx-actions"><span class="tx-status '+(effectiveStatus(e)==='overdue'?'overdue':e.status)+'">'+statusText(e)+'</span><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span>'+(canPay?'<button class="tx-action" data-paid="'+escapeHtml(e.id)+'">'+(e.type==='income'?'Confirmar recebimento':'Marcar pago')+'</button>':'')+'<button class="tx-action" data-edit="'+escapeHtml(e.id)+'" aria-label="Editar lançamento">Editar</button><button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>';
+  return '<div class="tx"><div style="min-width:0"><div class="txname">'+escapeHtml(cleanDescription)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+(e.offline?' · Enviando quando voltar a internet':'')+'</div></div><div class="tx-actions"><span class="tx-status '+(effectiveStatus(e)==='overdue'?'overdue':e.status)+'">'+statusText(e)+'</span><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span>'+(canPay?'<button class="tx-action" data-paid="'+escapeHtml(e.id)+'">'+(e.type==='income'?'Confirmar recebimento':'Marcar pago')+'</button>':'')+'<button class="tx-action" data-edit="'+escapeHtml(e.id)+'" aria-label="Editar lançamento">Editar</button><button class="btn secondary" style="padding:6px 9px" data-delete="'+escapeHtml(e.id)+'" aria-label="Excluir lançamento">×</button></div></div>';
  }).join(''):'<div class="empty">Nenhum item com esse filtro neste mês.</div>';
  const totals=categories.expense.map(category=>({name:category,value:list.filter(e=>e.type==='expense'&&e.category===category).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
  $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(total(list,'expense')||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">As contas aparecerão aqui.</div>';
@@ -776,6 +776,7 @@ function setupVoiceAssistant(){
  $('voiceEdit').addEventListener('click',()=>{$('voicePreview').hidden=true;$('voiceTranscript').focus()});
  $('voiceApply').addEventListener('click',applyVoiceActions);
 }
+function handlePwaShortcut(){const action=new URLSearchParams(location.search).get('action');if(!action)return;history.replaceState({},'',location.pathname);setScreen('today');if(action==='new-expense')openModal('expense');if(action==='voice'){openVoiceAssistant();startVoiceCapture()}}
 function setScreen(screen){
  const allowed=['today','months','settings'];if(!allowed.includes(screen))screen='today';
  document.body.classList.remove('aurora-screen-today','aurora-screen-months','aurora-screen-settings');document.body.classList.add('aurora-screen-'+screen);
@@ -845,7 +846,7 @@ function setupAuroraNavigation(){
  $('deleteFromForm').addEventListener('click',()=>{if(editingEntryId)deleteEntry(editingEntryId,null)});
  $('quickVoice').addEventListener('click',()=>{openVoiceAssistant();startVoiceCapture()});
  $('openVoiceAssistant').addEventListener('click',()=>{const value=$('quickCommand').value.trim();if(value)$('voiceTranscript').value=value;openVoiceAssistant();if(value)analyzeVoiceCommand()});
- window.addEventListener('online',syncOfflineQueue);setScreen('today');setProjectionView('month');const action=new URLSearchParams(location.search).get('action');if(action==='new-expense')openModal('expense');if(action==='voice')openVoiceAssistant();
+ window.addEventListener('online',syncOfflineQueue);setScreen('today');setProjectionView('month');
 }
 function initializeApp(){
  $('monthPicker').value=localDateString().slice(0,7);
