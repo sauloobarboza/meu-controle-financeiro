@@ -799,8 +799,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   const out=current.filter(e=>e.type==='expense'&&realized(e)).reduce((s,e)=>s+e.amount,0);
   $('newBalance').textContent=fmt(balance);$('newHomeIncome').textContent=fmt(inc);$('newHomeExpense').textContent=fmt(out);$('newCurrentMonth').textContent=monthTitle(selected);
   $('newUserEmail').textContent=currentUser.email||'';
-  const recent=entries.slice().sort((a,b)=>b.date.localeCompare(a.date)||((Date.parse(b.created_at||'')||0)-(Date.parse(a.created_at||'')||0))).slice(0,5);
-  $('newRecent').innerHTML=recent.length?recent.map(rowHtml).join(''):'<div class="aurora-empty">Seu histórico começa no primeiro lançamento. ✨</div>';
+  // "Últimas movimentações" mostra somente lançamentos com data de hoje ou anterior.
+  // Despesas futuras ficam na seção "Próximas contas", evitando que recorrências
+  // recém-criadas apareçam como se fossem movimentações recentes.
+  const recent=entries.filter(e=>e.date<=today).sort((a,b)=>b.date.localeCompare(a.date)||((Date.parse(b.created_at||'')||0)-(Date.parse(a.created_at||'')||0))).slice(0,5);
+  $('newRecent').innerHTML=recent.length?recent.map(rowHtml).join(''):'<div class="aurora-empty">Nenhuma movimentação com data de hoje ou anterior.</div>';
   const due=entries.filter(e=>e.type==='expense'&&!realized(e)&&e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4);
   $('newUpcoming').innerHTML=due.length?due.map(rowHtml).join(''):'<div class="aurora-empty">Nenhuma conta futura cadastrada.</div>';
   renderNewHistory();renderNewAnalysis();
