@@ -722,8 +722,9 @@ async function submitChangeRequest(event){
 }
 async function extendSeries(seriesId){
  if(!currentUser||!seriesId)return;const group=entries.filter(e=>e.series_id===seriesId).sort((a,b)=>a.date.localeCompare(b.date));if(!group.length)return;
- const last=group[group.length-1],existing=new Set(group.map(e=>e.date)),rows=[];
- for(let i=1;i<=12;i++){const date=makeSeriesDate(last.date,i);if(existing.has(date))continue;rows.push({id:crypto.randomUUID(),user_id:currentUser.id,type:last.type,description:last.description,amount:last.amount,category:last.category,transaction_date:date,status:'pending',series_id:seriesId,needs_review:false})}
+ const first=group[0],last=group[group.length-1],existing=new Set(group.map(e=>e.date)),rows=[];
+ const [fy,fm]=first.date.split('-').map(Number),[ly,lm]=last.date.split('-').map(Number),nextOffset=(ly-fy)*12+(lm-fm)+1;
+ for(let i=0;i<12;i++){const date=makeSeriesDate(first.date,nextOffset+i);if(existing.has(date))continue;rows.push({id:crypto.randomUUID(),user_id:currentUser.id,type:last.type,description:last.description,amount:last.amount,category:last.category,transaction_date:date,status:'pending',series_id:seriesId,needs_review:false})}
  if(!rows.length){setMessage('Esta série já está estendida.','info');return}
  const {data,error}=await supabaseClient.from('transactions').insert(rows).select('id,type,description,amount,category,transaction_date,status,series_id,needs_review');if(error){setMessage('Não foi possível estender a série: '+friendlyError(error),'error',error);return}
  (data||[]).forEach(r=>entries.push({id:r.id,type:r.type,description:r.description,amount:Number(r.amount),category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review}));render();setMessage('Série estendida por mais 12 meses.','success');
