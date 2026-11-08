@@ -7,7 +7,7 @@
 <meta name="description" content="Controle suas receitas, despesas e saldo mensal.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<title>Meu Controle Financeiro</title>
+<title>Controle do Apartamento</title>
 <style>
 :root{--bg:#f3f5f9;--card:#fff;--ink:#172033;--muted:#6b7280;--line:#e7eaf0;--green:#16845b;--red:#d94b58;--blue:#3457d5;--navy:#111827}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 1080px)/2)) 26px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:750;font-size:20px}.month{display:flex;align-items:center;gap:8px;margin-top:20px}.month button{background:#293449;color:#fff;border:0;border-radius:9px;padding:8px 12px}.month input{background:#293449;color:white;border:0;border-radius:9px;padding:8px}.wrap{max-width:1080px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -28,7 +28,7 @@
 .chart-empty{min-height:160px;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:12px;padding:20px}
 @media(max-width:760px){.chart-grid{grid-template-columns:1fr}.chart-card{padding:14px}.donut-wrap{gap:12px}.donut{width:125px;height:125px;flex-basis:125px}}
 .foot{color:var(--muted);font-size:12px;text-align:center;padding:24px 10px}.install{background:#293449;color:white;border:1px solid #536078;border-radius:9px;padding:8px 11px;display:none}
-@media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:1/-1}.layout{grid-template-columns:1fr}.top{padding:18px}.wrap{padding:13px}.metric strong{font-size:22px}.brand{font-size:18px}}
+@media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:auto}.layout{grid-template-columns:1fr}.top{padding:18px}.wrap{padding:13px}.metric strong{font-size:22px}.brand{font-size:18px}}
 
 .authwrap{max-width:480px;margin:28px auto;padding:18px}.authcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.authcard h1{font-size:22px;margin:0 0 8px}.authcard p{color:var(--muted);margin:0 0 18px}.authcard input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 12px}.authactions{display:flex;gap:8px;flex-wrap:wrap}.password-field{position:relative}.authcard .password-field input{padding-right:52px}.toggle-password{position:absolute;right:7px;top:28px;height:36px;min-width:38px;border:0;border-radius:8px;background:#eef1f7;color:#263247;font-size:19px;display:grid;place-items:center}.toggle-password:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.authmsg{font-size:13px;margin-top:12px;padding:12px;border-radius:10px;background:#eef2ff;color:var(--blue);min-height:20px;white-space:pre-wrap}.authmsg[data-state="error"]{background:#fff0f1;color:#bd3341}.authmsg[data-state="success"]{background:#eaf8f1;color:#14734f}.notice{max-width:1080px;margin:14px auto 0;padding:0 18px}.notice .authmsg{margin:0}.authdebug{margin-top:10px;font-size:12px;color:var(--muted)}.authdebug pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f6f7fa;padding:10px;border-radius:8px}.account{display:flex;align-items:center;gap:8px;color:#fff;font-size:12px}.account button{background:#293449;color:#fff;border:1px solid #536078;border-radius:9px;padding:8px 10px}
 [hidden]{display:none!important}
@@ -53,7 +53,7 @@ body:has(#authPanel:not([hidden])){background:#f4f7ff}
 </head>
 <body>
 <header class="top">
- <div class="toprow"><div class="brand">💰 Meu Controle Financeiro</div><div class="account"><span id="userEmail"></span><button id="logoutBtn" hidden>Sair</button><button id="installBtn" class="install">Instalar app</button></div></div>
+ <div class="toprow"><div class="brand">🏠 Controle do Apartamento</div><div class="account"><span id="userEmail"></span><button id="logoutBtn" hidden>Sair</button><button id="installBtn" class="install">Instalar app</button></div></div>
  <div class="month"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
 </header>
 <div class="notice" id="appNotice" hidden><div class="authmsg" id="appNoticeMessage" role="status" aria-live="polite"></div></div>
@@ -90,9 +90,9 @@ body:has(#authPanel:not([hidden])){background:#f4f7ff}
   <div class="status-tile"><span class="status-dot planned-dot"></span><div><small>Previsões</small><strong id="plannedSummary">R$ 0,00</strong></div></div>
  </section>
  <section class="chart-grid" aria-label="Gráficos do apartamento">
-  <article class="chart-card"><h3>Entradas x saídas</h3><p class="chart-subtitle">Aportes e despesas por mês — últimos 6 meses</p><div id="monthlyChart"></div><div class="chart-legend"><span><i class="legend-dot" style="background:#16845b"></i>Entradas</span><span><i class="legend-dot" style="background:#d94b58"></i>Saídas</span></div></article>
-  <article class="chart-card"><h3>Para onde vai o dinheiro</h3><p class="chart-subtitle">Distribuição das contas no mês selecionado</p><div id="categoryDonut"></div></article>
-  <article class="chart-card"><h3>Contas ao longo do mês</h3><p class="chart-subtitle">Valores lançados por dia</p><div id="dailyChart"></div></article>
+  <article class="chart-card"><h3>Entradas x saídas</h3><p class="chart-subtitle">Aportes e despesas por mês — últimos 6 meses, incluindo previsões</p><div id="monthlyChart"></div><div class="chart-legend"><span><i class="legend-dot" style="background:#16845b"></i>Entradas</span><span><i class="legend-dot" style="background:#d94b58"></i>Saídas</span></div></article>
+  <article class="chart-card"><h3>Para onde vai o dinheiro</h3><p class="chart-subtitle">Distribuição das contas no mês, incluindo pendências e previsões</p><div id="categoryDonut"></div></article>
+  <article class="chart-card"><h3>Contas ao longo do mês</h3><p class="chart-subtitle">Valores lançados por dia, incluindo previsões</p><div id="dailyChart"></div></article>
   <article class="chart-card"><h3>Indicadores do mês</h3><p class="chart-subtitle">Resultado, média das contas e maior despesa</p><div id="metricInsights"></div></article>
  </section>
  <div class="actions"><button class="btn primary" id="addIncome">＋ Registrar aporte</button><button class="btn danger" id="addExpense">＋ Adicionar conta</button><button class="btn secondary" id="exportBtn">Exportar planilha CSV</button></div>
