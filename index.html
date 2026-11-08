@@ -12,14 +12,18 @@
 :root{--bg:#f3f5f9;--card:#fff;--ink:#172033;--muted:#6b7280;--line:#e7eaf0;--green:#16845b;--red:#d94b58;--blue:#3457d5;--navy:#111827}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 1080px)/2)) 26px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:750;font-size:20px}.month{display:flex;align-items:center;gap:8px;margin-top:20px}.month button{background:#293449;color:#fff;border:0;border-radius:9px;padding:8px 12px}.month input{background:#293449;color:white;border:0;border-radius:9px;padding:8px}.wrap{max-width:1080px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:0 3px 12px #17203308}.metric span{color:var(--muted);font-size:13px}.metric strong{display:block;font-size:25px;margin-top:6px;letter-spacing:-.6px}.income{color:var(--green)}.expense{color:var(--red)}.balance{color:var(--blue)}.actions{display:flex;gap:9px;flex-wrap:wrap;margin:17px 0}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:650}.primary{background:var(--blue);color:white}.secondary{background:#e9edff;color:#2946b4}.danger{background:#fff0f1;color:#bd3341}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:22px 0 12px}.sectionhead h2{font-size:17px;margin:0}.filters{display:flex;gap:8px;flex-wrap:wrap}.filters select,.filters input{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px;color:var(--ink)}.layout{display:grid;grid-template-columns:1.5fr 1fr;gap:14px}.transactions{padding:0;overflow:hidden}.tx{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 17px;border-bottom:1px solid var(--line)}.tx:last-child{border:0}.txname{font-weight:650}.txmeta{color:var(--muted);font-size:12px;margin-top:3px}.txamount{font-weight:750;white-space:nowrap}.empty{padding:28px 16px;text-align:center;color:var(--muted)}.barrow{display:grid;grid-template-columns:85px 1fr auto;gap:9px;align-items:center;margin:15px 0;font-size:13px}.track{height:9px;background:#edf0f5;border-radius:99px;overflow:hidden}.fill{height:100%;border-radius:99px;background:var(--blue)}.modal{position:fixed;inset:0;background:#10182799;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal.open{display:flex}.dialog{width:min(100%,440px);background:#fff;border-radius:18px;padding:21px}.dialog h2{margin:0 0 16px;font-size:19px}.field{display:block;margin:12px 0}.field span{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:white}.formactions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px}.foot{color:var(--muted);font-size:12px;text-align:center;padding:24px 10px}.install{background:#293449;color:white;border:1px solid #536078;border-radius:9px;padding:8px 11px;display:none}
 @media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.metric:last-child{grid-column:1/-1}.layout{grid-template-columns:1fr}.top{padding:18px}.wrap{padding:13px}.metric strong{font-size:22px}.brand{font-size:18px}}
+
+.authwrap{max-width:480px;margin:28px auto;padding:18px}.authcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}.authcard h1{font-size:22px;margin:0 0 8px}.authcard p{color:var(--muted);margin:0 0 18px}.authcard input{width:100%;padding:12px;border:1px solid var(--line);border-radius:9px;margin:6px 0 12px}.authactions{display:flex;gap:8px;flex-wrap:wrap}.authmsg{font-size:13px;margin-top:12px;color:var(--blue);min-height:20px}.account{display:flex;align-items:center;gap:8px;color:#fff;font-size:12px}.account button{background:#293449;color:#fff;border:1px solid #536078;border-radius:9px;padding:8px 10px}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
 <header class="top">
- <div class="toprow"><div class="brand">💰 Meu Controle Financeiro</div><button id="installBtn" class="install">Instalar app</button></div>
+ <div class="toprow"><div class="brand">💰 Meu Controle Financeiro</div><div class="account"><span id="userEmail"></span><button id="logoutBtn" hidden>Sair</button><button id="installBtn" class="install">Instalar app</button></div></div>
  <div class="month"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
 </header>
-<main class="wrap">
+<section class="authwrap" id="authPanel"><div class="authcard"><h1>Acesse seu controle financeiro</h1><p>Entre ou crie sua conta para sincronizar seus lançamentos com segurança.</p><form id="authForm"><label class="field"><span>E-mail</span><input id="authEmail" type="email" autocomplete="email" required placeholder="voce@email.com"></label><label class="field"><span>Senha</span><input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="Mínimo de 6 caracteres"></label><div class="authactions"><button class="btn primary" type="submit" id="loginBtn">Entrar</button><button class="btn secondary" type="button" id="signupBtn">Criar conta</button><button class="btn secondary" type="button" id="resetBtn">Esqueci a senha</button></div></form><div class="authmsg" id="authMessage" role="status"></div></div></section>
+<main class="wrap" id="dashboard" hidden>
  <section class="grid">
   <div class="card metric"><span>Receitas do mês</span><strong class="income" id="incomeTotal">R$ 0,00</strong></div>
   <div class="card metric"><span>Despesas do mês</span><strong class="expense" id="expenseTotal">R$ 0,00</strong></div>
@@ -38,7 +42,7 @@
    <div class="card" id="summary"></div>
   </aside>
  </div>
- <div class="foot">Seus dados ficam salvos neste aparelho e navegador. Exporte um CSV para manter uma cópia de segurança.</div>
+ <div class="foot">Seus lançamentos são sincronizados com sua conta e protegidos por usuário. Exporte um CSV para manter uma cópia de segurança.</div>
 </main>
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
  <form class="dialog" id="entryForm">
@@ -50,30 +54,90 @@
   <div class="formactions"><button type="button" class="btn secondary" id="cancelBtn">Cancelar</button><button class="btn primary" type="submit">Salvar lançamento</button></div>
  </form>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js"></script>
 <script>
+const SUPABASE_URL='https://dqhyiggxcxczdcopdyec.supabase.co';
+const SUPABASE_KEY='sb_publishable_vM-nl4k5Ilkk0_QUohutFw_2wuweUTP';
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const KEY='mcf_transactions_v1';
 const categories={income:['Salário','Renda extra','Investimentos','Outros'],expense:['Moradia','Alimentação','Transporte','Saúde','Lazer','Contas','Cartão de crédito','Educação','Outros']};
-let entries=JSON.parse(localStorage.getItem(KEY)||'[]'),currentType='expense';
+let entries=[],currentType='expense',currentUser=null;
 const $=id=>document.getElementById(id);
-const money=n=>n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const money=n=>Number(n||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 const today=()=>new Date().toISOString().slice(0,10);
 $('monthPicker').value=today().slice(0,7);
 function monthEntries(){const m=$('monthPicker').value;return entries.filter(e=>e.date.startsWith(m))}
-function save(){localStorage.setItem(KEY,JSON.stringify(entries));render()}
+function setMessage(msg,isError=false){$('authMessage').textContent=msg;$('authMessage').style.color=isError?'#bd3341':'#3457d5'}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function loadEntries(){
+ const {data,error}=await supabase.from('transactions').select('*').order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
+ if(error)throw error;
+ entries=(data||[]).map(e=>({id:e.id,type:e.type,description:e.description,amount:Number(e.amount),category:e.category,date:e.transaction_date}));
+ const local=JSON.parse(localStorage.getItem(KEY)||'[]');
+ if(entries.length===0&&local.length>0&&!localStorage.getItem('mcf_cloud_migrated_'+currentUser.id)){
+  if(confirm('Encontramos '+local.length+' lançamento(s) salvos neste aparelho. Deseja importar para sua conta na nuvem?')){
+   const rows=local.map(e=>({user_id:currentUser.id,type:e.type,description:e.description,amount:e.amount,category:e.category,transaction_date:e.date}));
+   const {error:insertError}=await supabase.from('transactions').insert(rows);
+   if(insertError)throw insertError;
+   localStorage.setItem('mcf_cloud_migrated_'+currentUser.id,'1');
+   const {data:newData,error:newError}=await supabase.from('transactions').select('*').order('transaction_date',{ascending:false});
+   if(newError)throw newError;
+   entries=(newData||[]).map(e=>({id:e.id,type:e.type,description:e.description,amount:Number(e.amount),category:e.category,date:e.transaction_date}));
+  }
+ } else if(!localStorage.getItem('mcf_cloud_migrated_'+currentUser.id)) {
+  localStorage.setItem('mcf_cloud_migrated_'+currentUser.id,'1');
+ }
+ render();
+}
+function showDashboard(user){currentUser=user;$('authPanel').hidden=!!user;$('dashboard').hidden=!user;$('logoutBtn').hidden=!user;$('userEmail').textContent=user?user.email:''}
+async function refreshSession(){
+ const {data,error}=await supabase.auth.getSession();
+ if(error)throw error;
+ if(data.session){showDashboard(data.session.user);await loadEntries()}else showDashboard(null);
+}
+async function renderAuthError(error){setMessage(error.message||String(error),true)}
+$('authForm').onsubmit=async e=>{
+ e.preventDefault();const email=$('authEmail').value.trim(),password=$('authPassword').value;
+ $('loginBtn').disabled=true;setMessage('Entrando...');
+ const {data,error}=await supabase.auth.signInWithPassword({email,password});
+ $('loginBtn').disabled=false;
+ if(error)return renderAuthError(error);
+ showDashboard(data.user);try{await loadEntries();setMessage('Login realizado.')}catch(err){setMessage(err.message,true)}
+};
+$('signupBtn').onclick=async()=>{
+ const email=$('authEmail').value.trim(),password=$('authPassword').value;
+ if(!email||password.length<6)return setMessage('Informe um e-mail válido e uma senha com pelo menos 6 caracteres.',true);
+ setMessage('Criando sua conta...');
+ const {data,error}=await supabase.auth.signUp({email,password,options:{emailRedirectTo:location.href.split('#')[0].split('?')[0]}});
+ if(error)return renderAuthError(error);
+ if(data.session){showDashboard(data.user);try{await loadEntries()}catch(err){setMessage(err.message,true)}}
+ else setMessage('Conta criada! Confira seu e-mail e confirme o cadastro antes de entrar.');
+};
+$('resetBtn').onclick=async()=>{
+ const email=$('authEmail').value.trim();if(!email)return setMessage('Digite seu e-mail primeiro.',true);
+ const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.href.split('#')[0].split('?')[0]});
+ if(error)return renderAuthError(error);setMessage('Se o e-mail estiver cadastrado, você receberá o link para redefinir a senha.');
+};
+$('logoutBtn').onclick=async()=>{const {error}=await supabase.auth.signOut();if(error)return alert(error.message);entries=[];showDashboard(null)};
 function render(){
  const list=monthEntries(),inc=list.filter(e=>e.type==='income').reduce((s,e)=>s+e.amount,0),out=list.filter(e=>e.type==='expense').reduce((s,e)=>s+e.amount,0);
  $('incomeTotal').textContent=money(inc);$('expenseTotal').textContent=money(out);$('balanceTotal').textContent=money(inc-out);
- const filtered=list.filter(e=>$('typeFilter').value==='all'||e.type===$('typeFilter').value).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+ const filtered=list.filter(e=>$('typeFilter').value==='all'||e.type===$('typeFilter').value).sort((a,b)=>b.date.localeCompare(a.date));
  $('transactions').innerHTML=filtered.length?filtered.map(e=>'<div class="tx"><div><div class="txname">'+escapeHtml(e.description)+'</div><div class="txmeta">'+escapeHtml(e.category)+' · '+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+'</div></div><div style="display:flex;align-items:center;gap:10px"><span class="txamount '+(e.type==='income'?'income':'expense')+'">'+(e.type==='income'?'+ ':'− ')+money(e.amount)+'</span><button class="btn secondary" style="padding:6px 9px" data-delete="'+e.id+'" aria-label="Excluir lançamento">×</button></div></div>').join(''):'<div class="empty">Nenhum lançamento neste mês.<br>Adicione sua primeira receita ou despesa.</div>';
  const totals=categories.expense.map(c=>({name:c,value:list.filter(e=>e.type==='expense'&&e.category===c).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
- $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/out*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">Suas despesas por categoria aparecerão aqui.</div>';
+ $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(out||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">Suas despesas por categoria aparecerão aqui.</div>';
  $('summary').innerHTML='<div style="display:flex;justify-content:space-between;margin:7px 0"><span>Quantidade de lançamentos</span><strong>'+list.length+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Média por despesa</span><strong>'+money(out/(list.filter(e=>e.type==='expense').length||1))+'</strong></div><div style="display:flex;justify-content:space-between;margin:7px 0"><span>Resultado</span><strong class="'+(inc-out>=0?'income':'expense')+'">'+money(inc-out)+'</strong></div>';
 }
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function openModal(type){currentType=type;$('modalTitle').textContent=type==='income'?'Nova receita':'Nova despesa';$('category').innerHTML=categories[type].map(c=>'<option>'+c+'</option>').join('');$('date').value=today();$('entryForm').reset();$('date').value=today();$('category').innerHTML=categories[type].map(c=>'<option>'+c+'</option>').join('');$('modal').classList.add('open');$('description').focus()}
+function openModal(type){currentType=type;$('modalTitle').textContent=type==='income'?'Nova receita':'Nova despesa';$('category').innerHTML=categories[type].map(c=>'<option>'+c+'</option>').join('');$('entryForm').reset();$('date').value=today();$('category').innerHTML=categories[type].map(c=>'<option>'+c+'</option>').join('');$('modal').classList.add('open');$('description').focus()}
 $('addIncome').onclick=()=>openModal('income');$('addExpense').onclick=()=>openModal('expense');$('cancelBtn').onclick=()=>$('modal').classList.remove('open');
-$('entryForm').onsubmit=e=>{e.preventDefault();entries.push({id:Date.now(),type:currentType,description:$('description').value.trim(),amount:Math.round(Number($('amount').value)*100)/100,category:$('category').value,date:$('date').value});save();$('modal').classList.remove('open')};
-$('transactions').onclick=e=>{const b=e.target.closest('[data-delete]');if(b&&confirm('Excluir este lançamento?')){entries=entries.filter(x=>x.id!==Number(b.dataset.delete));save()}};
+$('entryForm').onsubmit=async e=>{
+ e.preventDefault();const row={user_id:currentUser.id,type:currentType,description:$('description').value.trim(),amount:Math.round(Number($('amount').value)*100)/100,category:$('category').value,transaction_date:$('date').value};
+ const {data,error}=await supabase.from('transactions').insert(row).select().single();
+ if(error)return alert('Não foi possível salvar: '+error.message);
+ entries.unshift({id:data.id,type:data.type,description:data.description,amount:Number(data.amount),category:data.category,date:data.transaction_date});render();$('modal').classList.remove('open');
+};
+$('transactions').onclick=async e=>{const b=e.target.closest('[data-delete]');if(!b||!confirm('Excluir este lançamento?'))return;const id=b.dataset.delete;const {error}=await supabase.from('transactions').delete().eq('id',id);if(error)return alert('Não foi possível excluir: '+error.message);entries=entries.filter(x=>x.id!==id);render()};
 $('typeFilter').onchange=render;$('monthPicker').onchange=render;
 function shiftMonth(n){const d=new Date($('monthPicker').value+'-15T12:00:00');d.setMonth(d.getMonth()+n);$('monthPicker').value=d.toISOString().slice(0,7);render()}
 $('prevMonth').onclick=()=>shiftMonth(-1);$('nextMonth').onclick=()=>shiftMonth(1);
@@ -81,6 +145,8 @@ $('exportBtn').onclick=()=>{const rows=[['Data','Tipo','Descrição','Categoria'
 let installPrompt;$('installBtn').onclick=async()=>{if(installPrompt){installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$('installBtn').style.display='none'}else alert('No Chrome, abra o menu ⋮ e escolha "Instalar app" ou "Adicionar à tela inicial".')};
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('installBtn').style.display='block'});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-render();
+supabase.auth.onAuthStateChange(async(_event,session)=>{if(session&&currentUser?.id!==session.user.id){showDashboard(session.user);try{await loadEntries()}catch(err){setMessage(err.message,true)}}else if(!session)showDashboard(null)});
+refreshSession().catch(err=>setMessage(err.message,true));
 </script>
+
 </body></html>
