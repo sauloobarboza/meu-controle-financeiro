@@ -144,6 +144,11 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
 .projection-table{min-width:0}.projection-row-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0;cursor:pointer}.projection-row-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px}.projection-row-main{flex:1;min-width:0;text-align:left;border:0;background:transparent;padding:8px 4px;color:var(--ink)}.projection-row-main strong,.projection-row-main small{display:block}.projection-row-main small{color:var(--muted);font-size:11px;margin-top:3px}.projection-pay-toggle{min-height:40px}.undo-toast{position:fixed;z-index:20;left:50%;bottom:85px;transform:translateX(-50%);display:flex;align-items:center;gap:18px;padding:12px 16px;background:#14263b;color:#fff;border-radius:13px;box-shadow:0 8px 30px #0003;font-size:13px;max-width:calc(100vw - 24px)}.undo-toast button{border:0;background:#fff;color:#173e66;border-radius:8px;padding:8px 12px;font-weight:800}
 @media(max-width:520px){.aurora-command input{font-size:13px}.aurora-command button{padding:9px 11px}.projection-switch{width:100%}}
 
+
+.home-mini-card{display:block;width:100%;text-align:left;margin-top:12px;padding:13px 15px;border:1px solid #ffffff35;border-radius:14px;background:#ffffff12;color:#fff;position:relative;z-index:1}
+.home-mini-card>span{font-size:12px;font-weight:700}.home-mini-bars{display:flex;align-items:end;gap:8px;height:48px;margin-top:8px}.home-mini-bars span{flex:1;min-width:10px;border-radius:5px 5px 0 0;background:#8fd7c2}.home-mini-bars span.negative{background:#ff9ca7}.home-mini-card small{display:block;text-align:right;font-size:11px;margin-top:4px;color:#d7e9f4}
+.week-summary{margin:12px 0;padding:12px 15px;border:1px solid var(--line);border-radius:13px;background:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:12px}.week-summary span{color:var(--muted)}.week-summary strong{color:var(--ink)}.week-summary small{color:var(--muted)}
+
 </style>
 </head>
 <body>
@@ -175,7 +180,7 @@ body.aurora-screen-settings #changeCenter{margin-top:18px}
  <section class="aurora-hero" id="home-section" data-screen="today">
   <div class="hero-topline"><div><span class="hero-kicker">AURORA FINANCIAL HOME</span><h1>Finanças da casa</h1><p>Seu planejamento, com clareza em cada decisão.</p></div><div class="hero-period"><span>VISÃO DO MÊS</span><strong id="monthReadable"></strong></div></div>
   <div class="hero-balance"><div><span class="hero-balance-label">SALDO REAL DISPONÍVEL</span><strong id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + valores efetivamente recebidos − pagos</small></div></div>
-  <div class="hero-actions"><button class="hero-action-main" id="addExpense">＋ Lançar gasto</button><button class="hero-action-light" id="addIncome">＋ Novo recebimento</button></div><div class="aurora-command"><input id="quickCommand" type="text" autocomplete="off" placeholder="Ex.: Paguei 120 de internet hoje"><button type="button" id="quickVoice" aria-label="Falar comando">🎙</button><button type="button" id="openVoiceAssistant" class="voice-launch">Enviar</button></div><div class="quick-chips" id="quickChips" aria-label="Lançamentos frequentes"></div><div class="review-panel" id="reviewPanel" hidden></div>
+  <div class="hero-actions"><button class="hero-action-main" id="addExpense">＋ Lançar gasto</button><button class="hero-action-light" id="addIncome">＋ Novo recebimento</button></div><div class="aurora-command"><input id="quickCommand" type="text" autocomplete="off" placeholder="Ex.: Paguei 120 de internet hoje"><button type="button" id="quickVoice" aria-label="Falar comando">🎙</button><button type="button" id="openVoiceAssistant" class="voice-launch">Enviar</button></div><div class="quick-chips" id="quickChips" aria-label="Lançamentos frequentes"></div><div class="review-panel" id="reviewPanel" hidden></div><button type="button" class="home-mini-card" id="homeMiniProjection"><span>Saldo previsto · próximos 6 meses</span><div id="homeMiniChart"></div></button><div class="week-summary" id="weekSummary"></div>
  </section>
  <section class="voice-assistant" id="voiceAssistant" data-screen="today" hidden aria-label="Assistente por voz">
   <div class="voice-head"><div><span class="eyebrow-dark">AURORA IA</span><h2>Fale com suas finanças</h2></div><button type="button" class="voice-close" id="voiceClose" aria-label="Fechar assistente">×</button></div>
@@ -421,7 +426,7 @@ function openProjectionMonth(key){const select=$('projectionMonthFilter');select
  const totals=categories.expense.map(category=>({name:category,value:list.filter(e=>e.type==='expense'&&e.category===category).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
  $('categories').innerHTML=totals.length?totals.map(x=>'<div class="barrow"><span>'+escapeHtml(x.name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(3,x.value/(total(list,'expense')||1)*100)+'%"></div></div><strong>'+money(x.value)+'</strong></div>').join(''):'<div class="empty">As contas aparecerão aqui.</div>';
  const allIncome=total(list,'income'),allExpense=total(list,'expense'),pendingCount=list.filter(e=>e.status==='pending').length,plannedCount=list.filter(e=>e.status==='planned').length;
- $('summary').innerHTML='<div class="summaryrow"><span>Movimentações</span><strong>'+list.length+'</strong></div><div class="summaryrow"><span>Resultado realizado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div><div class="summaryrow"><span>Resultado estimado</span><strong class="'+(allIncome-allExpense>=0?'income':'expense')+'">'+money(allIncome-allExpense)+'</strong></div><div class="summaryrow"><span>Contas pendentes</span><strong>'+pendingCount+'</strong></div><div class="summaryrow"><span>A pagar</span><strong>'+plannedCount+'</strong></div>';renderQuickChips();renderReviewPanel();
+ $('summary').innerHTML='<div class="summaryrow"><span>Movimentações</span><strong>'+list.length+'</strong></div><div class="summaryrow"><span>Resultado realizado</span><strong class="'+(income-expense>=0?'income':'expense')+'">'+money(income-expense)+'</strong></div><div class="summaryrow"><span>Resultado estimado</span><strong class="'+(allIncome-allExpense>=0?'income':'expense')+'">'+money(allIncome-allExpense)+'</strong></div><div class="summaryrow"><span>Contas pendentes</span><strong>'+pendingCount+'</strong></div><div class="summaryrow"><span>A pagar</span><strong>'+plannedCount+'</strong></div>';renderQuickChips();renderReviewPanel();renderHomeMiniChart();renderWeeklySummary();
 }
 async function saveOpeningBalance(){
  if(!currentUser)return;const value=Math.round(Number($('openingBalance').value)*100)/100;
@@ -754,9 +759,21 @@ function renderProjectionYear(){
  $('projectionYearView').innerHTML='<h3>Quanto cada conta representa nos próximos 12 meses</h3><p class="chart-subtitle">Período móvel: '+months[0].label+' a '+months[11].label+'</p>'+(data.length?data.map(([name,value])=>'<div class="barrow"><span>'+escapeHtml(name)+'</span><div class="track"><div class="fill" style="width:'+Math.max(2,value/max*100)+'%"></div></div><strong>'+money(value)+'</strong></div>').join(''):'<div class="empty">Cadastre contas para montar a visão anual.</div>');
 }
 function renderQuickChips(){
- const host=$('quickChips');if(!host)return;const seen=new Set(),recent=[];
- entries.slice().sort((a,b)=>b.date.localeCompare(a.date)).forEach(e=>{const key=e.description.trim().toLowerCase();if(key&&!seen.has(key)){seen.add(key);recent.push(e)}});
- host.innerHTML=recent.slice(0,6).map(e=>'<button type="button" class="quick-chip" data-chip="'+escapeHtml(e.id)+'">'+escapeHtml(e.description)+'</button>').join('');
+ const host=$('quickChips');if(!host)return;const grouped=new Map();
+ entries.forEach(e=>{const key=e.description.trim().toLowerCase();if(!key)return;const item=grouped.get(key)||{entry:e,count:0};item.count++;if(e.date>item.entry.date)item.entry=e;grouped.set(key,item)});
+ const recent=[...grouped.values()].sort((a,b)=>b.count-a.count||b.entry.date.localeCompare(a.entry.date)).slice(0,6);
+ host.innerHTML=recent.map(x=>'<button type="button" class="quick-chip" data-chip="'+escapeHtml(x.entry.id)+'">'+escapeHtml(x.entry.description)+'</button>').join('');
+}
+function renderHomeMiniChart(){
+ const months=projectionMonths().slice(0,6);let balance=Calc.projectedBalance(entries,openingBalance,months[0].key+'-01');
+ const values=months.map(m=>{const rows=entries.filter(e=>e.date>=m.key+'-01'&&e.date<=m.end);balance+=Calc.monthlyNet(rows);return {label:m.label,value:balance}});
+ const max=Math.max(1,...values.map(x=>Math.abs(x.value)));
+ $('homeMiniChart').innerHTML='<div class="home-mini-bars">'+values.map(x=>'<span title="'+escapeHtml(x.label)+' · '+money(x.value)+'" style="height:'+Math.max(6,Math.abs(x.value)/max*42)+'px" class="'+(x.value<0?'negative':'')+'"></span>').join('')+'</div><small>'+money(values[5]?.value||0)+' ao final</small>';
+}
+function renderWeeklySummary(){
+ const now=new Date(),day=now.getDay(),monday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-(day===0?6:day-1),12),start=localDateString(monday),today=localDateString();
+ const week=entries.filter(e=>e.date>=start&&e.date<=today),spent=week.filter(e=>e.type==='expense').reduce((a,e)=>a+e.amount,0),due=entries.filter(e=>e.type==='expense'&&!['paid','recorded'].includes(e.status)&&e.date>=today&&e.date<=localDateString(new Date(now.getFullYear(),now.getMonth(),now.getDate()+7))).reduce((a,e)=>a+e.amount,0);
+ $('weekSummary').innerHTML='<span>Esta semana</span><strong>'+week.length+' lançamentos</strong><small>'+money(spent)+' gastos · '+money(due)+' a vencer</small>';
 }
 function renderReviewPanel(){
  const host=$('reviewPanel');if(!host)return;const items=entries.filter(e=>e.needs_review);if(!items.length){host.hidden=true;return}
@@ -780,7 +797,7 @@ function setupAuroraNavigation(){
  document.querySelectorAll('[data-projection-mode]').forEach(b=>b.addEventListener('click',()=>setProjectionView(b.dataset.projectionMode)));
  const projectionHead=document.querySelector('.projection-head');if(projectionHead&&$('projectionMonthFilter'))projectionHead.appendChild($('projectionMonthFilter'));
  $('quickCommand').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();$('openVoiceAssistant').click()}});
- $('quickChips').addEventListener('click',event=>{const b=event.target.closest('[data-chip]');if(!b)return;const e=entries.find(x=>x.id===b.dataset.chip);if(e)openModal(e.type,e.id)});
+ $('quickChips').addEventListener('click',event=>{const b=event.target.closest('[data-chip]');if(!b)return;const e=entries.find(x=>x.id===b.dataset.chip);if(e){openModal(e.type);$('description').value=e.description;$('amount').value=Number(e.amount).toFixed(2);$('category').value=e.category;$('entryPaid').checked=true}});$('description').addEventListener('input',()=>{const value=$('description').value.trim().toLowerCase();const match=entries.find(e=>e.description.trim().toLowerCase()===value);if(match){$('amount').value=Number(match.amount).toFixed(2);$('category').value=match.category}});$('homeMiniProjection').addEventListener('click',()=>{setScreen('months');setProjectionView('accumulated')});
  $('reviewPanel').addEventListener('click',event=>{const b=event.target.closest('[data-review]');if(b){const e=entries.find(x=>x.id===b.dataset.review);if(e)openModal(e.type,e.id)}if(event.target.id==='confirmAllReview')confirmAllReview()});
  $('seriesMode').addEventListener('change',()=>{$('seriesCountWrap').hidden=$('seriesMode').value==='none';$('seriesCountLabel').textContent=$('seriesMode').value==='installments'?'Número de parcelas':'Repetir por quantos meses'});
  $('entryPaid').addEventListener('change',()=>{$('entryPaidLabel').textContent=currentType==='income'?'Já recebi':'Já paguei'});
