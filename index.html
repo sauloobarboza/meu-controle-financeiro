@@ -7,7 +7,7 @@
 <meta name="description" content="Controle suas receitas, despesas e saldo mensal.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-<title>Controle do Apartamento</title>
+<title>AURORA — Controle Financeiro</title>
 <style>
 :root{--bg:#f3f5f9;--card:#fff;--ink:#172033;--muted:#6b7280;--line:#e7eaf0;--green:#16845b;--red:#d94b58;--blue:#3457d5;--navy:#111827}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}button,input,select{font:inherit}button{cursor:pointer}.top{background:var(--navy);color:#fff;padding:22px max(18px,calc((100% - 1080px)/2)) 26px}.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-weight:750;font-size:20px}.month{display:flex;align-items:center;gap:8px;margin-top:20px}.month button{background:#293449;color:#fff;border:0;border-radius:9px;padding:8px 12px}.month input{background:#293449;color:white;border:0;border-radius:9px;padding:8px}.wrap{max-width:1080px;margin:auto;padding:18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
@@ -118,12 +118,38 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
 .change-refresh{border:1px solid var(--line);background:#f7f9fc;border-radius:9px;padding:8px 11px;color:var(--ink);font-size:11px;font-weight:700}
 @media(max-width:600px){.change-center{padding:14px}.change-form{grid-template-columns:1fr}.change-form .field.full{grid-column:auto}.change-item-top{display:grid}}
 .projection-pay-toggle{display:inline-flex;align-items:center;gap:7px;margin-top:7px;padding:6px 9px;border:1px solid #c9d8ef;border-radius:999px;background:#f3f7ff;color:#245ca7;font-size:10px;font-weight:750;white-space:nowrap}.projection-pay-toggle span{width:13px;height:13px;border:1.5px solid #7d9bc5;border-radius:4px;background:#fff;display:inline-block}.projection-pay-toggle:hover{background:#e8f1ff;border-color:#7da6dc}.projection-pay-toggle:disabled{opacity:.55;cursor:wait}
+
+/* AURORA 2026 — navegação por telas e captura rápida */
+.aurora-command{display:flex;gap:8px;margin-top:14px;position:relative;z-index:1}
+.aurora-command input{flex:1;min-width:0;border:1px solid #ffffff35;background:#ffffff14;color:#fff;border-radius:13px;padding:13px 14px;font-size:14px;outline:none}
+.aurora-command input::placeholder{color:#c3d2df}
+.aurora-command button{min-width:48px;border:0;border-radius:12px;background:#fff;color:#163e63;font-weight:800;padding:10px 14px}
+.quick-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;position:relative;z-index:1}
+.quick-chip{border:1px solid #ffffff35;background:#ffffff12;color:#fff;border-radius:999px;padding:7px 11px;font-size:11px;min-height:36px}
+.review-panel{margin-top:14px;padding:12px;border:1px solid #ffffff35;background:#ffffff12;border-radius:14px;color:#fff;position:relative;z-index:1}
+.review-panel h3{font-size:13px;margin:0 0 8px}.review-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #ffffff25;font-size:12px}.review-row button{border:0;border-radius:9px;background:#fff;color:#17466d;padding:8px 10px;min-height:40px;font-weight:700}
+.quick-paid{display:flex;align-items:center;gap:10px;padding:12px 0;font-weight:650}.quick-paid input{width:20px;height:20px;accent-color:#16845b}
+.field-error{color:#bd3341;font-size:12px;min-height:16px}
+.projection-switch{margin-top:14px}.projection-switch button{min-height:40px}
+body.aurora-screen-today [data-screen]:not([data-screen="today"]),
+body.aurora-screen-months [data-screen]:not([data-screen="months"]),
+body.aurora-screen-settings [data-screen]:not([data-screen="settings"]){display:none!important}
+body.aurora-screen-months #globalMonthControl{display:flex}
+body:not(.aurora-screen-months) #globalMonthControl{display:none}
+body.aurora-screen-settings .advanced-details details{display:block}
+body.aurora-screen-settings .advanced-details details>summary{display:none}
+body.aurora-screen-settings .advanced-details{display:block}
+body.aurora-screen-settings #changeCenter{margin-top:18px}
+.aurora-bottom-nav .nav-item{min-height:54px}
+.projection-table{min-width:0}
+@media(max-width:520px){.aurora-command input{font-size:13px}.aurora-command button{padding:9px 11px}.projection-switch{width:100%}}
+
 </style>
 </head>
 <body>
 <header class="top">
- <div class="toprow"><div class="brand">🏠 Controle do Apartamento</div><div class="account"><span id="userEmail"></span><button id="logoutBtn" hidden>Sair</button><button id="installBtn" class="install">Instalar app</button></div></div>
- <div class="month"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
+ <div class="toprow"><div class="brand">✦ AURORA</div><div class="account"><span id="userEmail"></span><button id="logoutBtn" hidden>Sair</button><button id="installBtn" class="install">Instalar app</button></div></div>
+ <div class="month" id="globalMonthControl" data-screen="months"><button id="prevMonth" aria-label="Mês anterior">‹</button><input id="monthPicker" type="month" aria-label="Mês selecionado"><button id="nextMonth" aria-label="Próximo mês">›</button></div>
 </header>
 <div class="notice" id="appNotice" hidden><div class="authmsg" id="appNoticeMessage" role="status" aria-live="polite"></div></div>
 <section class="authwrap" id="authPanel">
@@ -146,12 +172,12 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
  </div>
 </section>
 <main class="wrap" id="dashboard" hidden>
- <section class="aurora-hero" id="home-section">
+ <section class="aurora-hero" id="home-section" data-screen="today">
   <div class="hero-topline"><div><span class="hero-kicker">AURORA FINANCIAL HOME</span><h1>Finanças da casa</h1><p>Seu planejamento, com clareza em cada decisão.</p></div><div class="hero-period"><span>VISÃO DO MÊS</span><strong id="monthReadable"></strong></div></div>
   <div class="hero-balance"><div><span class="hero-balance-label">SALDO REAL DISPONÍVEL</span><strong id="accumulatedTotal">R$ 0,00</strong><small>Saldo inicial + valores efetivamente recebidos − pagos</small></div></div>
-  <div class="hero-actions"><button class="hero-action-main" id="addIncome">＋ Novo aporte</button><button class="hero-action-light" id="addExpense">＋ Adicionar conta</button><button class="hero-action-light voice-launch" id="openVoiceAssistant" type="button">🎙 Falar com Aurora</button></div>
+  <div class="hero-actions"><button class="hero-action-main" id="addExpense">＋ Lançar gasto</button><button class="hero-action-light" id="addIncome">＋ Novo recebimento</button></div><div class="aurora-command"><input id="quickCommand" type="text" autocomplete="off" placeholder="Ex.: Paguei 120 de internet hoje"><button type="button" id="quickVoice" aria-label="Falar comando">🎙</button><button type="button" id="openVoiceAssistant" class="voice-launch">Enviar</button></div><div class="quick-chips" id="quickChips" aria-label="Lançamentos frequentes"></div><div class="review-panel" id="reviewPanel" hidden></div>
  </section>
- <section class="voice-assistant" id="voiceAssistant" hidden aria-label="Assistente por voz">
+ <section class="voice-assistant" id="voiceAssistant" data-screen="today" hidden aria-label="Assistente por voz">
   <div class="voice-head"><div><span class="eyebrow-dark">AURORA IA</span><h2>Fale com suas finanças</h2></div><button type="button" class="voice-close" id="voiceClose" aria-label="Fechar assistente">×</button></div>
   <p class="voice-help">Diga o que entrou, o que você pagou ou qual conta deseja alterar. A fala vira texto no navegador e o Gemini interpreta o comando. Nada é salvo sem sua confirmação.</p>
   <div class="voice-recorder"><button type="button" class="voice-record" id="voiceStart">🎙 Começar a falar</button><span id="voiceStatus" role="status">Pronto para ouvir.</span></div>
@@ -159,7 +185,7 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
   <div class="voice-actions"><button type="button" class="btn primary" id="voiceAnalyze">Interpretar com Gemini</button></div>
   <div class="voice-preview" id="voicePreview" hidden><p id="voiceAssistantMessage"></p><div id="voicePreviewItems"></div><div class="voice-actions"><button type="button" class="btn secondary" id="voiceEdit">Editar comando</button><button type="button" class="btn primary" id="voiceApply">Confirmar e salvar</button></div></div>
  </section>
- <section class="change-center" id="changeCenter" aria-label="Central de melhorias">
+ <section class="change-center" id="changeCenter" data-screen="settings" aria-label="Central de melhorias">
   <div class="change-head"><div><span class="eyebrow-dark">EVOLUÇÃO DO AURORA</span><h2>Central de melhorias</h2><p>Peça mudanças de layout, gráficos, correções ou novas funcionalidades. Suas solicitações ficam registradas na sua conta.</p></div><button class="change-refresh" type="button" id="refreshChangeRequests">↻ Atualizar</button></div>
   <form class="change-form" id="changeRequestForm">
    <label class="field"><span>O que deseja mudar?</span><input id="changeTitle" maxlength="120" required placeholder="Ex.: Modernizar a tela inicial"></label>
@@ -170,25 +196,25 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
   <div class="sectionhead" style="margin-top:8px"><h2>Minhas solicitações</h2></div>
   <div class="change-list" id="changeRequestList"><div class="change-empty">Carregando solicitações...</div></div>
  </section>
- <section class="grid apartment-metrics">
+ <section class="grid apartment-metrics" data-screen="today">
   <button class="card metric simple-metric" type="button" data-target="bills-section"><span>Entrou no mês</span><strong class="income" id="incomeTotal">R$ 0,00</strong><small>Valores recebidos</small></button>
   <button class="card metric simple-metric" type="button" data-target="bills-section"><span>Saiu no mês</span><strong class="expense" id="expenseTotal">R$ 0,00</strong><small>Contas pagas</small></button>
   <button class="card metric simple-metric" type="button" data-target="bills-section"><span>Ainda falta pagar</span><strong class="balance" id="pendingSummary">R$ 0,00</strong><small>Toque para ver as contas</small></button>
  </section>
- <section class="projection-shell simple-months" id="projection-section" aria-label="Visão dos próximos meses">
-  <div class="projection-head"><div><span class="eyebrow-dark">PLANEJAMENTO</span><h2>Como ficam os próximos meses?</h2><p>Toque em um mês para abrir os lançamentos e conferir os detalhes.</p></div></div>
+ <section class="projection-shell simple-months" id="projection-section" data-screen="months" aria-label="Visão dos próximos meses">
+  <div class="projection-head"><div><span class="eyebrow-dark">PLANEJAMENTO</span><h2>Meses</h2><p>Veja seus lançamentos, contas e saldo projetado.</p></div><div class="projection-switch" role="group" aria-label="Visão do planejamento"><button type="button" class="active" data-projection-mode="month">Mês</button><button type="button" data-projection-mode="year">Ano</button><button type="button" data-projection-mode="accumulated">Acumulado</button></div></div><div id="projectionYearView" hidden></div>
   <div class="projection-kpis simple-projection-kpi"><div class="projection-kpi"><small>Saldo previsto ao fim dos 12 meses</small><strong id="projectionEndBalance">R$ 0,00</strong></div></div>
   <div id="projectionBalanceView"><div id="projectionChart" hidden></div><div class="projection-table-wrap"><table class="projection-table simple-projection-table"><thead><tr><th>MÊS</th><th class="num">ENTRADAS</th><th class="num">SAÍDAS</th><th class="num">SALDO PREVISTO</th></tr></thead><tbody id="projectionMonths"></tbody></table></div></div>
   <div id="projectionAccountsView" hidden><div class="simple-detail-head"><strong id="projectionDetailTitle">Detalhes do mês</strong><button type="button" class="btn secondary" id="projectionBackBtn">Voltar aos meses</button></div><div class="projection-table-wrap"><table class="projection-table"><thead><tr><th>CONTA / MOVIMENTAÇÃO</th><th>DATA</th><th class="num">VALOR</th><th>SITUAÇÃO</th><th class="num">SALDO APÓS</th></tr></thead><tbody id="projectionAccountRows"></tbody></table></div><p class="chart-subtitle" style="margin:10px 0 0">O saldo após cada lançamento considera a ordem cronológica, incluindo aportes.</p></div>
   <div hidden><button id="projectionBalanceBtn" type="button"></button><button id="projectionAccountsBtn" type="button"></button><select id="projectionMonthFilter"></select><span id="projectionIncome"></span><span id="projectionExpense"></span><span id="paidSummary"></span><span id="plannedSummary"></span><div id="monthlyChart"></div><div id="categoryDonut"></div><div id="dailyChart"></div><div id="metricInsights"></div></div>
  </section>
- <section class="reminder-panel simple-reminders" id="reminderPanel" aria-live="polite"><h3>Contas próximas do vencimento</h3><div id="reminderList"></div></section>
- <div class="layout" id="bills-section">
+ <section class="reminder-panel simple-reminders" id="reminderPanel" data-screen="today" aria-live="polite"><h3>Contas próximas do vencimento</h3><div id="reminderList"></div></section>
+ <div class="layout" id="bills-section" data-screen="today">
   <section>
    <div class="sectionhead"><h2>Movimentações do mês</h2><div class="filters"><select id="typeFilter" aria-label="Filtrar tipo"><option value="all">Todas</option><option value="income">Aportes</option><option value="expense">Contas</option></select><select id="statusFilter" aria-label="Filtrar situação"><option value="all">Todas as situações</option><option value="paid">Pagas / recebidas</option><option value="pending">Pendentes</option><option value="planned">Previsões</option><option value="recorded">Registradas</option></select></div></div>
    <div class="card transactions" id="transactions"></div>
   </section>
-  <aside class="advanced-details"><details><summary>Mais opções e resumo</summary>
+  <aside class="advanced-details" data-screen="settings"><details open><summary>Mais opções e resumo</summary>
    <div class="sectionhead"><h2>Contas por tipo</h2></div><div class="card" id="categories"></div>
    <div class="sectionhead"><h2>Saldo de partida</h2></div>
    <div class="card opening-card"><p>Informe quanto já havia disponível no início do controle. Esse valor entra no saldo acumulado, mas não é contado como aporte do mês.</p><label class="field"><span>Saldo inicial (R$)</span><input id="openingBalance" type="number" min="0" step="0.01" inputmode="decimal" value="0"></label><button class="btn secondary" id="saveOpeningBalance">Salvar saldo inicial</button></div>
@@ -198,17 +224,17 @@ body{background:#f4f7fb;color:#15243a;padding-bottom:105px}
  <div class="foot">Controle do apartamento · Aportes, contas, pagamentos e saldo acumulado. Seus dados ficam sincronizados com sua conta.</div>
 </main>
 <nav class="aurora-bottom-nav" id="auroraBottomNav" aria-label="Navegação principal">
- <button type="button" class="nav-item active" data-target="home-section" aria-current="page"><span class="nav-icon">⌂</span><span>Início</span></button>
- <button type="button" class="nav-item" data-target="projection-section"><span class="nav-icon">▦</span><span>Meses</span></button>
- <button type="button" class="nav-item" data-target="bills-section"><span class="nav-icon">▤</span><span>Contas</span></button>
+ <button type="button" class="nav-item active" data-screen-target="today" aria-current="page"><span class="nav-icon">⌂</span><span>Hoje</span></button>
+ <button type="button" class="nav-item" data-screen-target="months"><span class="nav-icon">▦</span><span>Meses</span></button>
+ <button type="button" class="nav-item" data-screen-target="settings"><span class="nav-icon">⚙</span><span>Ajustes</span></button>
 </nav>
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
  <form class="dialog" id="entryForm">
   <h2 id="modalTitle">Novo lançamento</h2>
-  <label class="field"><span>Descrição</span><input id="description" maxlength="70" required placeholder="Ex.: Salário, mercado..."></label>
-  <label class="field"><span>Valor (R$)</span><input id="amount" type="number" min="0.01" step="0.01" required placeholder="0,00"></label>
+  <label class="field"><span>Valor (R$)</span><input id="amount" type="number" min="0.01" step="0.01" inputmode="decimal" required placeholder="0,00"></label>
+  <label class="field"><span>Descrição (opcional)</span><input id="description" maxlength="70" placeholder="Ex.: Mercado, internet..."></label>
   <label class="field"><span>Categoria</span><select id="category" required></select></label>
-  <label class="field"><span>Data</span><input id="date" type="date" required></label><label class="field"><span>Situação</span><select id="entryStatus" required><option value="paid">Pago / recebido</option><option value="pending">Pendente</option><option value="planned">Previsão</option><option value="recorded">Registrado</option></select></label>
+  <label class="field"><span>Data</span><input id="date" type="date" required></label><label class="quick-paid"><input id="entryPaid" type="checkbox"><span id="entryPaidLabel">Já paguei</span></label><label class="field"><span>Repetição</span><select id="seriesMode"><option value="none">Não repetir</option><option value="repeat">Todo mês</option><option value="installments">Parcelado</option></select></label><label class="field" id="seriesCountWrap" hidden><span id="seriesCountLabel">Quantidade de meses</span><input id="seriesCount" type="number" min="2" max="36" value="12" inputmode="numeric"></label><label class="field" id="editScopeWrap" hidden><span>Aplicar edição</span><select id="editScope"><option value="one">Só este mês</option><option value="future">Este e os próximos</option></select></label><div id="entryValidation" class="field-error" role="alert"></div><button type="button" id="deleteFromForm" class="btn danger" hidden>Excluir lançamento</button>
   <div class="formactions"><button type="button" class="btn secondary" id="cancelBtn">Cancelar</button><button class="btn primary" type="submit">Salvar lançamento</button></div>
  </form>
 </div>
