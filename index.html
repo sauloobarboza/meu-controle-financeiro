@@ -242,7 +242,7 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
   .aurora-spreadsheet tbody{display:grid;gap:0}
   .aurora-spreadsheet tbody tr.spreadsheet-row{
     display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.45fr) minmax(0,1fr);
-    grid-template-areas:"date account category" "expense income balance";
+    grid-template-areas:"date account category" "expense income balance" "actions actions actions";
     gap:0 8px;align-items:center;min-width:0;padding:8px 2px;
     background:transparent;border:0;border-bottom:1px solid var(--line);
     border-radius:0;box-shadow:none
@@ -267,7 +267,7 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
   .aurora-spreadsheet tbody tr td:nth-child(5):before{content:"Entrada"}
   .aurora-spreadsheet tbody tr td:nth-child(6){grid-area:balance;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:0;margin:0;padding:3px 0;background:transparent;border-radius:0;color:var(--blue);font-size:12px;font-weight:800}
   .aurora-spreadsheet tbody tr td:nth-child(6):before{content:"Saldo";margin:0 0 2px;font-size:8px;color:var(--muted)}
-  .aurora-spreadsheet tbody tr td:nth-child(7){display:none}
+  .aurora-spreadsheet tbody tr td:nth-child(7){grid-area:actions;display:flex;flex-direction:row;justify-content:flex-end;align-items:center;gap:8px;padding:7px 0 2px;border-top:1px solid var(--line);margin-top:5px}
   .aurora-spreadsheet .right{text-align:left}
   .cell-input,.account-input,.category-input,.date-input,.money-input{
     width:100%;min-width:0;max-width:100%;padding:2px 1px;font-size:11px;
