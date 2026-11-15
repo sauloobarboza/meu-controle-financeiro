@@ -426,6 +426,53 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 .swipe-delete-dialog h2{margin:0 0 8px;font-size:19px}.swipe-delete-dialog p{margin:0;color:var(--muted,#758198);font-size:13px;line-height:1.55}.swipe-delete-dialog strong{color:var(--ink,#15243a)}.swipe-delete-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:22px}.swipe-delete-actions button{border:0;border-radius:10px;padding:11px 15px;font-weight:750}.swipe-delete-cancel{background:#edf1f6;color:#33445c}.swipe-delete-confirm{background:#d94352;color:#fff}.swipe-delete-confirm:disabled{opacity:.55}.spreadsheet-row.swipe-gesture-active td{background:#fff2f3}.spreadsheet-row.swipe-gesture-active{transition:background .12s ease}.spreadsheet-row{touch-action:pan-y; -webkit-user-select:none;user-select:none}.spreadsheet-row input{user-select:text;-webkit-user-select:text}
 @keyframes swipeDialogIn{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.swipe-delete-dialog{animation:none}}
+
+/* Mapa das Dívidas */
+.aurora-bottom-inner{grid-template-columns:repeat(4,minmax(0,1fr))}
+.debt-kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.debt-kpis article,.debt-panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 5px 20px #142a4308;min-width:0}
+.debt-kpis small{display:block;color:var(--muted);font-size:11px;font-weight:700}
+.debt-kpis strong{display:block;font-size:25px;font-weight:850;font-variant-numeric:tabular-nums;margin:7px 0}
+.debt-kpis article>span{font-size:11px;color:var(--muted)}
+.debt-kpis input,.debt-manual-grid input,.debt-manual-grid select,.debt-import-grid select,.debt-month-filter input{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);margin:7px 0}
+.debt-kpis button{padding:8px 12px;font-size:11px}
+.debt-panel{margin:13px 0}
+.debt-panel h3{margin:0 0 5px;font-size:16px}
+.debt-sub{font-size:11px;color:var(--muted);margin:4px 0 13px}
+.debt-chart{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:end;min-height:190px;padding:15px 2px 4px}
+.debt-bar-col{display:flex;flex-direction:column;align-items:center;justify-content:end;gap:6px;min-width:0;height:180px}
+.debt-bar-col strong{font-size:10px;color:var(--ink);font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap}
+.debt-bar-track{height:105px;width:min(32px,70%);display:flex;align-items:end;background:var(--bg);border-radius:9px;overflow:hidden}
+.debt-bar-track i{display:block;width:100%;min-height:3px;border-radius:8px 8px 0 0;background:linear-gradient(180deg,#5f91e8,#315fba);transition:height .35s ease}
+.debt-bar-col b{font-size:11px;text-transform:capitalize;color:var(--ink)}
+.debt-bar-col small{font-size:10px;color:var(--blue);font-weight:800}
+.debt-month-rows>div{display:grid;grid-template-columns:1fr auto 48px;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:11px;align-items:center}
+.debt-month-rows strong{font-variant-numeric:tabular-nums;font-size:12px}
+.debt-month-rows b{text-align:right;color:var(--blue)}
+.debt-import-grid,.debt-manual-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.debt-upload{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;min-height:83px;border:1px dashed #9bb3d6;border-radius:13px;background:var(--bg);padding:12px;text-align:center;cursor:pointer}
+.debt-upload input{position:absolute;width:1px;height:1px;opacity:0}
+.debt-upload span{font-size:12px;font-weight:800;color:var(--blue)}
+.debt-upload small{font-size:10px;color:var(--muted)}
+.debt-manual-grid .field{margin:4px 0}
+.debt-manual-grid .field span{font-size:11px}
+.debt-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.debt-row>label input{width:19px;height:19px;accent-color:var(--green)}
+.debt-row-copy{min-width:0}.debt-row-copy strong{display:block;font-size:12px;overflow-wrap:anywhere}.debt-row-copy small{display:block;font-size:10px;color:var(--muted);margin-top:3px}
+.debt-row> b{font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.debt-empty{padding:20px 8px;text-align:center;color:var(--muted);font-size:12px}
+.debt-message{font-size:12px;padding:10px 2px;color:var(--muted)}.debt-message[data-kind="error"]{color:var(--red)}.debt-message[data-kind="success"]{color:var(--green)}
+.debt-preview-overlay{position:fixed;inset:0;z-index:60;background:#071629aa;display:flex;align-items:center;justify-content:center;padding:14px}
+.debt-preview-dialog{width:min(760px,100%);max-height:85vh;overflow:auto;background:var(--card);color:var(--ink);border-radius:18px;padding:18px;box-shadow:0 20px 70px #06162c55}
+.debt-preview-dialog h3{margin:0 0 6px}.debt-preview-dialog p{font-size:12px;color:var(--muted)}
+.debt-preview-table{overflow:auto;margin:12px 0}.debt-preview-table table{border-collapse:collapse;width:100%;font-size:11px}.debt-preview-table th,.debt-preview-table td{text-align:left;padding:9px;border-bottom:1px solid var(--line);white-space:nowrap}.debt-preview-table small{display:block;color:var(--muted);white-space:normal;max-width:180px}
+#trashDock{position:fixed;z-index:55;left:50%;bottom:100px;transform:translateX(-50%);width:min(330px,calc(100% - 32px));}
+#trashZone{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border:2px dashed #d94b58;border-radius:16px;background:#fff0f1;color:#b52f3d;box-shadow:0 12px 35px #10243b28;font-size:12px}
+#trashZone span{font-size:23px}#trashZone.over{background:#d94b58;color:white;border-color:#d94b58;transform:scale(1.04)}
+.trash-dragging{opacity:.45;outline:2px dashed var(--blue);outline-offset:-3px}
+.drag-handle{touch-action:none;cursor:grab;user-select:none}
+@media(max-width:520px){.debt-kpis{grid-template-columns:1fr 1fr}.debt-kpis article{padding:12px}.debt-kpis strong{font-size:19px}.debt-chart{gap:3px;min-height:165px}.debt-bar-col{height:155px}.debt-bar-col strong{font-size:8px}.debt-bar-track{height:85px;width:60%}.debt-bar-col b{font-size:10px}.debt-bar-col small{font-size:9px}.debt-import-grid,.debt-manual-grid{grid-template-columns:1fr 1fr}.debt-preview-dialog{padding:13px}}
+
 </style>
 </head>
 <body>
@@ -1111,7 +1158,8 @@ function handlePointerMove(event){if(!touchDrag.id||touchDrag.pointerId!==event.
 async function handlePointerUp(event){if(!touchDrag.id||touchDrag.pointerId!==event.pointerId)return;const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('tr[data-row-id]');const sourceId=touchDrag.id;touchDrag={id:null,pointerId:null};if(target)await persistRowOrder(sourceId,target.dataset.rowId);else{draggedRowId=null;root.querySelectorAll('.dragging,.drop-target').forEach(x=>x.classList.remove('dragging','drop-target'))}}
 function renderNewUI(){if(!root||!currentUser)return;$('newCurrentMonth').textContent=title(currentMonth());renderProjection();renderReport();renderInsights()}
 const oldRender=render;render=function(){oldRender();renderNewUI()};
-document.addEventListener('DOMContentLoaded',()=>{const now=currentMonth();$('reportMonth').value=now;$('insightMonth').value=now;$('newExpense').addEventListener('click',()=>openInsertPicker('expense'));$('newIncome').addEventListener('click',()=>openInsertPicker('income'));$('auroraNewNav').addEventListener('click',e=>{const b=e.target.closest('[data-new-tab]');if(b)page(b.dataset.newTab)});root.addEventListener('change',handleCellChange);root.addEventListener('dragstart',handleDragStart);root.addEventListener('dragover',handleDragOver);root.addEventListener('drop',handleDrop);root.addEventListener('pointerdown',handleSwipeStart);root.addEventListener('pointermove',handleSwipeMove);root.addEventListener('pointerup',handleSwipeEnd);root.addEventListener('pointercancel',handleSwipeCancel);root.addEventListener('pointerdown',handlePointerDown);root.addEventListener('pointermove',handlePointerMove);root.addEventListener('pointerup',handlePointerUp);root.addEventListener('pointercancel',handlePointerUp);$('cancelSwipeDelete').addEventListener('click',closeSwipeDelete);$('confirmSwipeDelete').addEventListener('click',confirmSwipeDelete);$('swipeDeleteModal').addEventListener('click',event=>{if(event.target===$('swipeDeleteModal'))closeSwipeDelete()});$('projectionMonthChoice').addEventListener('change',()=>{localStorage.setItem('aurora_projection_month',$('projectionMonthChoice').value);renderNewUI();const card=document.querySelector('.projection-balance');card?.classList.remove('month-changed');requestAnimationFrame(()=>card?.classList.add('month-changed'))});$('cancelInsert').addEventListener('click',closeInsertPicker);$('cancelBtn').addEventListener('click',()=>{window.auroraInsertAfterId=null});$('confirmInsert').addEventListener('click',confirmInsertPicker);['reportMonth','insightMonth'].forEach(id=>$(id).addEventListener('change',renderNewUI));const saved=localStorage.getItem('aurora_theme')||'light';document.documentElement.dataset.theme=saved;const btn=$('themeToggle'),update=()=>{const dark=document.documentElement.dataset.theme==='dark';btn.innerHTML=dark?'☀ <span>Claro</span>':'☾ <span>Escuro</span>';btn.setAttribute('aria-label',dark?'Ativar tema claro':'Ativar tema escuro')};update();btn.addEventListener('click',()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('aurora_theme',document.documentElement.dataset.theme);update()});const observer=new MutationObserver(()=>{const visible=!$('dashboard').hidden;root.hidden=!visible;$('auroraNewNav').hidden=!visible;if(visible)renderNewUI()});observer.observe($('dashboard'),{attributes:true,attributeFilter:['hidden']});root.hidden=$('dashboard').hidden;$('auroraNewNav').hidden=$('dashboard').hidden});
+document.addEventListener('DOMContentLoaded',()=>{const now=currentMonth();$('reportMonth').value=now;$('insightMonth').value=now;$('newExpense').addEventListener('click',()=>openInsertPicker('expense'));$('newIncome').addEventListener('click',()=>openInsertPicker('income'));$('auroraNewNav').addEventListener('click',e=>{const b=e.target.closest('[data-new-tab]');if(b)page(b.dataset.newTab)});root.addEventListener('change',handleCellChange);root.addEventListener('dragstart',handleDragStart);root.addEventListener('dragover',handleDragOver);root.addEventListener('drop',handleDrop);root.addEventListener('pointerdown',handlePointerDown);root.addEventListener('pointermove',handlePointerMove);root.addEventListener('pointerup',handlePointerUp);root.addEventListener('pointercancel',handlePointerUp);$('cancelSwipeDelete').addEventListener('click',closeSwipeDelete);$('confirmSwipeDelete').addEventListener('click',confirmSwipeDelete);$('swipeDeleteModal').addEventListener('click',event=>{if(event.target===$('swipeDeleteModal'))closeSwipeDelete()});$('projectionMonthChoice').addEventListener('change',()=>{localStorage.setItem('aurora_projection_month',$('projectionMonthChoice').value);renderNewUI();const card=document.querySelector('.projection-balance');card?.classList.remove('month-changed');requestAnimationFrame(()=>card?.classList.add('month-changed'))});$('cancelInsert').addEventListener('click',closeInsertPicker);$('cancelBtn').addEventListener('click',()=>{window.auroraInsertAfterId=null});$('confirmInsert').addEventListener('click',confirmInsertPicker);['reportMonth','insightMonth'].forEach(id=>$(id).addEventListener('change',renderNewUI));const saved=localStorage.getItem('aurora_theme')||'light';document.documentElement.dataset.theme=saved;const btn=$('themeToggle'),update=()=>{const dark=document.documentElement.dataset.theme==='dark';btn.innerHTML=dark?'☀ <span>Claro</span>':'☾ <span>Escuro</span>';btn.setAttribute('aria-label',dark?'Ativar tema claro':'Ativar tema escuro')};update();btn.addEventListener('click',()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('aurora_theme',document.documentElement.dataset.theme);update()});const observer=new MutationObserver(()=>{const visible=!$('dashboard').hidden;root.hidden=!visible;$('auroraNewNav').hidden=!visible;if(visible)renderNewUI()});observer.observe($('dashboard'),{attributes:true,attributeFilter:['hidden']});root.hidden=$('dashboard').hidden;$('auroraNewNav').hidden=$('dashboard').hidden});
 })();
 </script>
+<script src="./debt.js"></script>
 </body></html>
