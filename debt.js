@@ -67,13 +67,13 @@ function openDebtDelete(){
 function showDebtUndo(row){
  const toast=$('undoToast');if(!toast)return;
  toast.innerHTML='Parcela excluída. <button type="button" id="undoDebtDelete">Desfazer</button>';toast.hidden=false;
- $('undoDebtDelete').onclick=async()=>{if(!undoDebtSnapshot)return;const {error}=await supabaseClient.from('card_debt_installments').insert(undoDebtSnapshot);if(error){msg('Não foi possível desfazer: '+error.message,'error');return}clearTimeout(undoDebtTimer);undoDebtSnapshot=null;toast.hidden=true;await load();msg('Exclusão desfeita.','success')};
+ $('undoDebtDelete').onclick=async()=>{if(!undoDebtSnapshot)return;const restored={...undoDebtSnapshot};const {error}=await supabaseClient.from('card_debt_installments').insert(restored);if(error){msg('Não foi possível desfazer: '+error.message,'error');return}clearTimeout(undoDebtTimer);undoDebtSnapshot=null;toast.hidden=true;await load();if(restored.status==='paid'){try{await syncProjection(restored.card,restored.due_date.slice(0,7))}catch(e){msg('Parcela restaurada; sincronização da Projeção falhou: '+e.message,'error');return}}msg('Exclusão desfeita.','success')};
  clearTimeout(undoDebtTimer);undoDebtTimer=setTimeout(()=>{undoDebtSnapshot=null;toast.hidden=true},6000);
 }
 async function deleteSelectedDebt(){
  const id=$('debtDeleteSelect').value,row=debts.find(d=>d.id===id);if(!row)return;
  const snapshot={...row};const {error}=await supabaseClient.from('card_debt_installments').delete().eq('id',id).eq('user_id',currentUser.id);if(error){msg(error.message,'error');return}
- debts=debts.filter(d=>d.id!==id);$('debtDeleteModal').hidden=true;await render();showDebtUndo(snapshot);msg('Parcela excluída. Você pode desfazer por 6 segundos.','success');
+ debts=debts.filter(d=>d.id!==id);$('debtDeleteModal').hidden=true;await render();if(snapshot.status==='paid'){try{await syncProjection(snapshot.card,snapshot.due_date.slice(0,7))}catch(e){msg('Parcela excluída; sincronização da Projeção falhou: '+e.message,'error')}}showDebtUndo(snapshot);msg('Parcela excluída. Você pode desfazer por 6 segundos.','success');
 }
 async function persistDebtOrderIds(date,ids){
  for(let i=0;i<ids.length;i++){const {error}=await supabaseClient.from('card_debt_installments').update({sort_order:i,updated_at:new Date().toISOString()}).eq('id',ids[i]).eq('user_id',currentUser.id);if(error)throw error}
