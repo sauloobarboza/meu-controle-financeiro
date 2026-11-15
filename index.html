@@ -231,6 +231,64 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
   .date-input{letter-spacing:-.5px}
 }
 
+
+/* AURORA — linhas compactas: leitura rápida sem cartões altos */
+@media(max-width:680px){
+  .projection-mobile-hint{font-size:10px;line-height:1.3;margin:0 0 7px}
+  .spreadsheet-card{overflow:visible;background:transparent;border:0;box-shadow:none}
+  .spreadsheet-scroll{overflow:visible}
+  .aurora-spreadsheet{display:block;width:100%;min-width:0;border:0;border-spacing:0}
+  .aurora-spreadsheet thead{display:none}
+  .aurora-spreadsheet tbody{display:grid;gap:0}
+  .aurora-spreadsheet tbody tr.spreadsheet-row{
+    display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.45fr) minmax(0,1fr);
+    grid-template-areas:"date account category" "expense income balance";
+    gap:0 8px;align-items:center;min-width:0;padding:8px 2px;
+    background:transparent;border:0;border-bottom:1px solid var(--line);
+    border-radius:0;box-shadow:none
+  }
+  .aurora-spreadsheet tbody tr td{
+    display:flex;flex-direction:column;justify-content:center;align-items:stretch;
+    min-width:0;white-space:normal;padding:3px 0;border:0;text-align:left
+  }
+  .aurora-spreadsheet tbody tr td:before{
+    display:block;margin:0 0 2px;color:var(--muted);font-size:8px;
+    font-weight:800;letter-spacing:.25px;text-transform:uppercase;line-height:1.15
+  }
+  .aurora-spreadsheet tbody tr td:nth-child(1){grid-area:date}
+  .aurora-spreadsheet tbody tr td:nth-child(1):before{content:"Data"}
+  .aurora-spreadsheet tbody tr td:nth-child(2){grid-area:account}
+  .aurora-spreadsheet tbody tr td:nth-child(2):before{content:"Conta"}
+  .aurora-spreadsheet tbody tr td:nth-child(3){grid-area:category}
+  .aurora-spreadsheet tbody tr td:nth-child(3):before{content:"Categoria"}
+  .aurora-spreadsheet tbody tr td:nth-child(4){grid-area:expense}
+  .aurora-spreadsheet tbody tr td:nth-child(4):before{content:"Despesa"}
+  .aurora-spreadsheet tbody tr td:nth-child(5){grid-area:income}
+  .aurora-spreadsheet tbody tr td:nth-child(5):before{content:"Entrada"}
+  .aurora-spreadsheet tbody tr td:nth-child(6){grid-area:balance;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:0;margin:0;padding:3px 0;background:transparent;border-radius:0;color:var(--blue);font-size:12px;font-weight:800}
+  .aurora-spreadsheet tbody tr td:nth-child(6):before{content:"Saldo";margin:0 0 2px;font-size:8px;color:var(--muted)}
+  .aurora-spreadsheet tbody tr td:nth-child(7){display:none}
+  .aurora-spreadsheet .right{text-align:left}
+  .cell-input,.account-input,.category-input,.date-input,.money-input{
+    width:100%;min-width:0;max-width:100%;padding:2px 1px;font-size:11px;
+    line-height:1.25;border:0;border-radius:3px;background:transparent
+  }
+  .account-input{font-weight:750;font-size:12px}
+  .date-input{font-size:10px}
+  .category-input{font-size:10px}
+  .money-input{text-align:left;font-weight:750;font-size:10px;font-variant-numeric:tabular-nums}
+  .expense-cell .money-input{color:var(--red)}
+  .income-cell .money-input{color:var(--green)}
+  .balance-cell{font-variant-numeric:tabular-nums}
+  .spreadsheet-empty{display:block!important}
+}
+@media(max-width:360px){
+  .aurora-spreadsheet tbody tr.spreadsheet-row{grid-template-columns:minmax(0,.72fr) minmax(0,1.35fr) minmax(0,.95fr);gap:0 5px;padding:7px 0}
+  .account-input{font-size:11px}
+  .cell-input,.category-input,.money-input{font-size:9px}
+  .aurora-spreadsheet tbody tr td:before,.aurora-spreadsheet tbody tr td:nth-child(6):before{font-size:7px}
+}
+
 </style>
 </head>
 <body>
