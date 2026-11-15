@@ -325,6 +325,62 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
  .aurora-spreadsheet .cell-input,.aurora-spreadsheet .account-input,.aurora-spreadsheet .money-input,.aurora-spreadsheet .balance-cell{font-size:9px}
  .month-divider-main>span{font-size:8px;gap:5px}
 }
+
+/* AURORA — refinamento visual: seções mensais e grade alinhada */
+.aurora-spreadsheet{width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:separate!important;border-spacing:0!important}
+.aurora-spreadsheet thead th{box-sizing:border-box;padding:11px 10px!important;font-size:10px!important;white-space:nowrap!important}
+.aurora-spreadsheet thead th:nth-child(1){width:38%;text-align:left}
+.aurora-spreadsheet thead th:nth-child(2),.aurora-spreadsheet thead th:nth-child(3){width:20%;text-align:right}
+.aurora-spreadsheet thead th:nth-child(4){width:18%;text-align:right}
+.aurora-spreadsheet thead th:nth-child(5){width:4%;padding-left:0!important;padding-right:0!important}
+.aurora-spreadsheet tbody tr.spreadsheet-row{background:transparent!important;box-shadow:none!important;border:0!important}
+.aurora-spreadsheet tbody tr.spreadsheet-row td{box-sizing:border-box;height:48px;padding:7px 10px!important;vertical-align:middle!important;border-bottom:1px solid var(--line)!important;border-top:0!important}
+.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(1){width:38%;text-align:left}
+.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(2),.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(3){width:20%;text-align:right}
+.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(4){width:18%;text-align:right;white-space:nowrap}
+.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(5){width:4%;padding-left:0!important;padding-right:0!important;text-align:center}
+.aurora-spreadsheet .cell-input{box-sizing:border-box;display:block;height:32px;margin:0;border:1px solid transparent!important;border-radius:6px!important;background:transparent!important;padding:5px 7px!important;font-size:12px!important;line-height:1.2!important}
+.aurora-spreadsheet .account-input{width:100%;min-width:0!important;text-align:left;font-weight:700}
+.aurora-spreadsheet .money-input{width:100%;min-width:0!important;text-align:right;font-variant-numeric:tabular-nums;font-weight:650}
+.aurora-spreadsheet .balance-cell{font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.aurora-spreadsheet .drag-cell{text-align:center}
+.aurora-spreadsheet .month-divider td{height:auto!important;padding:0!important;border:0!important;background:transparent!important}
+.aurora-spreadsheet .month-divider-main{display:flex;align-items:center;min-height:39px;margin:14px 0 4px;padding:0 13px;border-radius:8px;background:#e8f0ff;border-left:4px solid #3478d4}
+.aurora-spreadsheet .month-divider-main>strong{display:block;color:#174b91;font-size:12px;font-weight:850;letter-spacing:.55px;text-transform:uppercase;line-height:1}
+.aurora-spreadsheet .month-divider-main>span{display:none!important}
+:root[data-theme="dark"] .aurora-spreadsheet .month-divider-main{background:#1b3453;border-left-color:#79b8ff}
+:root[data-theme="dark"] .aurora-spreadsheet .month-divider-main>strong{color:#cfe3ff}
+@media(max-width:680px){
+ .aurora-spreadsheet{display:table!important;width:100%!important;min-width:0!important;table-layout:fixed!important}
+ .aurora-spreadsheet thead{display:table-header-group!important}
+ .aurora-spreadsheet thead tr{display:table-row!important}
+ .aurora-spreadsheet thead th{display:table-cell!important;padding:8px 3px!important;font-size:8px!important;letter-spacing:-.15px!important;white-space:normal!important;line-height:1.15!important}
+ .aurora-spreadsheet tbody{display:table-row-group!important;gap:0!important}
+ .aurora-spreadsheet tbody tr.spreadsheet-row{display:table-row!important;grid-template:none!important;gap:0!important;padding:0!important;min-width:0!important}
+ .aurora-spreadsheet tbody tr.spreadsheet-row td{display:table-cell!important;height:43px!important;padding:5px 3px!important;border:0!important;border-bottom:1px solid var(--line)!important;vertical-align:middle!important;white-space:normal!important}
+ .aurora-spreadsheet tbody tr.spreadsheet-row td:before{display:none!important;content:none!important}
+ .aurora-spreadsheet thead th:nth-child(1),.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(1){width:34%!important}
+ .aurora-spreadsheet thead th:nth-child(2),.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(2),
+ .aurora-spreadsheet thead th:nth-child(3),.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(3){width:22%!important}
+ .aurora-spreadsheet thead th:nth-child(4),.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(4){width:18%!important}
+ .aurora-spreadsheet thead th:nth-child(5),.aurora-spreadsheet tbody tr.spreadsheet-row td:nth-child(5){width:4%!important}
+ .aurora-spreadsheet .cell-input{height:30px!important;padding:4px 1px!important;font-size:10px!important;line-height:1.2!important}
+ .aurora-spreadsheet .account-input{font-size:10px!important;font-weight:750!important}
+ .aurora-spreadsheet .money-input{font-size:9px!important;text-align:right!important}
+ .aurora-spreadsheet .balance-cell{font-size:9px!important;text-align:right!important;letter-spacing:-.25px}
+ .aurora-spreadsheet .drag-handle{font-size:13px!important}
+ .aurora-spreadsheet .month-divider{display:table-row!important}
+ .aurora-spreadsheet .month-divider td{display:table-cell!important;padding:0!important}
+ .aurora-spreadsheet .month-divider-main{min-height:35px;margin:11px 0 3px;padding:0 10px;border-radius:7px}
+ .aurora-spreadsheet .month-divider-main>strong{font-size:10px!important;letter-spacing:.45px}
+ .spreadsheet-card,.spreadsheet-scroll{width:100%;max-width:100%;overflow-x:hidden!important}
+}
+@media(max-width:360px){
+ .aurora-spreadsheet thead th{font-size:7px!important}
+ .aurora-spreadsheet .account-input{font-size:9px!important}
+ .aurora-spreadsheet .money-input,.aurora-spreadsheet .balance-cell{font-size:8px!important}
+ .aurora-spreadsheet .month-divider-main>strong{font-size:9px!important}
+}
 </style>
 </head>
 <body>
@@ -937,7 +993,7 @@ function renderProjection(){
   const label=new Date(year,month-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());
   const out=items.filter(e=>e.type==='expense').reduce((sum,e)=>sum+Number(e.amount||0),0);
   const inc=items.filter(e=>e.type==='income').reduce((sum,e)=>sum+Number(e.amount||0),0);
-  html+='<tr class="month-divider"><td colspan="5"><div class="month-divider-main"><strong>'+safe(label)+'</strong><span><i class="month-out">'+fmt(out)+'</i><i class="month-in">'+fmt(inc)+'</i></span></div></td></tr>';
+  html+='<tr class="month-divider"><td colspan="5"><div class="month-divider-main"><strong>'+safe(label)+'</strong></div></td></tr>';
   for(const e of items){
    running=Math.round((running+(e.type==='income'?1:-1)*Number(e.amount||0))*100)/100;
    html+='<tr class="spreadsheet-row" draggable="true" data-row-id="'+safe(e.id)+'" data-row-date="'+safe(e.date)+'"><td class="account-cell"><input class="cell-input account-input" data-field="description" maxlength="70" value="'+safe(e.description)+'" aria-label="Conta"></td><td class="right expense-cell"><input class="cell-input money-input" data-field="expense" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='expense'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Valor da conta"></td><td class="right income-cell"><input class="cell-input money-input" data-field="income" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='income'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Entrada"></td><td class="right balance-cell">'+fmt(running)+'</td><td class="drag-cell"><span class="drag-handle" title="Arraste para reorganizar">⠿</span></td></tr>';
