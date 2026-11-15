@@ -45,16 +45,16 @@ async function saveDebtAction(){
    const old=debts.find(d=>d.id===editingDebtId);if(!old)return;
    const patch={card,description,amount,due_date:date,updated_at:new Date().toISOString()};
    const {error}=await supabaseClient.from('card_debt_installments').update(patch).eq('id',old.id).eq('user_id',currentUser.id);if(error)throw error;
-   const oldMonth=old.due_date.slice(0,7);Object.assign(old,patch);closeDebtAction();await load();
-   if(old.status==='paid'){try{await syncProjection(old.card,oldMonth);await syncProjection(card,date.slice(0,7))}catch(e){msg('Parcela salva; sincronização da Projeção precisa ser conferida: '+e.message,'error');return}}
+   const oldMonth=old.due_date.slice(0,7),oldCard=old.card,wasPaid=old.status==='paid';Object.assign(old,patch);closeDebtAction();await load();
+   if(wasPaid){try{await syncProjection(oldCard,oldMonth);await syncProjection(card,date.slice(0,7))}catch(e){msg('Parcela salva; sincronização da Projeção precisa ser conferida: '+e.message,'error');return}}
    msg('Parcela atualizada. As demais parcelas foram preservadas.','success');
   }else{
    const current=Number($('debtFormCurrent').value),total=Number($('debtFormTotal').value);
    if(!Number.isInteger(current)||!Number.isInteger(total)||current<1||total<current||total>60){msg('Confira a parcela atual e a quantidade total.','error');return}
    const pid=crypto.randomUUID(),anchorId=$('debtInsertAnchor').value,rows=[];
    for(let n=current;n<=total;n++){const due=addMonth(date,n-current),same=debts.filter(d=>d.due_date===due),max=same.reduce((v,d)=>Math.max(v,Number(d.sort_order||0)), -1);rows.push({user_id:currentUser.id,purchase_id:pid,card,description,original_description:description,amount,installment_number:n,installment_total:total,due_date:due,status:'pending',source_key:'manual-'+pid+'-'+n,sort_order:max+1})}
-   const {error}=await supabaseClient.from('card_debt_installments').insert(rows);if(error)throw error;
-   if(anchorId){const first=rows[0],group=debts.filter(d=>d.due_date===first.due_date).concat([{...first,id:'__new__'}]).sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0));const source=group.find(d=>d.id==='__new__'),ordered=group.filter(d=>d.id!=='__new__'),at=ordered.findIndex(d=>d.id===anchorId);ordered.splice(at<0?ordered.length:at+1,0,source);await persistDebtOrderIds(first.due_date,ordered.map(d=>d.id==='__new__'?rows[0].id:d.id))}
+   const {data:inserted,error}=await supabaseClient.from('card_debt_installments').insert(rows).select('id,due_date,sort_order');if(error)throw error;
+   if(anchorId&&inserted?.length){const first=inserted[0],group=debts.filter(d=>d.due_date===first.due_date).concat([first]).sort((a,b)=>Number(a.sort_order||0)-Number(b.sort_order||0)),source=group.find(d=>d.id===first.id),ordered=group.filter(d=>d.id!==first.id),at=ordered.findIndex(d=>d.id===anchorId);ordered.splice(at<0?ordered.length:at+1,0,source);await persistDebtOrderIds(first.due_date,ordered.map(d=>d.id))}
    closeDebtAction();await load();msg('Parcelamento adicionado.','success');
   }
  }catch(e){msg('Não foi possível salvar: '+e.message,'error')}finally{btn.disabled=false}
