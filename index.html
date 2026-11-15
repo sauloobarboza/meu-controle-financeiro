@@ -455,6 +455,17 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 .debt-row>label input{width:19px;height:19px;accent-color:var(--green)}
 .debt-row-copy{min-width:0}.debt-row-copy strong{display:block;font-size:12px;overflow-wrap:anywhere}.debt-row-copy small{display:block;font-size:10px;color:var(--muted);margin-top:3px}
 .debt-row> b{font-size:12px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.debt-panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.debt-month-filter{display:flex;align-items:center;gap:10px;padding:7px 10px 7px 13px;border:1px solid #c9d8ee;border-radius:14px;background:linear-gradient(135deg,#f4f8ff,#eaf1fc);box-shadow:0 4px 14px #315fba12;min-width:220px}
+.debt-month-filter span{font-size:9px;font-weight:900;letter-spacing:.09em;color:#42618e;white-space:nowrap}
+.debt-month-filter input{width:145px;min-width:0;margin:0;padding:9px 10px;border:1px solid #c8d8f0;border-radius:9px;background:#fff;color:#18365f;font-weight:800;font-size:12px;accent-color:#315fba;color-scheme:light}
+.debt-demo-tag{display:inline-block;vertical-align:middle;margin-left:5px;padding:2px 6px;border-radius:5px;background:#e8f0ff;color:#315fba;font-size:8px;font-style:normal;font-weight:900;letter-spacing:.06em}
+:root[data-theme="dark"] .debt-month-filter{background:linear-gradient(135deg,#1b2e49,#203b5f);border-color:#36577f}
+:root[data-theme="dark"] .debt-month-filter span{color:#a9c9f5}
+:root[data-theme="dark"] .debt-month-filter input{background:#12243b;border-color:#3a5d86;color:#e8f1ff;color-scheme:dark}
+:root[data-theme="dark"] .debt-demo-tag{background:#29466f;color:#c5dcff}
+@media(max-width:520px){.debt-panel-head{align-items:stretch;gap:9px}.debt-month-filter{width:100%;justify-content:space-between;min-width:0}.debt-month-filter input{width:150px}}
+
 .debt-empty{padding:20px 8px;text-align:center;color:var(--muted);font-size:12px}
 .debt-message{font-size:12px;padding:10px 2px;color:var(--muted)}.debt-message[data-kind="error"]{color:var(--red)}.debt-message[data-kind="success"]{color:var(--green)}
 .debt-preview-overlay{position:fixed;inset:0;z-index:60;background:#071629aa;display:flex;align-items:center;justify-content:center;padding:14px}
