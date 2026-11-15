@@ -253,11 +253,11 @@ begin
       installment_number integer, installment_total integer,
       due_date date, source_key text
     )
-    where x.card not in ('Nubank', 'Mercado Pago')
+    where x.card is null or x.card not in ('Nubank', 'Mercado Pago')
        or nullif(btrim(x.description), '') is null
-       or x.amount <= 0
-       or x.installment_number < 1
-       or x.installment_total < x.installment_number
+       or x.amount is null or x.amount <= 0
+       or x.installment_number is null or x.installment_number < 1
+       or x.installment_total is null or x.installment_total < x.installment_number
        or x.installment_total > 60
        or x.due_date is null
        or nullif(btrim(x.source_key), '') is null
