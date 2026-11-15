@@ -838,7 +838,7 @@ async function saveEntry(event){
 
 async function deleteEntry(id,button){
  if(!currentUser||!id)return;const entry=entries.find(e=>e.id===id);if(!entry)return;if(button)button.disabled=true;
- const futureScope=$('modal').classList.contains('open')&&editingEntryId===id&&entry.series_id&&$('editScope').value==='future',targets=futureScope?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry];
+ const editScope=$('editScope'),editModal=$('modal'),futureScope=!!editModal?.classList.contains('open')&&editingEntryId===id&&!!entry.series_id&&editScope?.value==='future',targets=futureScope?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry];
  try{
   let query=supabaseClient.from('transactions').delete().eq('user_id',currentUser.id);
   if(futureScope)query=query.eq('series_id',entry.series_id).gte('transaction_date',entry.date);else query=query.eq('id',id);
