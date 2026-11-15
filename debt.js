@@ -65,7 +65,7 @@ function openDebtDelete(){
  $('confirmDebtDelete').disabled=!sorted.length;$('debtDeleteModal').hidden=false;
 }
 function showDebtUndo(row){
- const toast=$('undoToast');if(!toast)return;
+ undoDebtSnapshot={...row};const toast=$('undoToast');if(!toast)return;
  toast.innerHTML='Parcela excluída. <button type="button" id="undoDebtDelete">Desfazer</button>';toast.hidden=false;
  $('undoDebtDelete').onclick=async()=>{if(!undoDebtSnapshot)return;const restored={...undoDebtSnapshot};const {error}=await supabaseClient.from('card_debt_installments').insert(restored);if(error){msg('Não foi possível desfazer: '+error.message,'error');return}clearTimeout(undoDebtTimer);undoDebtSnapshot=null;toast.hidden=true;await load();if(restored.status==='paid'){try{await syncProjection(restored.card,restored.due_date.slice(0,7))}catch(e){msg('Parcela restaurada; sincronização da Projeção falhou: '+e.message,'error');return}}msg('Exclusão desfeita.','success')};
  clearTimeout(undoDebtTimer);undoDebtTimer=setTimeout(()=>{undoDebtSnapshot=null;toast.hidden=true},6000);
