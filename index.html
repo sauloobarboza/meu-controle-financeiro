@@ -289,6 +289,42 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
   .aurora-spreadsheet tbody tr td:before,.aurora-spreadsheet tbody tr td:nth-child(6):before{font-size:7px}
 }
 
+/* AURORA — visão por mês, sem data/categoria na grade */
+.month-divider td{padding:13px 12px!important;border-top:1px solid var(--line);background:var(--surface-soft);white-space:normal!important}
+.month-divider-main{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.month-divider-main>strong{font-size:12px;letter-spacing:.35px;color:var(--ink)}
+.month-divider-main>span{display:flex;gap:12px;font-size:10px;font-style:normal;font-variant-numeric:tabular-nums}
+.month-divider-main i{font-style:normal;white-space:nowrap}
+.month-out{color:var(--red)}.month-in{color:var(--green)}
+.aurora-spreadsheet{min-width:0}
+.aurora-spreadsheet .account-input,.aurora-spreadsheet .money-input{min-width:0;width:100%}
+.aurora-spreadsheet .drag-cell{width:32px;text-align:center}
+@media(max-width:680px){
+ .aurora-spreadsheet{display:table;width:100%;table-layout:fixed}
+ .aurora-spreadsheet thead{display:table-header-group}
+ .aurora-spreadsheet thead th{padding:8px 4px;font-size:8px;letter-spacing:0;white-space:normal}
+ .aurora-spreadsheet tbody{display:table-row-group}
+ .aurora-spreadsheet tbody tr.spreadsheet-row{display:table-row;background:transparent;border:0;box-shadow:none;border-radius:0;min-width:0}
+ .aurora-spreadsheet tbody tr td{display:table-cell;vertical-align:middle;padding:7px 3px;border-top:1px solid var(--line);white-space:normal;min-width:0}
+ .aurora-spreadsheet tbody tr td:before{display:none!important;content:none!important}
+ .aurora-spreadsheet tbody tr td:nth-child(1){width:34%}
+ .aurora-spreadsheet tbody tr td:nth-child(2),.aurora-spreadsheet tbody tr td:nth-child(3){width:23%;text-align:right}
+ .aurora-spreadsheet tbody tr td:nth-child(4){width:20%;text-align:right}
+ .aurora-spreadsheet tbody tr td:nth-child(5){width:24px;padding:0;text-align:center}
+ .aurora-spreadsheet .cell-input,.aurora-spreadsheet .account-input,.aurora-spreadsheet .money-input{font-size:10px;line-height:1.25;padding:4px 1px;min-width:0;width:100%;max-width:100%;text-align:inherit}
+ .aurora-spreadsheet .account-input{font-weight:750;text-align:left}
+ .aurora-spreadsheet .balance-cell{font-size:10px;font-weight:800;white-space:nowrap}
+ .aurora-spreadsheet .drag-handle{font-size:14px}
+ .aurora-spreadsheet .month-divider td{display:table-cell!important;padding:10px 5px!important}
+ .month-divider-main>strong{font-size:11px}
+ .month-divider-main>span{gap:7px;font-size:9px}
+ .projection-mobile-hint{font-size:10px;margin-bottom:7px}
+}
+@media(max-width:360px){
+ .aurora-spreadsheet thead th{font-size:7px}
+ .aurora-spreadsheet .cell-input,.aurora-spreadsheet .account-input,.aurora-spreadsheet .money-input,.aurora-spreadsheet .balance-cell{font-size:9px}
+ .month-divider-main>span{font-size:8px;gap:5px}
+}
 </style>
 </head>
 <body>
@@ -323,8 +359,7 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 <section class="aurora-page active" data-new-page="home">
 <div class="aurora-balance projection-balance"><div class="aurora-kicker">SALDO PROJETADO</div><div class="aurora-money" id="newBalance">R$ 0,00</div><div class="aurora-balance-sub">Acumulado após todos os lançamentos cadastrados</div><div class="aurora-balance-foot"><span>Atualizado automaticamente</span><strong id="newCurrentMonth"></strong></div></div>
 <div class="projection-intro"><div><h1>Minha projeção</h1><p>Edite seus lançamentos e acompanhe cada saldo.</p></div><div class="projection-add-actions"><button type="button" class="projection-add" id="newExpense">＋ Nova conta</button><button type="button" class="projection-add income-add" id="newIncome">＋ Entrada</button></div></div>
-<div class="projection-mobile-hint">Cada lançamento mostra vencimento, conta, categoria, saída, entrada e saldo na mesma tela.</div>
-<div class="spreadsheet-card"><div class="spreadsheet-scroll"><table class="aurora-spreadsheet"><thead><tr><th>Vencimento</th><th>Conta</th><th>Categoria</th><th class="right">Valor da conta</th><th class="right">Entrada</th><th class="right">Acumulado</th><th></th></tr></thead><tbody id="projectionRows"></tbody></table></div></div>
+<div class="projection-mobile-hint">Lançamentos organizados por mês, com saldo acumulado contínuo.</div><div class="spreadsheet-card"><div class="spreadsheet-scroll"><table class="aurora-spreadsheet"><thead><tr><th>Conta</th><th class="right">Valor da conta</th><th class="right">Entrada</th><th class="right">Acumulado</th><th></th></tr></thead><tbody id="projectionRows"></tbody></table></div></div>
 <div class="projection-footnote">Toque em uma linha para editar. O acumulado é calculado automaticamente.</div>
 </section>
 <section class="aurora-page" data-new-page="reports"><div class="aurora-section-head"><div><span class="aurora-kicker">VISÃO FINANCEIRA</span><h2>Relatórios</h2><p>Entenda o resultado de cada mês.</p></div></div>
@@ -890,9 +925,27 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 const root=document.getElementById('auroraNewUI'),fmt=v=>money(v),monthKey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),currentMonth=()=>monthKey(new Date()),safe=s=>escapeHtml(s||''),title=k=>{const [y,m]=k.split('-').map(Number);return new Date(y,m-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})};
 function sortedRows(){return entries.slice().sort((a,b)=>a.date.localeCompare(b.date)||Number(a.sort_order||0)-Number(b.sort_order||0)||(Date.parse(a.created_at||'')||0)-(Date.parse(b.created_at||'')||0)||String(a.id).localeCompare(String(b.id)))}
 function page(name){root.querySelectorAll('[data-new-page]').forEach(x=>x.classList.toggle('active',x.dataset.newPage===name));document.querySelectorAll('[data-new-tab]').forEach(x=>{const on=x.dataset.newTab===name;x.classList.toggle('active',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});renderNewUI();window.scrollTo({top:0,behavior:'smooth'})}
-function renderProjection(){let running=Number(openingBalance)||0;const rows=sortedRows(),body=$('projectionRows');if(!rows.length){body.innerHTML='<tr><td colspan="7" class="spreadsheet-empty">Nenhum lançamento ainda. Toque em “Nova linha” para começar.</td></tr>';$('newBalance').textContent=fmt(running);return}
-body.innerHTML=rows.map(e=>{running=Math.round((running+(e.type==='income'?1:-1)*Number(e.amount||0))*100)/100;const date=e.date;return '<tr class="spreadsheet-row" draggable="true" data-row-id="'+safe(e.id)+'" data-row-date="'+safe(date)+'"><td><input class="cell-input date-input" type="date" data-field="date" value="'+safe(date)+'" aria-label="Vencimento"></td><td><input class="cell-input account-input" data-field="description" maxlength="70" value="'+safe(e.description)+'" aria-label="Conta"></td><td><input class="cell-input category-input" data-field="category" value="'+safe(e.category)+'" aria-label="Categoria"></td><td class="right expense-cell"><input class="cell-input money-input" data-field="expense" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='expense'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Valor da conta"></td><td class="right income-cell"><input class="cell-input money-input" data-field="income" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='income'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Entrada"></td><td class="right balance-cell">'+fmt(running)+'</td><td><span class="drag-handle" title="Arraste para reorganizar">⠿</span></td></tr>'}).join('')+'';
-}function renderReport(){const key=$('reportMonth').value||currentMonth(),rows=entries.filter(e=>e.date.startsWith(key)),sum=(type)=>rows.filter(e=>e.type===type).reduce((a,e)=>a+Number(e.amount||0),0),income=sum('income'),expense=sum('expense');$('reportIncome').textContent=fmt(income);$('reportExpense').textContent=fmt(expense);const result=income-expense;$('reportResult').textContent=fmt(result);$('reportResult').style.color=result>=0?'var(--green)':'var(--red)';const [ry,rm]=key.split('-').map(Number),monthEnd=key+'-'+String(new Date(ry,rm,0).getDate()).padStart(2,'0');const last=sortedRows().filter(e=>e.date<=monthEnd).reduce((v,e)=>v+(e.type==='income'?1:-1)*Number(e.amount||0),Number(openingBalance)||0);$('reportBalance').textContent=fmt(last);const grouped={};rows.filter(e=>e.type==='expense').forEach(e=>{const n=e.description||e.category;grouped[n]=(grouped[n]||0)+Number(e.amount||0)});const ranking=Object.entries(grouped).sort((a,b)=>b[1]-a[1]).slice(0,10);$('reportRanking').innerHTML=ranking.length?ranking.map(([n,v],i)=>'<div class="ranking-row"><div class="ranking-main"><span class="ranking-number">'+(i+1)+'</span><div class="ranking-copy"><strong>'+safe(n)+'</strong><div class="ranking-track"><i style="width:'+Math.min(100,expense?v/expense*100:0)+'%"></i></div></div></div><div class="ranking-value"><strong>'+fmt(v)+'</strong><small>'+(expense?(v/expense*100).toFixed(1).replace('.',','):'0,0')+'%</small></div></div>').join(''):'<div class="insight-empty">Ainda não há despesas cadastradas neste mês.</div>'}
+function renderProjection(){
+ let running=Number(openingBalance)||0;
+ const rows=sortedRows(),body=$('projectionRows');
+ if(!rows.length){body.innerHTML='<tr><td colspan="5" class="spreadsheet-empty">Nenhum lançamento ainda. Toque em “Nova conta” ou “Entrada” para começar.</td></tr>';$('newBalance').textContent=fmt(running);return}
+ const groups=new Map();
+ rows.forEach(e=>{const key=String(e.date||'').slice(0,7);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(e)});
+ let html='';
+ for(const [key,items] of groups){
+  const [year,month]=key.split('-').map(Number);
+  const label=new Date(year,month-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());
+  const out=items.filter(e=>e.type==='expense').reduce((sum,e)=>sum+Number(e.amount||0),0);
+  const inc=items.filter(e=>e.type==='income').reduce((sum,e)=>sum+Number(e.amount||0),0);
+  html+='<tr class="month-divider"><td colspan="5"><div class="month-divider-main"><strong>'+safe(label)+'</strong><span><i class="month-out">'+fmt(out)+'</i><i class="month-in">'+fmt(inc)+'</i></span></div></td></tr>';
+  for(const e of items){
+   running=Math.round((running+(e.type==='income'?1:-1)*Number(e.amount||0))*100)/100;
+   html+='<tr class="spreadsheet-row" draggable="true" data-row-id="'+safe(e.id)+'" data-row-date="'+safe(e.date)+'"><td class="account-cell"><input class="cell-input account-input" data-field="description" maxlength="70" value="'+safe(e.description)+'" aria-label="Conta"></td><td class="right expense-cell"><input class="cell-input money-input" data-field="expense" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='expense'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Valor da conta"></td><td class="right income-cell"><input class="cell-input money-input" data-field="income" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='income'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Entrada"></td><td class="right balance-cell">'+fmt(running)+'</td><td class="drag-cell"><span class="drag-handle" title="Arraste para reorganizar">⠿</span></td></tr>';
+  }
+ }
+ body.innerHTML=html;
+}
+function renderReport(){const key=$('reportMonth').value||currentMonth(),rows=entries.filter(e=>e.date.startsWith(key)),sum=(type)=>rows.filter(e=>e.type===type).reduce((a,e)=>a+Number(e.amount||0),0),income=sum('income'),expense=sum('expense');$('reportIncome').textContent=fmt(income);$('reportExpense').textContent=fmt(expense);const result=income-expense;$('reportResult').textContent=fmt(result);$('reportResult').style.color=result>=0?'var(--green)':'var(--red)';const [ry,rm]=key.split('-').map(Number),monthEnd=key+'-'+String(new Date(ry,rm,0).getDate()).padStart(2,'0');const last=sortedRows().filter(e=>e.date<=monthEnd).reduce((v,e)=>v+(e.type==='income'?1:-1)*Number(e.amount||0),Number(openingBalance)||0);$('reportBalance').textContent=fmt(last);const grouped={};rows.filter(e=>e.type==='expense').forEach(e=>{const n=e.description||e.category;grouped[n]=(grouped[n]||0)+Number(e.amount||0)});const ranking=Object.entries(grouped).sort((a,b)=>b[1]-a[1]).slice(0,10);$('reportRanking').innerHTML=ranking.length?ranking.map(([n,v],i)=>'<div class="ranking-row"><div class="ranking-main"><span class="ranking-number">'+(i+1)+'</span><div class="ranking-copy"><strong>'+safe(n)+'</strong><div class="ranking-track"><i style="width:'+Math.min(100,expense?v/expense*100:0)+'%"></i></div></div></div><div class="ranking-value"><strong>'+fmt(v)+'</strong><small>'+(expense?(v/expense*100).toFixed(1).replace('.',','):'0,0')+'%</small></div></div>').join(''):'<div class="insight-empty">Ainda não há despesas cadastradas neste mês.</div>'}
 function renderInsights(){const key=$('insightMonth').value||currentMonth(),[y,m]=key.split('-').map(Number),prev=monthKey(new Date(y,m-2,1,12)),rows=entries.filter(e=>e.date.startsWith(key)),previous=entries.filter(e=>e.date.startsWith(prev)),cards=[],byName=list=>{const o={};list.filter(e=>e.type==='expense').forEach(e=>{const n=e.description||e.category;o[n]=(o[n]||0)+Number(e.amount||0)});return o},now=byName(rows),before=byName(previous);Object.entries(now).forEach(([n,v])=>{if(before[n]>0){const pct=(v-before[n])/before[n]*100;if(pct>=10)cards.push({kind:'warning',title:n+' ficou mais cara',text:'Aumentou '+pct.toFixed(0)+'% em relação ao mês anterior ('+fmt(before[n])+' → '+fmt(v)+').',tip:'Confira o consumo, a tarifa ou a possibilidade de renegociar esse custo.'})}});const inc=rows.filter(e=>e.type==='income').reduce((a,e)=>a+e.amount,0),out=rows.filter(e=>e.type==='expense').reduce((a,e)=>a+e.amount,0);if(rows.length&&out>inc)cards.push({kind:'danger',title:'Atenção ao resultado do mês',text:'As despesas cadastradas superam as entradas em '+fmt(out-inc)+'.',tip:'Revise gastos variáveis e evite novos compromissos até equilibrar o mês.'});if(out>0){const cats={};rows.filter(e=>e.type==='expense').forEach(e=>cats[e.category]=(cats[e.category]||0)+e.amount);const [cat,val]=Object.entries(cats).sort((a,b)=>b[1]-a[1])[0]||[];if(cat&&val/out>=.4)cards.push({kind:'info',title:'Concentração em '+cat,text:cat+' representa '+(val/out*100).toFixed(0)+'% das despesas cadastradas.',tip:'Avalie se existe margem para reduzir esse custo.'})}if(!previous.length&&rows.length)cards.push({kind:'info',title:'Seu histórico está começando',text:'Ainda não há dados do mês anterior para comparação.',tip:'Continue registrando suas movimentações para gerar análises mais precisas.'});if(!rows.length)cards.push({kind:'info',title:'Vamos começar pelo planejamento',text:'Não encontramos lançamentos para '+title(key)+'.',tip:'Cadastre suas contas e entradas na aba Projeção para receber análises personalizadas.'});if(rows.length&&inc>=out)cards.push({kind:'success',title:'Mês com resultado positivo',text:'As entradas superam as despesas em '+fmt(inc-out)+'.',tip:'Se o valor estiver livre de compromissos futuros, considere reservar uma parte.'});$('insightCards').innerHTML=cards.map(c=>'<article class="insight-card '+c.kind+'"><div class="insight-icon">'+(c.kind==='warning'?'↗':c.kind==='danger'?'!':c.kind==='success'?'✓':'✧')+'</div><div><strong>'+safe(c.title)+'</strong><p>'+safe(c.text)+'</p><small>IDEIA PRÁTICA</small><div class="insight-tip">'+safe(c.tip)+'</div></div></article>').join('')}
 let draggedRowId=null;
 let insertionType='expense';function openInsertPicker(type='expense'){insertionType=type;const rows=sortedRows(),select=$('insertAfterSelect');select.innerHTML='<option value="">No final da data escolhida</option>'+rows.map(e=>'<option value="'+safe(e.id)+'">'+new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')+' · '+safe(e.description)+'</option>').join('');$('insertPicker').hidden=false}
