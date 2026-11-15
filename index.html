@@ -190,6 +190,47 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 .cell-input{width:100%;min-width:90px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--ink);padding:7px 6px;font:inherit;outline:none}.cell-input:focus{background:var(--card);border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 15%,transparent)}.account-input{min-width:145px;font-weight:750}.category-input{min-width:105px}.date-input{min-width:126px}.money-input{min-width:100px;text-align:right;font-variant-numeric:tabular-nums}.drag-handle{display:inline-block;color:var(--muted);font-size:19px;cursor:grab;touch-action:none}.spreadsheet-row.dragging{opacity:.45}.insert-picker{position:fixed;inset:0;z-index:20;background:#07162980;display:flex;align-items:flex-end;justify-content:center;padding:16px}.insert-picker[hidden]{display:none}.insert-picker-panel{width:min(100%,480px);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 24px 80px #06162e50;animation:sheetUp .24s cubic-bezier(.2,.8,.2,1)}.insert-picker-grabber{width:38px;height:4px;border-radius:9px;background:var(--line);margin:-8px auto 17px}.insert-picker-panel h2{font-size:20px;margin:7px 0}.insert-picker-panel p{font-size:12px;color:var(--muted);margin:0 0 14px}.insert-picker-panel select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}.insert-picker-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:17px}@keyframes sheetUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){.insert-picker-panel{animation:none}}
 
 .projection-add-actions{display:flex;gap:8px;align-items:center}.projection-add.income-add{background:linear-gradient(110deg,#147d68,#22a887);box-shadow:0 7px 18px #147d6830}@media(max-width:600px){.projection-add-actions{gap:6px}.projection-add-actions .projection-add{font-size:10px;padding:10px 9px}}
+
+/* AURORA — leitura integral dos lançamentos em telas pequenas */
+@media(max-width:680px){
+  .projection-mobile-hint{font-size:12px;line-height:1.45;margin:0 0 10px;color:var(--muted)}
+  .spreadsheet-card{overflow:visible;background:transparent;border:0;box-shadow:none}
+  .spreadsheet-scroll{overflow:visible}
+  .aurora-spreadsheet{display:block;width:100%;min-width:0;border:0;border-spacing:0}
+  .aurora-spreadsheet thead{display:none}
+  .aurora-spreadsheet tbody{display:grid;gap:11px}
+  .aurora-spreadsheet tbody tr.spreadsheet-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"date account" "category category" "expense income" "balance balance";gap:0 10px;padding:12px 13px;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 16px #10233c08;min-width:0}
+  .aurora-spreadsheet tbody tr td{display:flex;flex-direction:column;justify-content:center;align-items:stretch;min-width:0;white-space:normal;padding:7px 0;border:0;text-align:left}
+  .aurora-spreadsheet tbody tr td:before{display:block;margin:0 0 4px;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.45px;text-transform:uppercase;line-height:1.2}
+  .aurora-spreadsheet tbody tr td:nth-child(1){grid-area:date}
+  .aurora-spreadsheet tbody tr td:nth-child(1):before{content:"Vencimento"}
+  .aurora-spreadsheet tbody tr td:nth-child(2){grid-area:account}
+  .aurora-spreadsheet tbody tr td:nth-child(2):before{content:"Conta"}
+  .aurora-spreadsheet tbody tr td:nth-child(3){grid-area:category;border-top:1px solid var(--line);margin-top:4px;padding-top:9px}
+  .aurora-spreadsheet tbody tr td:nth-child(3):before{content:"Categoria"}
+  .aurora-spreadsheet tbody tr td:nth-child(4){grid-area:expense;border-top:1px solid var(--line);margin-top:4px;padding-top:9px}
+  .aurora-spreadsheet tbody tr td:nth-child(4):before{content:"Valor da conta"}
+  .aurora-spreadsheet tbody tr td:nth-child(5){grid-area:income;border-top:1px solid var(--line);margin-top:4px;padding-top:9px}
+  .aurora-spreadsheet tbody tr td:nth-child(5):before{content:"Entrada"}
+  .aurora-spreadsheet tbody tr td:nth-child(6){grid-area:balance;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;margin-top:7px;padding:10px 11px;background:var(--surface-soft);border-radius:10px;color:var(--blue);font-size:14px;font-weight:850}
+  .aurora-spreadsheet tbody tr td:nth-child(6):before{content:"Acumulado";margin:0;font-size:10px;color:var(--muted)}
+  .aurora-spreadsheet tbody tr td:nth-child(7){display:none}
+  .aurora-spreadsheet .right{text-align:left}
+  .cell-input,.account-input,.category-input,.date-input,.money-input{width:100%;min-width:0;max-width:100%;padding:6px 3px;font-size:13px;line-height:1.35;border-radius:7px}
+  .account-input{font-weight:800}
+  .date-input{font-size:12px}
+  .money-input{text-align:left;font-weight:800;font-size:14px}
+  .expense-cell .money-input{color:var(--red)}
+  .income-cell .money-input{color:var(--green)}
+  .balance-cell{font-variant-numeric:tabular-nums}
+  .spreadsheet-empty{display:block!important}
+}
+@media(max-width:360px){
+  .aurora-spreadsheet tbody tr.spreadsheet-row{padding:10px}
+  .cell-input,.account-input,.category-input,.date-input,.money-input{font-size:12px}
+  .date-input{letter-spacing:-.5px}
+}
+
 </style>
 </head>
 <body>
@@ -224,7 +265,7 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 <section class="aurora-page active" data-new-page="home">
 <div class="aurora-balance projection-balance"><div class="aurora-kicker">SALDO PROJETADO</div><div class="aurora-money" id="newBalance">R$ 0,00</div><div class="aurora-balance-sub">Acumulado após todos os lançamentos cadastrados</div><div class="aurora-balance-foot"><span>Atualizado automaticamente</span><strong id="newCurrentMonth"></strong></div></div>
 <div class="projection-intro"><div><h1>Minha projeção</h1><p>Edite seus lançamentos e acompanhe cada saldo.</p></div><div class="projection-add-actions"><button type="button" class="projection-add" id="newExpense">＋ Nova conta</button><button type="button" class="projection-add income-add" id="newIncome">＋ Entrada</button></div></div>
-<div class="projection-mobile-hint">Deslize para o lado para ver todas as colunas →</div>
+<div class="projection-mobile-hint">Cada lançamento mostra vencimento, conta, categoria, saída, entrada e saldo na mesma tela.</div>
 <div class="spreadsheet-card"><div class="spreadsheet-scroll"><table class="aurora-spreadsheet"><thead><tr><th>Vencimento</th><th>Conta</th><th>Categoria</th><th class="right">Valor da conta</th><th class="right">Entrada</th><th class="right">Acumulado</th><th></th></tr></thead><tbody id="projectionRows"></tbody></table></div></div>
 <div class="projection-footnote">Toque em uma linha para editar. O acumulado é calculado automaticamente.</div>
 </section>
