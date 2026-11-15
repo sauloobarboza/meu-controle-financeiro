@@ -30,15 +30,16 @@ self.addEventListener('fetch',event=>{
  if(request.method!=='GET')return;
 
  if(request.mode==='navigate'){
-  event.respondWith((async()=>{
+  const refresh=(async()=>{
    const cache=await caches.open(CACHE);
-   const cached=await cache.match('./index.html');
-   const update=fetch(request).then(response=>{
-    if(response.ok)cache.put('./index.html',response.clone());
-    return response;
-   });
-   if(cached){event.waitUntil(update.catch(()=>{}));return cached}
-   try{return await update}catch(_){return Response.error()}
+   try{const response=await fetch(request);if(response.ok)await cache.put('./index.html',response.clone())}
+   catch(error){/* A cópia em cache continua disponível. */}
+  })();
+  event.waitUntil(refresh);
+  event.respondWith((async()=>{
+   const cache=await caches.open(CACHE),cached=await cache.match('./index.html');
+   if(cached)return cached;
+   try{return await fetch(request)}catch(_){return Response.error()}
   })());
   return;
  }
@@ -46,14 +47,15 @@ self.addEventListener('fetch',event=>{
  const isSupabaseLibrary=url.href===SUPABASE_LIB;
  if(url.origin!==self.location.origin&&!isSupabaseLibrary)return;
 
- event.respondWith((async()=>{
+ const refresh=(async()=>{
   const cache=await caches.open(CACHE);
-  const cached=await cache.match(request);
-  const update=fetch(request).then(response=>{
-   if(response.ok)cache.put(request,response.clone());
-   return response;
-  });
-  if(cached){event.waitUntil(update.catch(()=>{}));return cached}
-  try{return await update}catch(_){return Response.error()}
+  try{const response=await fetch(request);if(response.ok)await cache.put(request,response.clone())}
+  catch(error){/* A cópia em cache continua disponível. */}
+ })();
+ event.waitUntil(refresh);
+ event.respondWith((async()=>{
+  const cache=await caches.open(CACHE),cached=await cache.match(request);
+  if(cached)return cached;
+  try{return await fetch(request)}catch(_){return Response.error()}
  })());
 });
