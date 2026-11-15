@@ -473,6 +473,26 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 :root[data-theme="dark"] .debt-demo-tag{background:#29466f;color:#c5dcff}
 @media(max-width:520px){.debt-panel-head{align-items:stretch;gap:9px}.debt-month-filter{width:100%;justify-content:space-between;min-width:0}.debt-month-filter input{width:150px}}
 
+
+.debt-main-head{align-items:center;gap:14px;flex-wrap:wrap}
+.debt-main-actions{display:flex;gap:8px;flex-wrap:wrap}
+.debt-main-actions .btn{min-width:112px}
+.debt-row{grid-template-columns:30px 25px minmax(0,1fr) auto auto;gap:8px}
+.debt-row.debt-dragging{opacity:.45}
+.debt-row.debt-drop-target{outline:2px dashed var(--blue);outline-offset:-3px;background:color-mix(in srgb,var(--blue) 7%,transparent)}
+.debt-drag-handle{border:0;background:transparent;color:var(--muted);font-size:22px;line-height:1;padding:5px;cursor:grab;touch-action:none}
+.debt-paid-control{display:flex;align-items:center;justify-content:center}
+.debt-paid-control input{width:18px;height:18px;accent-color:var(--green)}
+.debt-edit-btn{border:1px solid var(--line);background:var(--bg);color:var(--blue);border-radius:8px;padding:6px 9px;font-size:10px;font-weight:800}
+.debt-action-dialog .field{display:flex;flex-direction:column;gap:5px;margin:10px 0}
+.debt-action-dialog .field span{font-size:11px;color:var(--muted);font-weight:700}
+.debt-action-dialog .field input,.debt-action-dialog .field select{width:100%;min-width:0;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+.debt-form-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.debt-action-dialog .formactions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+#undoToast{z-index:100}
+#undoToast button{margin-left:10px;border:0;border-radius:7px;padding:6px 10px;background:#fff;color:#2946b4;font-weight:800}
+@media(max-width:520px){.debt-main-head{align-items:flex-start}.debt-main-actions{width:100%}.debt-main-actions .btn{flex:1;min-width:0}.debt-row{grid-template-columns:25px 22px minmax(0,1fr) auto;gap:6px;padding:11px 0}.debt-row> b{grid-column:3;justify-self:start}.debt-edit-btn{grid-column:4;grid-row:1 / span 2}.debt-row-copy{grid-column:3;grid-row:1}.debt-paid-control{grid-column:2;grid-row:1}.debt-drag-handle{grid-column:1;grid-row:1}.debt-form-pair{gap:7px}}
+
 .debt-empty{padding:20px 8px;text-align:center;color:var(--muted);font-size:12px}
 .debt-message{font-size:12px;padding:10px 2px;color:var(--muted)}.debt-message[data-kind="error"]{color:var(--red)}.debt-message[data-kind="success"]{color:var(--green)}
 .debt-preview-overlay{position:fixed;inset:0;z-index:60;background:#071629aa;display:flex;align-items:center;justify-content:center;padding:14px}
@@ -1153,5 +1173,5 @@ const oldRender=render;render=function(){oldRender();renderNewUI()};
 document.addEventListener('DOMContentLoaded',()=>{const now=currentMonth();$('reportMonth').value=now;$('insightMonth').value=now;$('newExpense').addEventListener('click',()=>openInsertPicker('expense'));$('newIncome').addEventListener('click',()=>openInsertPicker('income'));$('auroraNewNav').addEventListener('click',e=>{const b=e.target.closest('[data-new-tab]');if(b)page(b.dataset.newTab)});root.addEventListener('change',handleCellChange);root.addEventListener('dragstart',handleDragStart);root.addEventListener('dragover',handleDragOver);root.addEventListener('drop',handleDrop);root.addEventListener('pointerdown',handlePointerDown);root.addEventListener('pointermove',handlePointerMove);root.addEventListener('pointerup',handlePointerUp);root.addEventListener('pointercancel',handlePointerUp); $('openDeletePicker').addEventListener('click',openDeletePicker);$('cancelDeletePicker').addEventListener('click',closeDeletePicker);$('continueDelete').addEventListener('click',beginDeleteSelected);$('deletePicker').addEventListener('click',e=>{if(e.target===$('deletePicker'))closeDeletePicker()});$('projectionMonthChoice').addEventListener('change',()=>{localStorage.setItem('aurora_projection_month',$('projectionMonthChoice').value);renderNewUI();const card=document.querySelector('.projection-balance');card?.classList.remove('month-changed');requestAnimationFrame(()=>card?.classList.add('month-changed'))});$('cancelInsert').addEventListener('click',closeInsertPicker);$('cancelBtn').addEventListener('click',()=>{window.auroraInsertAfterId=null});$('confirmInsert').addEventListener('click',confirmInsertPicker);['reportMonth','insightMonth'].forEach(id=>$(id).addEventListener('change',renderNewUI));const saved=localStorage.getItem('aurora_theme')||'light';document.documentElement.dataset.theme=saved;const btn=$('themeToggle'),update=()=>{const dark=document.documentElement.dataset.theme==='dark';btn.innerHTML=dark?'☀ <span>Claro</span>':'☾ <span>Escuro</span>';btn.setAttribute('aria-label',dark?'Ativar tema claro':'Ativar tema escuro')};update();btn.addEventListener('click',()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('aurora_theme',document.documentElement.dataset.theme);update()});const observer=new MutationObserver(()=>{const visible=!$('dashboard').hidden;root.hidden=!visible;$('auroraNewNav').hidden=!visible;if(visible)renderNewUI()});observer.observe($('dashboard'),{attributes:true,attributeFilter:['hidden']});root.hidden=$('dashboard').hidden;$('auroraNewNav').hidden=$('dashboard').hidden});
 })();
 </script>
-<script src="./debt.js?v=49"></script>
+<script src="./debt.js?v=50"></script>
 </body></html>
