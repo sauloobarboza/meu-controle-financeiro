@@ -1118,34 +1118,7 @@ function handleDragOver(event){const row=event.target.closest('tr[data-row-id]')
 async function persistRowOrder(sourceId,targetId){const source=entries.find(e=>e.id===sourceId),target=entries.find(e=>e.id===targetId);if(!source||!target||source.date!==target.date)return;const same=sortedRows().filter(e=>e.date===source.date),ordered=same.filter(e=>e.id!==source.id),at=ordered.findIndex(e=>e.id===target.id);ordered.splice(at<0?ordered.length:at,0,source);try{const ids=ordered.map(e=>e.id),{error}=await supabaseClient.rpc('reorder_transactions_for_date',{p_transaction_date:source.date,p_order:ids});if(error)throw error;ordered.forEach((e,i)=>e.sort_order=i);renderNewUI();setMessage('Ordem das contas atualizada.','success')}catch(error){setMessage('Não foi possível reorganizar as contas: '+friendlyError(error),'error',error)}finally{draggedRowId=null;root.querySelectorAll('.dragging,.drop-target').forEach(x=>x.classList.remove('dragging','drop-target'))}}
 async function handleDrop(event){const row=event.target.closest('tr[data-row-id]');if(!row||!draggedRowId)return;event.preventDefault();await persistRowOrder(draggedRowId,row.dataset.rowId)}
 let touchDrag={id:null,pointerId:null};
-let swipeGesture=null,swipeDeleteEntryId=null;
-function handleSwipeStart(event){
- if(event.target.closest('.drag-handle'))return;
- const row=event.target.closest('tr[data-row-id]');
- if(!row)return;
- swipeGesture={id:row.dataset.rowId,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,lastX:event.clientX,lastY:event.clientY,row,moved:false};
- try{row.setPointerCapture(event.pointerId)}catch(_){}
-}
-function handleSwipeMove(event){
- if(!swipeGesture||swipeGesture.pointerId!==event.pointerId)return;
- const dx=event.clientX-swipeGesture.startX,dy=event.clientY-swipeGesture.startY;
- swipeGesture.lastX=event.clientX;swipeGesture.lastY=event.clientY;
- if(Math.abs(dy)>Math.max(12,Math.abs(dx)*1.15)){swipeGesture.row.classList.remove('swipe-gesture-active');swipeGesture=null;return}
- if(dx<-8){swipeGesture.moved=true;swipeGesture.row.classList.add('swipe-gesture-active');if(event.cancelable)event.preventDefault()}
-}
-function handleSwipeCancel(event){
- if(!swipeGesture||swipeGesture.pointerId!==event.pointerId)return;
- swipeGesture.row.classList.remove('swipe-gesture-active');swipeGesture=null;
-}
-function handleSwipeEnd(event){
- if(!swipeGesture||swipeGesture.pointerId!==event.pointerId)return;
- const gesture=swipeGesture;swipeGesture=null;
- const dx=(Number.isFinite(event.clientX)?event.clientX:gesture.lastX)-gesture.startX;
- const dy=(Number.isFinite(event.clientY)?event.clientY:gesture.lastY)-gesture.startY;
- gesture.row.classList.remove('swipe-gesture-active');
- if(gesture.moved&&dx<=-42&&Math.abs(dy)<70)openSwipeDelete(gesture.id);
-}
-function openSwipeDelete(id){const entry=entries.find(e=>e.id===id);if(!entry)return;swipeDeleteEntryId=id;$('swipeDeleteDescription').innerHTML='A conta <strong>'+safe(entry.description||'Sem descrição')+'</strong> será removida da projeção. Todos os saldos acumulados, relatórios e indicadores serão recalculados.';$('swipeDeleteModal').classList.add('open');$('cancelSwipeDelete').focus()}
+let swipeDeleteEntryId=null;
 function closeSwipeDelete(){$('swipeDeleteModal').classList.remove('open');swipeDeleteEntryId=null}
 async function confirmSwipeDelete(){const id=swipeDeleteEntryId;if(!id)return;const button=$('confirmSwipeDelete');button.disabled=true;button.textContent='Excluindo…';try{closeSwipeDelete();await deleteEntry(id,button)}finally{button.disabled=false;button.textContent='Excluir lançamento'}}
 function handlePointerDown(event){const handle=event.target.closest('.drag-handle');if(!handle||event.pointerType==='mouse')return;const row=handle.closest('tr[data-row-id]');if(!row)return;touchDrag={id:row.dataset.rowId,pointerId:event.pointerId};draggedRowId=touchDrag.id;row.classList.add('dragging');handle.setPointerCapture?.(event.pointerId);event.preventDefault()}
