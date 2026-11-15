@@ -1,6 +1,6 @@
-const CACHE='aurora-cache-v47';
+const CACHE='aurora-cache-v48';
 const SUPABASE_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0';
-const SHELL=['./','./index.html','./debt.js?v=53','./manifest.webmanifest','./icons/icon.svg'];
+const SHELL=['./','./index.html','./debt.js?v=53','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png','./icons/apple-touch-icon.png'];
 
 self.addEventListener('install',event=>{
  event.waitUntil((async()=>{
