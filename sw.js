@@ -1,4 +1,5 @@
-const CACHE='aurora-cache-v48';
+const CACHE='aurora-meu-controle-financeiro-cache-v49';
+const LEGACY_CACHE='aurora-cache-v48';
 const SUPABASE_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0';
 const SHELL=['./','./index.html','./debt.js?v=53','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png','./icons/apple-touch-icon.png'];
 
@@ -20,7 +21,7 @@ self.addEventListener('message',event=>{
 self.addEventListener('activate',event=>{
  event.waitUntil((async()=>{
   const keys=await caches.keys();
-  await Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)));
+  await Promise.all(keys.filter(key=>key===LEGACY_CACHE||key.startsWith('aurora-meu-controle-financeiro-cache-')).filter(key=>key!==CACHE).map(key=>caches.delete(key)));
   await self.clients.claim();
  })());
 });
