@@ -15,6 +15,7 @@ on:
       - "tests/**"
       - "supabase/migrations/**"
       - "icons/*.png"
+      - "icons/*.svg"
       - "sw.js"
       - "manifest.webmanifest"
       - "supabase/functions/aurora-assistant/index.ts"
