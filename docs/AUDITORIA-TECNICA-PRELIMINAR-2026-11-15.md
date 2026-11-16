@@ -162,3 +162,14 @@ Limitações ainda existentes:
 7. Advisor de índices precisa ser reavaliado com planos de execução antes de qualquer DDL.
 
 A branch continua isolada; não houve deploy, merge ou escrita no banco de produção.
+
+
+### Ícone maskable — resolvido na branch
+
+- Criado `icons/icon-maskable.svg` como arte vetorial independente.
+- O símbolo foi centralizado e reduzido para respeitar a safe zone de ícones adaptáveis.
+- O manifesto agora aponta para o SVG dedicado com `purpose: maskable`.
+- O Service Worker inclui o novo SVG no shell e a versão de cache foi incrementada para v52.
+- O workflow agora valida o XML do SVG.
+
+A validação visual em launchers Android reais continua pendente; a safe zone foi projetada no SVG, mas não foi verificada em diferentes máscaras de fabricante.
