@@ -625,6 +625,7 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0" defer crossorigin="anonymous"></script>
+<script src="./pagination.js?v=1"></script>
 <script>
 'use strict';
 const SUPABASE_URL='https://dqhyiggxcxczdcopdyec.supabase.co';
@@ -805,16 +806,15 @@ async function updateEntryStatus(id,button){
 }
 async function loadEntries(userId){
  if(!userId||!currentUser||currentUser.id!==userId)throw new Error('Sessão inválida. Entre novamente.');
- const [transactionsResult,settingsResult]=await Promise.all([
-  supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,status,created_at,series_id,needs_review,sort_order').eq('user_id',userId).order('transaction_date',{ascending:false}).order('created_at',{ascending:false}),
+ const [transactionRows,settingsResult]=await Promise.all([
+  window.AuroraPagination.fetchAllTransactions(supabaseClient,userId),
   supabaseClient.from('apartment_settings').select('opening_balance').eq('user_id',userId).maybeSingle()
  ]);
- if(transactionsResult.error)throw transactionsResult.error;
  if(settingsResult.error)throw settingsResult.error;
- entries=(transactionsResult.data||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,created_at:row.created_at||null,sort_order:Number(row.sort_order||0),status:row.status||'recorded',series_id:row.series_id||null,needs_review:!!row.needs_review}));
+ entries=transactionRows.map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,created_at:row.created_at||null,sort_order:Number(row.sort_order||0),status:row.status||'recorded',series_id:row.series_id||null,needs_review:!!row.needs_review}));
  if(settingsResult.data){openingBalance=Number(settingsResult.data.opening_balance||0)}else{const {error:settingsInsertError}=await supabaseClient.from('apartment_settings').insert({user_id:userId,opening_balance:0});if(settingsInsertError)throw settingsInsertError;openingBalance=0}
  loadUserCategories(userId);
- // Mantém o histórico completo: ele é necessário para calcular o saldo acumulado corretamente.
+ // Mantém o histórico completo: a paginação busca todas as páginas para calcular o saldo acumulado corretamente.
  localStorage.removeItem(LOCAL_DATA_KEY);
  localStorage.setItem('mcf_cloud_migrated_'+userId,'1');
  render();
