@@ -40,13 +40,16 @@ begin
   if auth.uid() is null or auth.uid() <> p_user_id then
     raise exception 'Authentication required';
   end if;
-  if p_card not in ('Nubank', 'Mercado Pago') then
+  if p_card is null or p_card not in ('Nubank', 'Mercado Pago') then
     raise exception 'Invalid card';
+  end if;
+  if p_month is null then
+    raise exception 'Invalid month';
   end if;
 
   select
     coalesce(sum(i.amount) filter (where i.status = 'paid'), 0),
-    min(i.due_date)
+    min(i.due_date) filter (where i.status = 'paid')
   into v_total, v_date
   from public.card_debt_installments as i
   where i.user_id = p_user_id
@@ -133,9 +136,9 @@ declare
   v_row public.card_debt_installments;
 begin
   if v_user_id is null then raise exception 'Authentication required'; end if;
-  if p_card not in ('Nubank', 'Mercado Pago')
+  if p_card is null or p_card not in ('Nubank', 'Mercado Pago')
      or nullif(btrim(p_description), '') is null
-     or p_amount <= 0
+     or p_amount is null or p_amount <= 0
      or p_due_date is null then
     raise exception 'Invalid installment values';
   end if;
@@ -214,7 +217,8 @@ begin
   where user_id = v_user_id and due_date = p_due_date
     and id = any(coalesce(p_order, array[]::uuid[]));
 
-  if coalesce(cardinality(p_order), 0) <> v_expected
+  if p_due_date is null
+     or coalesce(cardinality(p_order), 0) <> v_expected
      or v_owned <> v_expected
      or v_distinct <> v_expected then
     raise exception 'Order must contain every installment for this date exactly once';
