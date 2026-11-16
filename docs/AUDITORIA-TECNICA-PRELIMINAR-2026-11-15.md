@@ -1,89 +1,105 @@
-# Aurora — Auditoria técnica preliminar
+# Aurora — Auditoria técnica e correções da primeira rodada
 
-Data: 2026-11-15  
-Escopo: leitura estática da branch `hardening/atomic-offline-performance`, inspeção read-only do schema/RLS e advisors do Supabase.  
-Status: diagnóstico preliminar; não equivale a homologação funcional nem auditoria de segurança independente.
+Data: 2026-11-16  
+Escopo: leitura estática da branch `hardening/atomic-offline-performance`, inspeção read-only do schema/RLS e advisors do Supabase, correções no código da branch.  
+Status: correções de código aplicadas; homologação funcional e de banco ainda pendente.
 
 ## Proteção de produção
 
 - A branch `main` não foi alterada.
 - Nenhuma migration foi aplicada.
 - Nenhum registro foi inserido, atualizado ou excluído.
-- O schema atual de produção ainda não contém `transactions.source_key`; a migration desta branch não está implantada.
-- A tabela `card_debt_installments` contém 13 registros no momento da inspeção: 11 Nubank e 2 Mercado Pago, todos pendentes.
-- Foi encontrada 1 transação legada que corresponde ao padrão de projeção de cartão. A migration prevê backfill para ela.
+- O schema de produção ainda não contém `transactions.source_key`; as RPCs desta branch não estão implantadas.
+- A tabela `card_debt_installments` continha 13 registros na inspeção inicial: 11 Nubank e 2 Mercado Pago, todos pendentes.
+- Foi encontrada 1 transação legada correspondente ao padrão de projeção de cartão; a migration prevê backfill.
 
-## O que foi validado
+## Correções aplicadas nesta rodada
 
-- GitHub Actions run `43777622490`: conclusão `success`.
-- O job executou verificações de sintaxe dos scripts inline, `debt.js`, `sw.js` e parse do manifesto.
+### 1. Service Worker — isolamento de Cache Storage
+
+Arquivo: `sw.js`.
+
+- Novo cache: `aurora-meu-controle-financeiro-cache-v49`.
+- A ativação agora remove somente o cache legado conhecido `aurora-cache-v48` e versões com o prefixo exclusivo `aurora-meu-controle-financeiro-cache-`.
+- Deixa de apagar indiscriminadamente caches de outros projetos publicados na mesma origem.
+
+Ainda precisa de teste real de atualização, rollback, instalação limpa e coexistência com outro PWA na mesma origem.
+
+### 2. RPC de projeção — validação de parâmetros e data
+
+Arquivo: `supabase/migrations/20261115235900_atomic_card_debt_operations.sql`.
+
+- `sync_card_debt_projection` agora rejeita explicitamente cartão e mês nulos.
+- A data da projeção agora considera a menor data de vencimento entre as parcelas efetivamente pagas, coerente com o total que soma apenas parcelas pagas.
+- `update_card_debt_installment` agora rejeita valor nulo.
+- `reorder_card_debt_installments` agora rejeita data nula.
+
+A migration continua NÃO aplicada. Ainda é necessário executá-la em banco descartável e validar funções, grants, RLS, backfill, unicidade e rollback.
+
+### 3. Importação CSV — linhas idênticas legítimas
+
+Arquivo: `debt.js`.
+
+- A geração de `source_key` passou a incluir a ocorrência de cada linha idêntica dentro do arquivo.
+- Isso evita que duas compras distintas com campos inteiramente iguais no mesmo CSV sejam reduzidas a uma única parcela.
+- A reimportação do mesmo arquivo, mantendo o conteúdo, deve produzir as mesmas chaves por linha/ocorrência.
+
+Limitação: a identidade ainda depende da estabilidade do conteúdo normalizado e do parser. Validar com CSVs reais dos bancos, incluindo mudança de ordem de linhas/colunas, linhas duplicadas e reimportação. Não foi feito teste funcional de importação contra banco.
+
+## Validações executadas
+
+- GitHub Actions run `43778526249` (commit da migration): conclusão `success`.
+- GitHub Actions run `43778540048` (commit da importação): estava `in_progress` na última consulta; não declarar aprovado.
+- Validação local de sintaxe via compilação JavaScript: scripts inline, `debt.js` e `sw.js` passaram.
+- Parse do `manifest.webmanifest`: passou.
 - RLS está habilitada em `transactions`, `card_debt_installments` e `app_change_requests`.
-- As policies lidas para transações e parcelas restringem acesso por `auth.uid() = user_id`.
-- As RPCs de fluxo existentes usam `SECURITY INVOKER`.
-- Não foi executado teste de navegador, integração, concorrência ou migração em banco isolado.
+- Policies lidas para transações e parcelas restringem acesso por `auth.uid() = user_id`.
+- RPCs existentes de fluxo usam `SECURITY INVOKER`.
+- Não foi executado teste de navegador, integração, concorrência, carga ou migração em banco isolado.
 
-## Achados prioritários
+## Pendências prioritárias
 
-### P0 — Migração ainda não homologada
+### P0 — Homologar migration em banco isolado
 
-A nova implementação de dívidas chama RPCs que dependem de `transactions.source_key` e de funções SQL criadas pela migration `20261115235900_atomic_card_debt_operations.sql`. A coluna e as funções ainda não existem em produção. Publicar o JavaScript sem a migration compatível fará operações falharem.
+A nova implementação de dívidas depende de `transactions.source_key` e das RPCs desta migration. Publicar o JavaScript sem a migration compatível fará operações falharem.
 
-A migration precisa ser testada em banco descartável antes de qualquer execução em produção. Validar também grants, RLS, rollback e os dados legados.
+É necessário testar em banco descartável: aplicação limpa, backfill, unicidade, chamadas autenticadas, parâmetros inválidos, grants, RLS e rollback. Produção não deve ser usada como ambiente de teste.
 
 ### P0 — Operações offline incompletas
 
-A fila offline atual cobre a criação de lançamentos do fluxo principal. Edição, exclusão e alteração de status não entram na fila. O módulo de dívidas também não possui fila offline para CRUD, pagamento ou reordenação.
+A fila offline cobre criação de lançamentos do fluxo principal. Edição, exclusão e alteração de status não entram na fila. O módulo de dívidas também não tem fila offline para CRUD, pagamento ou reordenação.
 
-Portanto, não anunciar “CRUD offline” nem “offline completo”. O comportamento deve ser explicitamente limitado até que todas as operações tenham estratégia idempotente, resolução de conflitos e sincronização testada.
-
-### P0 — Service worker pode remover caches alheios
-
-No evento `activate`, o código exclui toda chave de Cache Storage cujo nome seja diferente de `aurora-cache-v48`. Cache Storage é compartilhado por origem, não isolado pelo escopo do service worker. Em `sauloobarboza.github.io`, isso pode apagar caches de outros PWAs/projetos publicados na mesma origem.
-
-Corrigir a limpeza para remover somente caches com prefixo exclusivo do Aurora e manter estratégia de migração/rollback de versões.
-
-### P1 — Importação CSV pode colidir compras legítimas
-
-A chave de idempotência CSV é calculada a partir do cartão, conteúdo da linha e número da parcela. Duas compras legítimas com todos os campos idênticos podem produzir a mesma chave e uma delas ser descartada como duplicada.
-
-A chave precisa priorizar identificador estável do banco (quando existir) e tratar linhas realmente idênticas sem confundir duplicidade de reimportação com compras distintas. Criar fixtures de CSV realistas e testes de reimportação, linhas duplicadas, mudança de ordem e colunas.
-
-### P1 — Validações nulas incompletas na RPC de sincronização
-
-A função `sync_card_debt_projection` não rejeita explicitamente `p_card IS NULL` nem `p_month IS NULL`. A expressão `p_card NOT IN (...)` resulta em NULL quando o argumento é NULL; em PL/pgSQL, um IF NULL não entra no bloco. Adicionar validações explícitas antes de consultar ou excluir a projeção.
-
-Na mesma função, `min(i.due_date)` considera todas as parcelas do mês, inclusive pendentes, enquanto o total soma somente as pagas. Definir e testar qual data deve representar a projeção; se for a data de uma parcela paga, filtrar o MIN por status pago.
+Não anunciar CRUD offline nem sincronização offline completa. Antes de implementar, definir idempotência, resolução de conflitos, retry e recuperação após encerramento do app.
 
 ### P1 — Histórico de transações sem paginação
 
-`loadEntries` consulta todo o histórico em uma única requisição. O limite máximo de linhas do PostgREST/Supabase pode truncar históricos extensos. Implementar paginação determinística (ou outra estratégia comprovada) e testar acima do limite configurado, preservando o saldo acumulado desde o saldo inicial.
+`loadEntries` consulta todo o histórico em uma requisição. O limite de linhas do PostgREST/Supabase pode truncar históricos extensos. Implementar paginação determinística e testar acima do limite configurado, preservando o saldo acumulado desde o saldo inicial.
 
 ### P1 — Proteção contra senhas comprometidas desativada
 
-O Supabase Security Advisor reporta `auth_leaked_password_protection` como WARN. Avaliar e habilitar a proteção contra senhas vazadas nas configurações de Auth, após validar impacto no fluxo de cadastro/alteração de senha.
+O Supabase Security Advisor reportou `auth_leaked_password_protection` como WARN. Avaliar e habilitar a proteção contra senhas vazadas nas configurações de Auth, após validar o impacto no fluxo de cadastro e alteração de senha.
 
 ### P2 — Alertas de performance do Supabase
 
-O advisor aponta:
+O advisor apontou:
 - FK `app_change_requests_user_id_fkey` sem índice de cobertura.
 - Índices reportados como não utilizados: `transactions_user_date_idx`, `transactions_series_idx` e `card_debt_installments_user_due_sort_idx`.
 
-Não remover índices automaticamente. Conferir planos de execução, carga real e uso antes de qualquer alteração.
+Não remover índices automaticamente. Conferir planos de execução e carga antes de qualquer alteração.
 
-### P1 — Ícone maskable não é independente
+### P1 — Ícone maskable
 
-`icon-maskable-512.png` tem o mesmo blob que `icon-512.png`. O manifesto declara propósito maskable, mas não existe arte própria com safe zone comprovada. Criar/validar arte maskable separada e conferir dimensões reais dos PNGs.
+`icon-maskable-512.png` e `icon-512.png` usam o mesmo conteúdo. Criar/validar arte maskable independente com safe zone e conferir dimensões reais.
 
-## Plano de correção
+## Próximos passos
 
-1. Criar banco de homologação descartável e testar migration sem tocar produção.
-2. Corrigir isolamento de caches do service worker.
-3. Corrigir validações e semântica temporal das RPCs de projeção.
-4. Corrigir estratégia de idempotência CSV com arquivos de teste.
-5. Implementar paginação do histórico e provar saldo acumulado.
-6. Definir escopo offline honesto; depois implementar fila completa com idempotência, retry, conflitos e testes.
-7. Executar testes de integração para create/edit/delete/pay/reorder/import e falhas parciais.
-8. Fazer homologação visual e funcional em Android, desktop, temas claro/escuro e rede offline/instável.
+1. Aguardar conclusão da validação GitHub Actions do último commit.
+2. Preparar banco de homologação descartável e validar migration.
+3. Criar testes automatizados de idempotência CSV e de operações financeiras.
+4. Implementar paginação do histórico e provar saldo acumulado.
+5. Definir e implementar fila offline completa, ou documentar claramente as limitações.
+6. Testar atualização/rollback do service worker e coexistência de caches.
+7. Fazer homologação visual e funcional em Android, desktop, temas claro/escuro e rede offline/instável.
 
 ## Critério de publicação
 
