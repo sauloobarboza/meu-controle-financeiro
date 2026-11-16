@@ -1,7 +1,7 @@
-const CACHE='aurora-meu-controle-financeiro-cache-v52';
+const CACHE='aurora-meu-controle-financeiro-cache-v53';
 const LEGACY_CACHE='aurora-cache-v48';
 const SUPABASE_LIB='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0';
-const SHELL=['./','./index.html','./debt.js?v=53','./pagination.js?v=1','./offline-queue.js?v=1','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png','./icons/icon-maskable.svg','./icons/apple-touch-icon.png'];
+const SHELL=['./','./index.html','./debt.js?v=53','./pagination.js?v=1','./offline-queue.js?v=1','./debt-identity.js?v=1','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/icon-maskable-512.png','./icons/icon-maskable.svg','./icons/apple-touch-icon.png'];
 
 self.addEventListener('install',event=>{
  event.waitUntil((async()=>{
