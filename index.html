@@ -804,7 +804,7 @@ async function updateEntryStatus(id,button){
  if(!navigator.onLine||window.auroraOfflineMode){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,id,{status:'paid',needs_review:false});writeOfflineQueue(currentUser.id,queue);entry.status='paid';entry.needs_review=false;entry.offline=true;render();setMessage('Situação salva neste aparelho e será sincronizada quando a internet voltar.','success');return}
  button.disabled=true;button.textContent='Atualizando...';
  try{const {error}=await supabaseClient.from('transactions').update({status:'paid',needs_review:false}).eq('id',id).eq('user_id',currentUser.id);if(error)throw error;entry.status='paid';entry.needs_review=false;render();setMessage(entry.type==='income'?'Recebimento confirmado.':'Conta marcada como paga.','success')}
- catch(error){button.disabled=false;button.textContent='Marcar pago';setMessage('Não foi possível atualizar a situação: '+friendlyError(error),'error',error)}
+ catch(error){const networkFailure=!navigator.onLine||/failed to fetch|network|load failed|connection|timeout/i.test(String(error?.message||''));if(networkFailure){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,id,{status:'paid',needs_review:false});writeOfflineQueue(currentUser.id,queue);entry.status='paid';entry.needs_review=false;entry.offline=true;render();setMessage('Conexão interrompida. A situação foi guardada neste aparelho e será sincronizada depois.','success')}else{button.disabled=false;button.textContent='Marcar pago';setMessage('Não foi possível atualizar a situação: '+friendlyError(error),'error',error)}}
 }
 async function loadEntries(userId){
  if(!userId||!currentUser||currentUser.id!==userId)throw new Error('Sessão inválida. Entre novamente.');
@@ -853,12 +853,12 @@ async function saveEntry(event){
  const amount=Calc.round(Number($('amount').value)),date=$('date').value||localDateString(),category=$('category').value||'Outros',description=$('description').value.trim()||category,paid=$('entryPaid').checked;
  if(!Number.isFinite(amount)||amount<0){$('entryValidation').textContent='Informe um valor válido.';return}
  const needsReview=category==='Outros'||!$('description').value.trim(),status=paid?'paid':'pending',button=$('entryForm').querySelector('button[type="submit"]');
- let pendingRowsForOffline=null;saveInProgress=true;button.disabled=true;button.textContent='Salvando…';$('entryValidation').textContent='';
+ let pendingRowsForOffline=null,pendingUpdatesForOffline=null;saveInProgress=true;button.disabled=true;button.textContent='Salvando…';$('entryValidation').textContent='';
  try{
   if(editingEntryId){
    const old=entries.find(e=>e.id===editingEntryId);if(!old)throw new Error('Lançamento não encontrado.');
    const futureScope=!!old.series_id&&$('editScope').value==='future',targets=futureScope?entries.filter(e=>e.series_id===old.series_id&&e.date>=old.date):[old];
-   const updates=targets.map(e=>{const suffix=e.description.match(/\s\(\d+\/\d+\)$/)?.[0]||'',payload={description:description+suffix,amount,category,status:e.id===old.id?status:'pending',needs_review:needsReview};if(e.id===old.id){payload.transaction_date=date;if(date!==old.date)payload.sort_order=entries.filter(x=>x.date===date&&x.id!==e.id).reduce((m,x)=>Math.max(m,Number(x.sort_order||0)),-1)+1}else if(futureScope){const [oy,om]=old.date.split('-').map(Number),[ey,em]=e.date.split('-').map(Number),offset=(ey-oy)*12+(em-om);payload.transaction_date=makeSeriesDate(date,offset)}return {id:e.id,payload}});
+   const updates=targets.map(e=>{const suffix=e.description.match(/\s\(\d+\/\d+\)$/)?.[0]||'',payload={description:description+suffix,amount,category,status:e.id===old.id?status:'pending',needs_review:needsReview};if(e.id===old.id){payload.transaction_date=date;if(date!==old.date)payload.sort_order=entries.filter(x=>x.date===date&&x.id!==e.id).reduce((m,x)=>Math.max(m,Number(x.sort_order||0)),-1)+1}else if(futureScope){const [oy,om]=old.date.split('-').map(Number),[ey,em]=e.date.split('-').map(Number),offset=(ey-oy)*12+(em-om);payload.transaction_date=makeSeriesDate(date,offset)}return {id:e.id,payload}});pendingUpdatesForOffline=updates;
    if(!navigator.onLine||window.auroraOfflineMode){let queue=readOfflineQueue(currentUser.id);updates.forEach(u=>{queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,u.id,u.payload)});writeOfflineQueue(currentUser.id,queue);}
    else{const {error}=await supabaseClient.rpc('apply_transaction_batch',{p_creates:[],p_updates:updates});if(error)throw error;}
    entries.forEach(e=>{const update=updates.find(x=>x.id===e.id);if(update)Object.assign(e,{description:update.payload.description,amount,category,date:update.payload.transaction_date||e.date,sort_order:update.payload.sort_order??e.sort_order,status:update.payload.status,needs_review:needsReview,offline:!navigator.onLine||e.offline})});
@@ -872,7 +872,11 @@ async function saveEntry(event){
   }
  }catch(error){
   const networkFailure=!navigator.onLine||/failed to fetch|network|load failed|connection|timeout/i.test(String(error?.message||''));
-  if(networkFailure&&pendingRowsForOffline&&!editingEntryId){
+  if(networkFailure&&pendingUpdatesForOffline&&editingEntryId){
+   let queue=readOfflineQueue(currentUser.id);pendingUpdatesForOffline.forEach(u=>{queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,u.id,u.payload)});writeOfflineQueue(currentUser.id,queue);
+   entries.forEach(e=>{const update=pendingUpdatesForOffline.find(x=>x.id===e.id);if(update)Object.assign(e,{description:update.payload.description,amount:Number(update.payload.amount),category:update.payload.category,date:update.payload.transaction_date||e.date,sort_order:update.payload.sort_order??e.sort_order,status:update.payload.status,needs_review:update.payload.needs_review,offline:true})});
+   $('modal').classList.remove('open');render();setMessage('Conexão interrompida. A edição foi guardada neste aparelho e será sincronizada depois.','success');
+  }else if(networkFailure&&pendingRowsForOffline&&!editingEntryId){
    const key='aurora_offline_queue_'+currentUser.id;let queue=[];try{queue=JSON.parse(localStorage.getItem(key)||'[]')}catch{}
    queue.push(...pendingRowsForOffline);localStorage.setItem(key,JSON.stringify(queue));
    pendingRowsForOffline.forEach(r=>entries.unshift({id:r.id,type:r.type,description:r.description,amount:r.amount,category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review,offline:true}));
@@ -884,9 +888,8 @@ async function saveEntry(event){
 
 async function deleteEntry(id,button){
  if(!currentUser||!id)return;const entry=entries.find(e=>e.id===id);if(!entry)return;if(button)button.disabled=true;
- const editScope=$('editScope'),editModal=$('modal'),futureScope=!!editModal?.classList.contains('open')&&editingEntryId===id&&!!entry.series_id&&editScope?.value==='future',targets=futureScope?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry];
+ const editScope=$('editScope'),editModal=$('modal'),futureScope=!!editModal?.classList.contains('open')&&editingEntryId===id&&!!entry.series_id&&editScope?.value==='future',targets=futureScope?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry],ids=targets.map(e=>e.id);
  try{
-  const ids=targets.map(e=>e.id);
   if(!navigator.onLine||window.auroraOfflineMode){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueDelete(queue,currentUser.id,ids);writeOfflineQueue(currentUser.id,queue);entries=entries.filter(e=>!ids.includes(e.id));$('modal').classList.remove('open');render();setMessage('Exclusão salva neste aparelho e será sincronizada quando a internet voltar.','success');return}
   let query=supabaseClient.from('transactions').delete().eq('user_id',currentUser.id);
   if(futureScope)query=query.eq('series_id',entry.series_id).gte('transaction_date',entry.date);else query=query.eq('id',id);
@@ -895,7 +898,7 @@ async function deleteEntry(id,button){
   const rows=targets.map(e=>({id:e.id,user_id:currentUser.id,type:e.type,description:e.description,amount:e.amount,category:e.category,transaction_date:e.date,status:e.status,series_id:e.series_id,needs_review:e.needs_review}));
   saveUndo({kind:'deleteMany',rows,message:targets.length>1?targets.length+' lançamentos da série excluídos.':'Lançamento excluído.'});
   $('modal').classList.remove('open');render();setMessage('Excluído. Você pode desfazer em 6 segundos.','success');
- }catch(error){if(button)button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}
+ }catch(error){const networkFailure=!navigator.onLine||/failed to fetch|network|load failed|connection|timeout/i.test(String(error?.message||''));if(networkFailure){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueDelete(queue,currentUser.id,ids);writeOfflineQueue(currentUser.id,queue);entries=entries.filter(e=>!ids.includes(e.id));$('modal').classList.remove('open');render();setMessage('Conexão interrompida. A exclusão foi guardada neste aparelho e será sincronizada depois.','success')}else{if(button)button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}}
 }
 async function logout(){
  if(!supabaseClient)return;$('logoutBtn').disabled=true;
