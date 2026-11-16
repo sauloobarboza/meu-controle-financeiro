@@ -508,6 +508,16 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 .drag-handle{touch-action:none;cursor:grab;user-select:none}
 @media(max-width:520px){.debt-kpis{grid-template-columns:1fr 1fr}.debt-kpis article{padding:12px}.debt-kpis strong{font-size:19px}.debt-chart{gap:3px;min-height:165px}.debt-bar-col{height:155px}.debt-bar-col strong{font-size:8px}.debt-bar-track{height:85px;width:60%}.debt-bar-col b{font-size:10px}.debt-bar-col small{font-size:9px}.debt-import-grid,.debt-manual-grid{grid-template-columns:1fr 1fr}.debt-preview-dialog{padding:13px}}
 
+
+.entry-toggle{background:linear-gradient(110deg,#5541c8,#765be8);color:#fff;border:1px solid #5b48ce;box-shadow:0 5px 14px #5541c825}
+.aurora-spreadsheet .account-input,.aurora-spreadsheet .money-input,.aurora-spreadsheet .balance-cell{transition:font-size .24s ease,font-weight .24s ease,transform .24s ease}
+.aurora-spreadsheet.entry-hidden .account-input{font-size:16px;font-weight:850}
+.aurora-spreadsheet.entry-hidden .money-input{font-size:16px;font-weight:850}
+.aurora-spreadsheet.entry-hidden .balance-cell{font-size:16px;font-weight:900}
+.aurora-spreadsheet.entry-hidden .spreadsheet-row{animation:entryViewIn .22s ease both}
+@keyframes entryViewIn{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){.aurora-spreadsheet.entry-hidden .account-input,.aurora-spreadsheet.entry-hidden .money-input{font-size:17px}.aurora-spreadsheet.entry-hidden .balance-cell{font-size:17px}.projection-add-actions .entry-toggle{font-size:10px;padding:10px 9px}}
+@media(prefers-reduced-motion:reduce){.aurora-spreadsheet .account-input,.aurora-spreadsheet .money-input,.aurora-spreadsheet .balance-cell{transition:none}.aurora-spreadsheet.entry-hidden .spreadsheet-row{animation:none}}
 </style>
 </head>
 <body>
@@ -542,7 +552,7 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 <section class="aurora-page active" data-new-page="home">
 <div class="projection-month-select"><label for="projectionMonthChoice">MÊS DO ACUMULADO</label><select id="projectionMonthChoice" aria-label="Selecionar mês do saldo acumulado"></select><span class="projection-month-icon">⌄</span></div>
 <div class="aurora-balance projection-balance"><div class="aurora-kicker">SALDO PROJETADO</div><div class="aurora-money" id="newBalance">R$ 0,00</div><div class="aurora-balance-sub">Acumulado após todos os lançamentos cadastrados</div><div class="aurora-balance-foot"><span>Atualizado automaticamente</span><strong id="newCurrentMonth"></strong></div></div>
-<div class="projection-intro"><div><h1>Minha projeção</h1><p>Edite seus lançamentos e acompanhe cada saldo.</p></div><div class="projection-add-actions"><button type="button" class="projection-add" id="newExpense">＋ Nova conta</button><button type="button" class="projection-add income-add" id="newIncome">＋ Entrada</button><button type="button" class="projection-add delete-add" id="openDeletePicker">− Excluir</button></div></div>
+<div class="projection-intro"><div><h1>Minha projeção</h1><p>Edite seus lançamentos e acompanhe cada saldo.</p></div><div class="projection-add-actions"><button type="button" class="projection-add" id="newExpense">＋ Nova conta</button><button type="button" class="projection-add income-add" id="newIncome">＋ Entrada</button><button type="button" class="projection-add delete-add" id="openDeletePicker">− Excluir</button><button type="button" class="projection-add entry-toggle" id="toggleProjectionEntry" aria-pressed="false">Ocultar Entrada</button></div></div>
 <div class="projection-search"><span class="search-icon" aria-hidden="true">⌕</span><input id="projectionSearch" type="search" autocomplete="off" placeholder="Buscar conta ou descrição..." aria-label="Buscar conta por texto aproximado"><button type="button" id="clearProjectionSearch" hidden aria-label="Limpar busca">Limpar</button></div><div class="projection-search-count" id="projectionSearchCount" aria-live="polite" hidden></div><div class="projection-mobile-hint">Lançamentos organizados por mês, com saldo acumulado contínuo.</div><div class="spreadsheet-card"><div class="spreadsheet-scroll"><table class="aurora-spreadsheet"><thead><tr><th>Conta</th><th class="right">Valor da conta</th><th class="right">Entrada</th><th class="right">Acumulado</th><th></th></tr></thead><tbody id="projectionRows"></tbody></table></div></div>
 <div class="projection-footnote">Edite os valores diretamente. Use o ícone ⠿ para reorganizar lançamentos da mesma data.</div>
 </section>
@@ -1162,6 +1172,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 const root=document.getElementById('auroraNewUI'),fmt=v=>money(v),monthKey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),currentMonth=()=>monthKey(new Date()),safe=s=>escapeHtml(s||''),title=k=>{const [y,m]=k.split('-').map(Number);return new Date(y,m-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'})};
 function sortedRows(){return entries.slice().sort((a,b)=>a.date.localeCompare(b.date)||Number(a.sort_order||0)-Number(b.sort_order||0)||(Date.parse(a.created_at||'')||0)-(Date.parse(b.created_at||'')||0)||String(a.id).localeCompare(String(b.id)))}
 function page(name){root.querySelectorAll('[data-new-page]').forEach(x=>x.classList.toggle('active',x.dataset.newPage===name));document.querySelectorAll('[data-new-tab]').forEach(x=>{const on=x.dataset.newTab===name;x.classList.toggle('active',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});renderNewUI();window.scrollTo({top:0,behavior:'smooth'})}
+let projectionEntryHidden=false;
 function renderProjection(){
  if(!$('projectionRows'))return;
  if(root&&!root.querySelector('[data-new-page="home"].active'))return;
@@ -1175,7 +1186,7 @@ function renderProjection(){
  const balanceCell=value=>'<span class="balance-indicator '+(value<0?'is-negative':'is-positive')+'"><span class="balance-arrow" aria-hidden="true">'+(value<0?'↓':'↑')+'</span><span>'+fmt(value)+'</span></span>';
  const clear=$('clearProjectionSearch'),count=$('projectionSearchCount');
  if(clear)clear.hidden=!query;
- let html=query?'':'<tr class="cash-opening-row"><td class="account-cell"><strong>Valor atual em caixa</strong></td><td class="right">—</td><td class="right">—</td><td class="right balance-cell"><input id="cashOpeningBalanceInline" class="cell-input money-input" type="number" min="0" step="0.01" inputmode="decimal" value="'+Number(openingBalance||0).toFixed(2)+'" aria-label="Editar valor atual em caixa" title="Edite e saia do campo para salvar"></td><td class="drag-cell"></td></tr>';
+ let html=query?'':'<tr class="cash-opening-row"><td class="account-cell"><strong>Valor atual em caixa</strong></td><td class="right">—</td>'+(projectionEntryHidden?'':'<td class="right">—</td>')+'<td class="right balance-cell"><input id="cashOpeningBalanceInline" class="cell-input money-input" type="number" min="0" step="0.01" inputmode="decimal" value="'+Number(openingBalance||0).toFixed(2)+'" aria-label="Editar valor atual em caixa" title="Edite e saia do campo para salvar"></td><td class="drag-cell"></td></tr>';
  let matchCount=0;
  const accountOrder=['nubank saulo','nubank empréstimo','internet','luz','mercado pago','nubank amanda','emp. merc. pag.','aluguel','seguro','água','gás'];
  const accountPriority=value=>{const name=String(value||'').trim().toLocaleLowerCase('pt-BR');const index=accountOrder.indexOf(name);return index<0?accountOrder.length:index};
@@ -1189,18 +1200,20 @@ function renderProjection(){
   const label=new Date(year,month-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());
   if(visibleItems.length){
    html+='<tr class="month-divider"><td colspan="5"><div class="month-divider-main"><strong>'+safe(label)+'</strong></div></td></tr>';
-   html+='<tr class="month-column-head"><th scope="col">Conta</th><th scope="col" class="right">Despesa</th><th scope="col" class="right">Entrada</th><th scope="col" class="right">Acumulado</th><th scope="col" aria-label="Reorganizar"></th></tr>';
+   html+='<tr class="month-column-head"><th scope="col">Conta</th><th scope="col" class="right">Valor</th>'+(projectionEntryHidden?'':'<th scope="col" class="right">Entrada</th>')+'<th scope="col" class="right">Acumulado</th><th scope="col" aria-label="Reorganizar"></th></tr>';
   }
   for(const e of displayItems){
    if(!matches(e))continue;
    matchCount++;
-   html+='<tr class="spreadsheet-row" draggable="true" data-row-id="'+safe(e.id)+'" data-row-date="'+safe(e.date)+'"><td class="account-cell"><input class="cell-input account-input" data-field="description" maxlength="70" value="'+safe(e.description)+'" aria-label="Conta"></td><td class="right expense-cell"><input class="cell-input money-input" data-field="expense" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='expense'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Valor da conta"></td><td class="right income-cell"><input class="cell-input money-input" data-field="income" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='income'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Entrada"></td><td class="right balance-cell">'+balanceCell(balancesById.get(e.id)??running)+'</td><td class="drag-cell"><span class="drag-handle" title="Arraste para reorganizar" aria-label="Arrastar para reorganizar">⠿</span></td></tr>';
+   html+='<tr class="spreadsheet-row" draggable="true" data-row-id="'+safe(e.id)+'" data-row-date="'+safe(e.date)+'"><td class="account-cell"><input class="cell-input account-input" data-field="description" maxlength="70" value="'+safe(e.description)+'" aria-label="Conta"></td><td class="right expense-cell"><input class="cell-input money-input" data-field="expense" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='expense'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Valor da conta"></td>'+(projectionEntryHidden?'':'<td class="right income-cell"><input class="cell-input money-input" data-field="income" type="number" min="0" step="0.01" inputmode="decimal" value="'+(e.type==='income'?Number(e.amount).toFixed(2):'')+'" placeholder="—" aria-label="Entrada"></td>')+'<td class="right balance-cell">'+balanceCell(balancesById.get(e.id)??running)+'</td><td class="drag-cell"><span class="drag-handle" title="Arraste para reorganizar" aria-label="Arrastar para reorganizar">⠿</span></td></tr>';
   }
   if(items.length)monthBalances.set(key,running);
  }
  if(!rows.length)html+='<tr><td colspan="5" class="spreadsheet-empty">Nenhum lançamento ainda. Toque em “Nova conta” ou “Entrada” para começar.</td></tr>';
  else if(query&&!matchCount)html+='<tr><td colspan="5" class="spreadsheet-empty">Nenhuma conta encontrada para “'+safe($('projectionSearch').value.trim())+'”.</td></tr>';
  body.innerHTML=html;
+ const spreadsheet=document.querySelector('.aurora-spreadsheet');if(spreadsheet)spreadsheet.classList.toggle('entry-hidden',projectionEntryHidden);
+ const toggle=$('toggleProjectionEntry');if(toggle){toggle.textContent=projectionEntryHidden?'Exibir Entrada':'Ocultar Entrada';toggle.setAttribute('aria-pressed',String(projectionEntryHidden));}
  if(count){count.hidden=!query;count.textContent=query?matchCount+' resultado(s) encontrado(s)':''}
  const choice=$('projectionMonthChoice');
  const available=[...monthBalances.keys()];
