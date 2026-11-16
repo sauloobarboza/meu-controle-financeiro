@@ -1149,8 +1149,8 @@ function renderProjection(){
  if(root&&!root.querySelector('[data-new-page="home"].active'))return;
  let running=Number(openingBalance)||0;
  const rows=sortedRows(),body=$('projectionRows'),monthBalances=new Map();
- const query=String($('projectionSearch')?.value||'').trim().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
- const normalizeSearch=value=>String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase('pt-BR');
+ const query=String($('projectionSearch')?.value||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
+ const normalizeSearch=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
  const matches=e=>!query||normalizeSearch(e.description).includes(query)||normalizeSearch(e.category).includes(query);
  const groups=new Map();
  rows.forEach(e=>{const key=String(e.date||'').slice(0,7);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(e)});
