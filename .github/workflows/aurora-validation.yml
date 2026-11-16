@@ -47,6 +47,8 @@ jobs:
         run: node --check offline-queue.js
       - name: Run unit tests
         run: node --test tests/*.test.js
+      - name: Validate maskable SVG XML
+        run: python3 -c "import xml.etree.ElementTree as ET; ET.parse('icons/icon-maskable.svg')"
       - name: Validate service worker JavaScript
         run: node --check sw.js
       - name: Validate PWA manifest JSON
