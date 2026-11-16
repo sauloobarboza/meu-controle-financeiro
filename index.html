@@ -1234,7 +1234,7 @@ let projectionEntryHidden=false;
 function renderProjection(){
  if(!$('projectionRows'))return;
  if(root&&!root.querySelector('[data-new-page="home"].active'))return;
- const referenceDate=localDateString();let running=Number(openingBalance)||0;
+ let running=Number(openingBalance)||0;
  const rows=sortedRows(),body=$('projectionRows'),monthBalances=new Map();
  const query=String($('projectionSearch')?.value||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
  const normalizeSearch=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
