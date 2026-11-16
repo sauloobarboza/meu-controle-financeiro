@@ -37,7 +37,7 @@ declare
   v_source_key text;
   v_description text;
 begin
-  if auth.uid() is null or auth.uid() <> p_user_id then
+  if p_user_id is null or auth.uid() is null or auth.uid() <> p_user_id then
     raise exception 'Authentication required';
   end if;
   if p_card is null or p_card not in ('Nubank', 'Mercado Pago') then
@@ -101,6 +101,7 @@ declare
   v_row public.card_debt_installments;
 begin
   if v_user_id is null then raise exception 'Authentication required'; end if;
+  if p_paid is null then raise exception 'Payment status is required'; end if;
   select * into v_row
   from public.card_debt_installments
   where id = p_installment_id and user_id = v_user_id
