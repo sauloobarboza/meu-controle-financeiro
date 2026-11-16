@@ -48,7 +48,13 @@ async function sync(queue,client,userId){
  }
  return {remaining,saved,error:null};
 }
-const api={enqueueUpdate,enqueueDelete,apply,sync};
+function saveSnapshot(storage,userId,entries,openingBalance){
+ try{storage.setItem('aurora_snapshot_'+userId,JSON.stringify({entries,openingBalance,updatedAt:new Date().toISOString()}));return true}catch(error){return false}
+}
+function restoreSnapshot(storage,userId){
+ try{const raw=storage.getItem('aurora_snapshot_'+userId);if(!raw)return null;const snapshot=JSON.parse(raw);if(!snapshot||!Array.isArray(snapshot.entries)||!Number.isFinite(Number(snapshot.openingBalance)))return null;return snapshot}catch(error){return null}
+}
+const api={enqueueUpdate,enqueueDelete,apply,sync,saveSnapshot,restoreSnapshot};
 root.AuroraOfflineQueue=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
