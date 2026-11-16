@@ -6,8 +6,16 @@ on:
   push:
     branches:
       - aurora/reforma-completa-2026-11
+      - hardening/atomic-offline-performance
     paths:
       - "index.html"
+      - "debt.js"
+      - "pagination.js"
+      - "offline-queue.js"
+      - "debt-identity.js"
+      - "tests/**"
+      - "icons/*.png"
+      - "icons/*.svg"
       - "sw.js"
       - "manifest.webmanifest"
       - "supabase/functions/aurora-assistant/index.ts"
@@ -20,7 +28,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Validate inline application JavaScript
+      - name: Validate each inline application script
         run: |
           node - <<'NODE'
           const fs = require('node:fs');
@@ -28,9 +36,21 @@ jobs:
           const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)]
             .map(match => match[1]).filter(source => source.trim());
           if (!scripts.length) throw new Error('No inline JavaScript found');
-          fs.writeFileSync('/tmp/aurora-app.js', scripts.join('\n'));
+          scripts.forEach((source, index) => fs.writeFileSync('/tmp/aurora-script-' + index + '.js', source));
           NODE
-          node --check /tmp/aurora-app.js
+          for file in /tmp/aurora-script-*.js; do node --check "$file"; done
+      - name: Validate debt module
+        run: node --check debt.js
+      - name: Validate pagination module
+        run: node --check pagination.js
+      - name: Validate offline queue module
+        run: node --check offline-queue.js
+      - name: Validate debt identity module
+        run: node --check debt-identity.js
+      - name: Run unit tests
+        run: node --test tests/*.test.js
+      - name: Validate maskable SVG XML
+        run: python3 -c "import xml.etree.ElementTree as ET; ET.parse('icons/icon-maskable.svg')"
       - name: Validate service worker JavaScript
         run: node --check sw.js
       - name: Validate PWA manifest JSON

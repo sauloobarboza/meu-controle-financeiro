@@ -7,6 +7,7 @@
 <meta name="description" content="Controle suas receitas, despesas e saldo mensal.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>AURORA — Seu dinheiro em ordem</title>
 <style>
 :root{--bg:#f3f5f9;--card:#fff;--ink:#172033;--muted:#6b7280;--line:#e7eaf0;--green:#16845b;--red:#d94b58;--blue:#3457d5;--navy:#111827}
@@ -623,7 +624,9 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
  </form>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0" defer crossorigin="anonymous"></script>
+<script src="./pagination.js?v=1"></script>
+<script src="./offline-queue.js?v=1"></script>
 <script>
 'use strict';
 const SUPABASE_URL='https://dqhyiggxcxczdcopdyec.supabase.co';
@@ -674,7 +677,7 @@ async function activateUser(user){
  if(activeUserId===user.id&&entriesLoadedForUser===user.id){syncOfflineQueue();handlePwaShortcut();return}
  if(activeUserId===user.id&&loadingPromise)return loadingPromise;
  activeUserId=user.id;loadingPromise=(async()=>{
-  try{await loadEntries(user.id)}catch(error){entries=[];await syncOfflineQueue();setMessage('Sem conexão com o servidor. Novos lançamentos ficam guardados neste aparelho até a internet voltar.','info');return}
+  try{await loadEntries(user.id)}catch(error){const snapshot=window.AuroraOfflineQueue.restoreSnapshot(localStorage,user.id);entries=snapshot?.entries||[];openingBalance=snapshot?.openingBalance??0;window.auroraOfflineMode=true;render();await syncOfflineQueue();setMessage(snapshot?'Modo offline: exibindo seu último histórico sincronizado. Alterações serão enviadas quando a conexão voltar.':'Sem conexão e sem histórico local salvo. Novos lançamentos ficarão guardados neste aparelho.','info');entriesLoadedForUser=null;return}
   try{await loadChangeRequests()}catch(error){console.warn('Central de melhorias indisponível offline:',error)}
   await syncOfflineQueue()
  })();
@@ -798,21 +801,23 @@ async function saveOpeningBalance(){
 }
 async function updateEntryStatus(id,button){
  const entry=entries.find(e=>e.id===id);if(!entry||!currentUser)return;
+ if(!navigator.onLine||window.auroraOfflineMode){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,id,{status:'paid',needs_review:false});writeOfflineQueue(currentUser.id,queue);entry.status='paid';entry.needs_review=false;entry.offline=true;render();setMessage('Situação salva neste aparelho e será sincronizada quando a internet voltar.','success');return}
  button.disabled=true;button.textContent='Atualizando...';
- try{const {error}=await supabaseClient.from('transactions').update({status:'paid'}).eq('id',id).eq('user_id',currentUser.id);if(error)throw error;entry.status='paid';entry.needs_review=false;render();setMessage(entry.type==='income'?'Recebimento confirmado.':'Conta marcada como paga.','success')}
- catch(error){button.disabled=false;button.textContent='Marcar pago';setMessage('Não foi possível atualizar a situação: '+friendlyError(error),'error',error)}
+ try{const {error}=await supabaseClient.from('transactions').update({status:'paid',needs_review:false}).eq('id',id).eq('user_id',currentUser.id);if(error)throw error;entry.status='paid';entry.needs_review=false;render();setMessage(entry.type==='income'?'Recebimento confirmado.':'Conta marcada como paga.','success')}
+ catch(error){const networkFailure=!navigator.onLine||/failed to fetch|network|load failed|connection|timeout/i.test(String(error?.message||''));if(networkFailure){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,id,{status:'paid',needs_review:false});writeOfflineQueue(currentUser.id,queue);entry.status='paid';entry.needs_review=false;entry.offline=true;render();setMessage('Conexão interrompida. A situação foi guardada neste aparelho e será sincronizada depois.','success')}else{button.disabled=false;button.textContent='Marcar pago';setMessage('Não foi possível atualizar a situação: '+friendlyError(error),'error',error)}}
 }
 async function loadEntries(userId){
  if(!userId||!currentUser||currentUser.id!==userId)throw new Error('Sessão inválida. Entre novamente.');
- const {data,error}=await supabaseClient.from('transactions').select('id,user_id,type,description,amount,category,transaction_date,status,created_at,series_id,needs_review,sort_order').eq('user_id',userId).order('transaction_date',{ascending:false}).order('created_at',{ascending:false});
- if(error)throw error;
- entries=(data||[]).map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,created_at:row.created_at||null,sort_order:Number(row.sort_order||0),status:row.status||'recorded',series_id:row.series_id||null,needs_review:!!row.needs_review}));
- const {data:settings,error:settingsError}=await supabaseClient.from('apartment_settings').select('opening_balance').eq('user_id',userId).maybeSingle();
- if(settingsError)throw settingsError;
- if(settings){openingBalance=Number(settings.opening_balance||0)}else{const {error:settingsInsertError}=await supabaseClient.from('apartment_settings').insert({user_id:userId,opening_balance:0});if(settingsInsertError)throw settingsInsertError;openingBalance=0}
+ const [transactionRows,settingsResult]=await Promise.all([
+  window.AuroraPagination.fetchAllTransactions(supabaseClient,userId),
+  supabaseClient.from('apartment_settings').select('opening_balance').eq('user_id',userId).maybeSingle()
+ ]);
+ if(settingsResult.error)throw settingsResult.error;
+ entries=transactionRows.map(row=>({id:row.id,type:row.type,description:row.description,amount:Number(row.amount),category:row.category,date:row.transaction_date,created_at:row.created_at||null,sort_order:Number(row.sort_order||0),status:row.status||'recorded',series_id:row.series_id||null,needs_review:!!row.needs_review}));
+ if(settingsResult.data){openingBalance=Number(settingsResult.data.opening_balance||0)}else{const {error:settingsInsertError}=await supabaseClient.from('apartment_settings').insert({user_id:userId,opening_balance:0});if(settingsInsertError)throw settingsInsertError;openingBalance=0}
+ window.AuroraOfflineQueue.saveSnapshot(localStorage,userId,entries,openingBalance);window.auroraOfflineMode=false;
  loadUserCategories(userId);
- // AURORA 3.0 começa com histórico limpo: remove apenas o legado fictício deste aparelho.
- // A fila offline atual é preservada e sincronizada separadamente.
+ // Mantém o histórico completo: a paginação busca todas as páginas para calcular o saldo acumulado corretamente.
  localStorage.removeItem(LOCAL_DATA_KEY);
  localStorage.setItem('mcf_cloud_migrated_'+userId,'1');
  render();
@@ -841,30 +846,37 @@ function saveUndo(record){
  }catch(error){setMessage('Não foi possível desfazer: '+friendlyError(error),'error',error)}};
  if(undoTimer)clearTimeout(undoTimer);undoTimer=setTimeout(()=>{toast.hidden=true;undoRecord=null},6000);
 }
+function readOfflineQueue(userId){try{return JSON.parse(localStorage.getItem('aurora_offline_queue_'+userId)||'[]')}catch{return []}}
+function writeOfflineQueue(userId,queue){localStorage.setItem('aurora_offline_queue_'+userId,JSON.stringify(queue))}
 async function saveEntry(event){
  event.preventDefault();if(saveInProgress)return;if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
  const amount=Calc.round(Number($('amount').value)),date=$('date').value||localDateString(),category=$('category').value||'Outros',description=$('description').value.trim()||category,paid=$('entryPaid').checked;
  if(!Number.isFinite(amount)||amount<0){$('entryValidation').textContent='Informe um valor válido.';return}
  const needsReview=category==='Outros'||!$('description').value.trim(),status=paid?'paid':'pending',button=$('entryForm').querySelector('button[type="submit"]');
- let pendingRowsForOffline=null;saveInProgress=true;button.disabled=true;button.textContent='Salvando…';$('entryValidation').textContent='';
+ let pendingRowsForOffline=null,pendingUpdatesForOffline=null;saveInProgress=true;button.disabled=true;button.textContent='Salvando…';$('entryValidation').textContent='';
  try{
   if(editingEntryId){
    const old=entries.find(e=>e.id===editingEntryId);if(!old)throw new Error('Lançamento não encontrado.');
    const futureScope=!!old.series_id&&$('editScope').value==='future',targets=futureScope?entries.filter(e=>e.series_id===old.series_id&&e.date>=old.date):[old];
-   const updates=targets.map(e=>{const suffix=e.description.match(/\s\(\d+\/\d+\)$/)?.[0]||'',payload={description:description+suffix,amount,category,status:e.id===old.id?status:'pending',needs_review:needsReview};if(e.id===old.id){payload.transaction_date=date;if(date!==old.date)payload.sort_order=entries.filter(x=>x.date===date&&x.id!==e.id).reduce((m,x)=>Math.max(m,Number(x.sort_order||0)),-1)+1}else if(futureScope){const [oy,om]=old.date.split('-').map(Number),[ey,em]=e.date.split('-').map(Number),offset=(ey-oy)*12+(em-om);payload.transaction_date=makeSeriesDate(date,offset)}return {id:e.id,payload}});
-   const {error}=await supabaseClient.rpc('apply_transaction_batch',{p_creates:[],p_updates:updates});if(error)throw error;
-   entries.forEach(e=>{const update=updates.find(x=>x.id===e.id);if(update)Object.assign(e,{description:update.payload.description,amount,category,date:update.payload.transaction_date||e.date,sort_order:update.payload.sort_order??e.sort_order,status:update.payload.status,needs_review:needsReview})});
-   $('modal').classList.remove('open');render();setMessage('Lançamento atualizado.','success');
+   const updates=targets.map(e=>{const suffix=e.description.match(/\s\(\d+\/\d+\)$/)?.[0]||'',payload={description:description+suffix,amount,category,status:e.id===old.id?status:'pending',needs_review:needsReview};if(e.id===old.id){payload.transaction_date=date;if(date!==old.date)payload.sort_order=entries.filter(x=>x.date===date&&x.id!==e.id).reduce((m,x)=>Math.max(m,Number(x.sort_order||0)),-1)+1}else if(futureScope){const [oy,om]=old.date.split('-').map(Number),[ey,em]=e.date.split('-').map(Number),offset=(ey-oy)*12+(em-om);payload.transaction_date=makeSeriesDate(date,offset)}return {id:e.id,payload}});pendingUpdatesForOffline=updates;
+   if(!navigator.onLine||window.auroraOfflineMode){let queue=readOfflineQueue(currentUser.id);updates.forEach(u=>{queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,u.id,u.payload)});writeOfflineQueue(currentUser.id,queue);}
+   else{const {error}=await supabaseClient.rpc('apply_transaction_batch',{p_creates:[],p_updates:updates});if(error)throw error;}
+   entries.forEach(e=>{const update=updates.find(x=>x.id===e.id);if(update)Object.assign(e,{description:update.payload.description,amount,category,date:update.payload.transaction_date||e.date,sort_order:update.payload.sort_order??e.sort_order,status:update.payload.status,needs_review:needsReview,offline:!navigator.onLine||e.offline})});
+   $('modal').classList.remove('open');render();setMessage(navigator.onLine?'Lançamento atualizado.':'Alteração salva neste aparelho e será sincronizada quando a internet voltar.', 'success');
   }else{
    const mode=$('seriesMode').value;let count=1;if(mode==='installments')count=Math.min(36,Math.max(2,Number($('seriesCount').value)||12));if(mode==='repeat'){const [sy,sm]=date.slice(0,7).split('-').map(Number),[ey,em]=$('seriesUntil').value.split('-').map(Number);count=Math.min(36,Math.max(2,(ey-sy)*12+(em-sm)+1||12))}const seriesId=mode==='none'?null:crypto.randomUUID(),rows=[];
    for(let i=0;i<count;i++){const rowDate=makeSeriesDate(date,i),suffix=mode==='installments'?' ('+(i+1)+'/'+count+')':'';rows.push({id:crypto.randomUUID(),user_id:currentUser.id,type:currentType,description:description+suffix,amount,category,transaction_date:rowDate,status:i===0?status:'pending',series_id:seriesId,needs_review:needsReview,sort_order:entries.filter(e=>e.date===rowDate).reduce((m,e)=>Math.max(m,Number(e.sort_order||0)),-1)+1})}pendingRowsForOffline=rows;
-   if(!navigator.onLine){const key='aurora_offline_queue_'+currentUser.id,queue=JSON.parse(localStorage.getItem(key)||'[]');queue.push(...rows);localStorage.setItem(key,JSON.stringify(queue));rows.forEach(r=>entries.unshift({id:r.id,type:r.type,description:r.description,amount:r.amount,category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review,offline:true}));pendingRowsForOffline=null;setMessage('Salvo neste aparelho. Enviaremos quando a internet voltar.','success')}
+   if(!navigator.onLine||window.auroraOfflineMode){const key='aurora_offline_queue_'+currentUser.id,queue=JSON.parse(localStorage.getItem(key)||'[]');queue.push(...rows);localStorage.setItem(key,JSON.stringify(queue));rows.forEach(r=>entries.unshift({id:r.id,type:r.type,description:r.description,amount:r.amount,category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review,offline:true}));pendingRowsForOffline=null;setMessage('Salvo neste aparelho. Enviaremos quando a internet voltar.','success')}
    else{let data;if(mode==='none'){const {data:created,error}=await supabaseClient.rpc('create_transaction_after',{p_type:currentType,p_description:description,p_amount:amount,p_category:category,p_transaction_date:date,p_status:status,p_series_id:null,p_needs_review:needsReview,p_after_id:window.auroraInsertAfterId||null});if(error)throw error;data=[created];window.auroraInsertAfterId=null}else{for(const row of rows){row.sort_order=entries.filter(e=>e.date===row.transaction_date).reduce((m,e)=>Math.max(m,Number(e.sort_order||0)),-1)+1}const result=await supabaseClient.from('transactions').insert(rows).select('id,type,description,amount,category,transaction_date,status,series_id,needs_review,sort_order,created_at');if(result.error)throw result.error;data=result.data} (data||[]).forEach(r=>entries.push({id:r.id,type:r.type,description:r.description,amount:Number(r.amount),category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review,sort_order:Number(r.sort_order||0),created_at:r.created_at||null}));pendingRowsForOffline=null;saveUndo({kind:'insert',rows:data||[],message:(data||[]).length+' lançamento(s) salvo(s).'});setMessage((data||[]).length+' lançamento(s) salvo(s).','success')}
    $('entryForm').reset();$('date').value=localDateString();$('category').value='Outros';$('entryPaid').checked=true;$('seriesMode').value='none';$('seriesCountWrap').hidden=true;$('seriesUntilWrap').hidden=true;$('amount').focus();render();if(mode==='none')$('modal').classList.remove('open');
   }
  }catch(error){
   const networkFailure=!navigator.onLine||/failed to fetch|network|load failed|connection|timeout/i.test(String(error?.message||''));
-  if(networkFailure&&pendingRowsForOffline&&!editingEntryId){
+  if(networkFailure&&pendingUpdatesForOffline&&editingEntryId){
+   let queue=readOfflineQueue(currentUser.id);pendingUpdatesForOffline.forEach(u=>{queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,u.id,u.payload)});writeOfflineQueue(currentUser.id,queue);
+   entries.forEach(e=>{const update=pendingUpdatesForOffline.find(x=>x.id===e.id);if(update)Object.assign(e,{description:update.payload.description,amount:Number(update.payload.amount),category:update.payload.category,date:update.payload.transaction_date||e.date,sort_order:update.payload.sort_order??e.sort_order,status:update.payload.status,needs_review:update.payload.needs_review,offline:true})});
+   $('modal').classList.remove('open');render();setMessage('Conexão interrompida. A edição foi guardada neste aparelho e será sincronizada depois.','success');
+  }else if(networkFailure&&pendingRowsForOffline&&!editingEntryId){
    const key='aurora_offline_queue_'+currentUser.id;let queue=[];try{queue=JSON.parse(localStorage.getItem(key)||'[]')}catch{}
    queue.push(...pendingRowsForOffline);localStorage.setItem(key,JSON.stringify(queue));
    pendingRowsForOffline.forEach(r=>entries.unshift({id:r.id,type:r.type,description:r.description,amount:r.amount,category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:r.needs_review,offline:true}));
@@ -876,16 +888,17 @@ async function saveEntry(event){
 
 async function deleteEntry(id,button){
  if(!currentUser||!id)return;const entry=entries.find(e=>e.id===id);if(!entry)return;if(button)button.disabled=true;
- const editScope=$('editScope'),editModal=$('modal'),futureScope=!!editModal?.classList.contains('open')&&editingEntryId===id&&!!entry.series_id&&editScope?.value==='future',targets=futureScope?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry];
+ const editScope=$('editScope'),editModal=$('modal'),futureScope=!!editModal?.classList.contains('open')&&editingEntryId===id&&!!entry.series_id&&editScope?.value==='future',targets=futureScope?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry],ids=targets.map(e=>e.id);
  try{
+  if(!navigator.onLine||window.auroraOfflineMode){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueDelete(queue,currentUser.id,ids);writeOfflineQueue(currentUser.id,queue);entries=entries.filter(e=>!ids.includes(e.id));$('modal').classList.remove('open');render();setMessage('Exclusão salva neste aparelho e será sincronizada quando a internet voltar.','success');return}
   let query=supabaseClient.from('transactions').delete().eq('user_id',currentUser.id);
   if(futureScope)query=query.eq('series_id',entry.series_id).gte('transaction_date',entry.date);else query=query.eq('id',id);
   const {error}=await query;if(error)throw error;
-  const ids=targets.map(e=>e.id);entries=entries.filter(e=>!ids.includes(e.id));
+  entries=entries.filter(e=>!ids.includes(e.id));
   const rows=targets.map(e=>({id:e.id,user_id:currentUser.id,type:e.type,description:e.description,amount:e.amount,category:e.category,transaction_date:e.date,status:e.status,series_id:e.series_id,needs_review:e.needs_review}));
   saveUndo({kind:'deleteMany',rows,message:targets.length>1?targets.length+' lançamentos da série excluídos.':'Lançamento excluído.'});
   $('modal').classList.remove('open');render();setMessage('Excluído. Você pode desfazer em 6 segundos.','success');
- }catch(error){if(button)button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}
+ }catch(error){const networkFailure=!navigator.onLine||/failed to fetch|network|load failed|connection|timeout/i.test(String(error?.message||''));if(networkFailure){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueDelete(queue,currentUser.id,ids);writeOfflineQueue(currentUser.id,queue);entries=entries.filter(e=>!ids.includes(e.id));$('modal').classList.remove('open');render();setMessage('Conexão interrompida. A exclusão foi guardada neste aparelho e será sincronizada depois.','success')}else{if(button)button.disabled=false;setMessage('Não foi possível excluir: '+friendlyError(error),'error',error)}}
 }
 async function logout(){
  if(!supabaseClient)return;$('logoutBtn').disabled=true;
@@ -923,8 +936,22 @@ function setupInstallPrompt(){
 function setupServiceWorker(){
  if(!('serviceWorker'in navigator))return;
  window.addEventListener('load',()=>{
-  let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded)return;reloaded=true;window.location.reload()});
-  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>reg.update().catch(()=>{})).catch(error=>console.warn('Service Worker não registrado:',error));
+  let updateRequested=false;
+  const offerUpdate=reg=>{
+   if(!reg.waiting||document.getElementById('swUpdateNotice'))return;
+   const bar=document.createElement('div');bar.id='swUpdateNotice';bar.setAttribute('role','status');
+   bar.style.cssText='position:fixed;z-index:1000;left:12px;right:12px;bottom:90px;max-width:560px;margin:auto;padding:12px 14px;border:1px solid #cbd8e8;border-radius:14px;background:#fff;color:#172033;box-shadow:0 8px 28px #10223c30;display:flex;align-items:center;justify-content:space-between;gap:10px;font:13px system-ui';
+   bar.innerHTML='<span>Uma nova versão do Aurora está disponível.</span><span style="display:flex;gap:7px"><button type="button" id="swUpdateLater" style="border:0;background:#edf1f7;border-radius:8px;padding:8px 10px">Depois</button><button type="button" id="swUpdateNow" style="border:0;background:#315fba;color:white;border-radius:8px;padding:8px 10px;font-weight:700">Atualizar</button></span>';
+   document.body.appendChild(bar);
+   document.getElementById('swUpdateLater').onclick=()=>bar.remove();
+   document.getElementById('swUpdateNow').onclick=()=>{updateRequested=true;reg.waiting?.postMessage({type:'SKIP_WAITING'})};
+  };
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(updateRequested)window.location.reload()});
+  navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).then(reg=>{
+   if(reg.waiting)offerUpdate(reg);
+   reg.addEventListener('updatefound',()=>{const worker=reg.installing;if(!worker)return;worker.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller)offerUpdate(reg)})});
+   reg.update().catch(()=>{});
+  }).catch(error=>console.warn('Service Worker não registrado:',error));
  });
 }
 function initializeSupabase(){
@@ -1072,12 +1099,16 @@ async function confirmAllReview(){
  entries.forEach(e=>{if(ids.includes(e.id))e.needs_review=false});render();setMessage('Itens revisados.','success');
 }
 async function syncOfflineQueue(){
- if(!currentUser)return;const key='aurora_offline_queue_'+currentUser.id;let queue=[];try{queue=JSON.parse(localStorage.getItem(key)||'[]')}catch{return}if(!queue.length)return;
- const localRows=queue.map(r=>({id:r.id,type:r.type,description:r.description,amount:Number(r.amount),category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:!!r.needs_review,offline:true}));localRows.forEach(row=>{if(!entries.some(e=>e.id===row.id))entries.unshift(row)});if(!navigator.onLine){render();return}
- const {data,error}=await supabaseClient.from('transactions').upsert(queue,{onConflict:'id'}).select('id,type,description,amount,category,transaction_date,status,series_id,needs_review');
- if(error){console.warn('Fila offline permanece no aparelho:',error);return}
- const sent=new Set((data||[]).map(x=>x.id));localStorage.setItem(key,JSON.stringify(queue.filter(x=>!sent.has(x.id))));
- entries=entries.map(e=>{const saved=(data||[]).find(x=>x.id===e.id);return saved?{...e,offline:false}:e});setMessage('Lançamentos offline sincronizados.','success');render();
+ if(!currentUser)return;const key='aurora_offline_queue_'+currentUser.id;let queue=readOfflineQueue(currentUser.id);if(!queue.length){if(navigator.onLine)window.auroraOfflineMode=false;return}
+ entries=window.AuroraOfflineQueue.apply(queue,entries);
+ if(!navigator.onLine){render();return}
+ const result=await window.AuroraOfflineQueue.sync(queue,supabaseClient,currentUser.id);
+ writeOfflineQueue(currentUser.id,result.remaining);
+ const savedById=new Map((result.saved||[]).map(row=>[row.id,row]));
+ entries=entries.map(e=>{const saved=savedById.get(e.id);return saved?{id:saved.id,type:saved.type,description:saved.description,amount:Number(saved.amount),category:saved.category,date:saved.transaction_date,status:saved.status,series_id:saved.series_id,needs_review:!!saved.needs_review,sort_order:Number(saved.sort_order||0),created_at:saved.created_at||null,offline:false}:e});
+ if(result.error){window.auroraOfflineMode=true;console.warn('Fila offline permanece no aparelho:',result.error);setMessage('Algumas alterações continuam aguardando sincronização.','info');}
+ else{window.auroraOfflineMode=false;entries=entries.map(e=>({...e,offline:false}));setMessage('Alterações offline sincronizadas.','success')}
+ render();
 }
 function setupAuroraNavigation(){
  const nav=$('auroraBottomNav');if(nav)nav.addEventListener('click',event=>{const b=event.target.closest('[data-screen-target]');if(b)setScreen(b.dataset.screenTarget)});
@@ -1089,7 +1120,7 @@ function setupAuroraNavigation(){
  $('seriesMode').addEventListener('change',()=>{const mode=$('seriesMode').value;$('seriesCountWrap').hidden=mode!=='installments';$('seriesUntilWrap').hidden=mode!=='repeat'});
  $('entryPaid').addEventListener('change',()=>{$('entryPaidLabel').textContent=currentType==='income'?'Já recebi':'Já paguei'});
  $('deleteFromForm').addEventListener('click',()=>{if(editingEntryId)deleteEntry(editingEntryId,null)});
- window.addEventListener('online',syncOfflineQueue);setScreen('today');setProjectionView('month');
+ window.addEventListener('online',()=>{window.auroraOfflineMode=false;entriesLoadedForUser=null;if(currentUser)activateUser(currentUser).catch(error=>setMessage('Falha ao retomar sincronização: '+friendlyError(error),'error',error))});setScreen('today');setProjectionView('month');
 }
 function initializeApp(){
  $('monthPicker').value=localDateString().slice(0,7);
@@ -1113,6 +1144,8 @@ const root=document.getElementById('auroraNewUI'),fmt=v=>money(v),monthKey=d=>d.
 function sortedRows(){return entries.slice().sort((a,b)=>a.date.localeCompare(b.date)||Number(a.sort_order||0)-Number(b.sort_order||0)||(Date.parse(a.created_at||'')||0)-(Date.parse(b.created_at||'')||0)||String(a.id).localeCompare(String(b.id)))}
 function page(name){root.querySelectorAll('[data-new-page]').forEach(x=>x.classList.toggle('active',x.dataset.newPage===name));document.querySelectorAll('[data-new-tab]').forEach(x=>{const on=x.dataset.newTab===name;x.classList.toggle('active',on);if(on)x.setAttribute('aria-current','page');else x.removeAttribute('aria-current')});renderNewUI();window.scrollTo({top:0,behavior:'smooth'})}
 function renderProjection(){
+ if(!$('projectionRows'))return;
+ if(root&&!root.querySelector('[data-new-page="home"].active'))return;
  let running=Number(openingBalance)||0;
  const rows=sortedRows(),body=$('projectionRows'),monthBalances=new Map();
  const groups=new Map();
@@ -1168,10 +1201,11 @@ let touchDrag={id:null,pointerId:null};
 function handlePointerDown(event){const handle=event.target.closest('.drag-handle');if(!handle||event.pointerType==='mouse')return;const row=handle.closest('tr[data-row-id]');if(!row)return;touchDrag={id:row.dataset.rowId,pointerId:event.pointerId};draggedRowId=touchDrag.id;row.classList.add('dragging');handle.setPointerCapture?.(event.pointerId);event.preventDefault()}
 function handlePointerMove(event){if(!touchDrag.id||touchDrag.pointerId!==event.pointerId)return;const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('tr[data-row-id]');root.querySelectorAll('.drop-target').forEach(x=>x.classList.remove('drop-target'));if(!target)return;const a=entries.find(e=>e.id===touchDrag.id),b=entries.find(e=>e.id===target.dataset.rowId);if(a&&b&&a.date===b.date)target.classList.add('drop-target')}
 async function handlePointerUp(event){if(!touchDrag.id||touchDrag.pointerId!==event.pointerId)return;const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('tr[data-row-id]');const sourceId=touchDrag.id;touchDrag={id:null,pointerId:null};if(target)await persistRowOrder(sourceId,target.dataset.rowId);else{draggedRowId=null;root.querySelectorAll('.dragging,.drop-target').forEach(x=>x.classList.remove('dragging','drop-target'))}}
-function renderNewUI(){if(!root||!currentUser)return;$('newCurrentMonth').textContent=title(currentMonth());renderProjection();renderReport();renderInsights()}
-const oldRender=render;render=function(){oldRender();renderNewUI()};
+function renderNewUI(){if(!root||!currentUser)return;const active=root.querySelector('.aurora-page.active')?.dataset.newPage||'home';if(active==='home'){$('newCurrentMonth').textContent=title(currentMonth());renderProjection()}else if(active==='reports')renderReport();else if(active==='insights')renderInsights()}
+let newUIFrame=0;const oldRender=render;render=function(){oldRender();if(newUIFrame)return;newUIFrame=requestAnimationFrame(()=>{newUIFrame=0;renderNewUI()})};
 document.addEventListener('DOMContentLoaded',()=>{const now=currentMonth();$('reportMonth').value=now;$('insightMonth').value=now;$('newExpense').addEventListener('click',()=>openInsertPicker('expense'));$('newIncome').addEventListener('click',()=>openInsertPicker('income'));$('auroraNewNav').addEventListener('click',e=>{const b=e.target.closest('[data-new-tab]');if(b)page(b.dataset.newTab)});root.addEventListener('change',handleCellChange);root.addEventListener('dragstart',handleDragStart);root.addEventListener('dragover',handleDragOver);root.addEventListener('drop',handleDrop);root.addEventListener('pointerdown',handlePointerDown);root.addEventListener('pointermove',handlePointerMove);root.addEventListener('pointerup',handlePointerUp);root.addEventListener('pointercancel',handlePointerUp); $('openDeletePicker').addEventListener('click',openDeletePicker);$('cancelDeletePicker').addEventListener('click',closeDeletePicker);$('continueDelete').addEventListener('click',beginDeleteSelected);$('deletePicker').addEventListener('click',e=>{if(e.target===$('deletePicker'))closeDeletePicker()});$('projectionMonthChoice').addEventListener('change',()=>{localStorage.setItem('aurora_projection_month',$('projectionMonthChoice').value);renderNewUI();const card=document.querySelector('.projection-balance');card?.classList.remove('month-changed');requestAnimationFrame(()=>card?.classList.add('month-changed'))});$('cancelInsert').addEventListener('click',closeInsertPicker);$('cancelBtn').addEventListener('click',()=>{window.auroraInsertAfterId=null});$('confirmInsert').addEventListener('click',confirmInsertPicker);['reportMonth','insightMonth'].forEach(id=>$(id).addEventListener('change',renderNewUI));const saved=localStorage.getItem('aurora_theme')||'light';document.documentElement.dataset.theme=saved;const btn=$('themeToggle'),update=()=>{const dark=document.documentElement.dataset.theme==='dark';btn.innerHTML=dark?'☀ <span>Claro</span>':'☾ <span>Escuro</span>';btn.setAttribute('aria-label',dark?'Ativar tema claro':'Ativar tema escuro')};update();btn.addEventListener('click',()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';localStorage.setItem('aurora_theme',document.documentElement.dataset.theme);update()});const observer=new MutationObserver(()=>{const visible=!$('dashboard').hidden;root.hidden=!visible;$('auroraNewNav').hidden=!visible;if(visible)renderNewUI()});observer.observe($('dashboard'),{attributes:true,attributeFilter:['hidden']});root.hidden=$('dashboard').hidden;$('auroraNewNav').hidden=$('dashboard').hidden});
 })();
 </script>
-<script src="./debt.js?v=52"></script>
+<script src="./debt-identity.js?v=1"></script>
+<script src="./debt.js?v=53"></script>
 </body></html>
