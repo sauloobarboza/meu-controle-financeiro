@@ -10,6 +10,8 @@ on:
     paths:
       - "index.html"
       - "debt.js"
+      - "pagination.js"
+      - "tests/**"
       - "supabase/migrations/**"
       - "icons/*.png"
       - "sw.js"
@@ -37,6 +39,10 @@ jobs:
           for file in /tmp/aurora-script-*.js; do node --check "$file"; done
       - name: Validate debt module
         run: node --check debt.js
+      - name: Validate pagination module
+        run: node --check pagination.js
+      - name: Run unit tests
+        run: node --test tests/*.test.js
       - name: Validate service worker JavaScript
         run: node --check sw.js
       - name: Validate PWA manifest JSON
