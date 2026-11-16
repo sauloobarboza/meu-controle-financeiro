@@ -512,12 +512,19 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 .entry-toggle{background:linear-gradient(110deg,#5541c8,#765be8);color:#fff;border:1px solid #5b48ce;box-shadow:0 5px 14px #5541c825}
 .aurora-spreadsheet .account-input,.aurora-spreadsheet .money-input,.aurora-spreadsheet .balance-cell{transition:font-size .24s ease,font-weight .24s ease,transform .24s ease}
 .aurora-spreadsheet.entry-hidden thead th:nth-child(3){display:none}
-.aurora-spreadsheet.entry-hidden .account-input{font-size:16px;font-weight:850}
+.aurora-spreadsheet.entry-hidden thead th:last-child,
+.aurora-spreadsheet.entry-hidden tbody td.drag-cell{display:none!important}
+.aurora-spreadsheet.entry-hidden .account-input,
+.aurora-spreadsheet.entry-hidden .money-input{font-size:19px!important;font-weight:900!important;line-height:1.35!important;letter-spacing:-.2px}
+.aurora-spreadsheet.entry-hidden .balance-cell{font-size:19px!important;font-weight:900!important;line-height:1.35!important}
+.aurora-spreadsheet.entry-hidden .account-cell{font-size:19px!important;font-weight:900!important}
+.aurora-spreadsheet.entry-hidden .account-input{font-size:19px!important;font-weight:900!important}
+.aurora-spreadsheet.entry-hidden .money-input{font-size:19px!important;font-weight:900!important}
 .aurora-spreadsheet.entry-hidden .money-input{font-size:16px;font-weight:850}
 .aurora-spreadsheet.entry-hidden .balance-cell{font-size:16px;font-weight:900}
 .aurora-spreadsheet.entry-hidden .spreadsheet-row{animation:entryViewIn .22s ease both}
 @keyframes entryViewIn{from{opacity:.72;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:600px){.aurora-spreadsheet.entry-hidden .account-input,.aurora-spreadsheet.entry-hidden .money-input{font-size:17px}.aurora-spreadsheet.entry-hidden .balance-cell{font-size:17px}.projection-add-actions .entry-toggle{font-size:10px;padding:10px 9px}}
+@media(max-width:600px){.aurora-spreadsheet.entry-hidden .account-input,.aurora-spreadsheet.entry-hidden .money-input{font-size:18px!important}.aurora-spreadsheet.entry-hidden .balance-cell{font-size:18px!important}.projection-add-actions .entry-toggle{font-size:10px;padding:10px 9px}}
 @media(prefers-reduced-motion:reduce){.aurora-spreadsheet .account-input,.aurora-spreadsheet .money-input,.aurora-spreadsheet .balance-cell{transition:none}.aurora-spreadsheet.entry-hidden .spreadsheet-row{animation:none}}
 </style>
 </head>
