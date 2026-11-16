@@ -173,3 +173,66 @@ A branch continua isolada; não houve deploy, merge ou escrita no banco de produ
 - O workflow agora valida o XML do SVG.
 
 A validação visual em launchers Android reais continua pendente; a safe zone foi projetada no SVG, mas não foi verificada em diferentes máscaras de fabricante.
+
+
+## Atualização final desta rodada — 2026-11-16
+
+### CSV de dívidas
+
+- A geração de chaves foi extraída para `debt-identity.js`.
+- A chave considera cartão, conteúdo normalizado da linha, ocorrência da linha no arquivo e número/total da parcela.
+- Isso separa compras idênticas legítimas, mantém reimportação determinística para o mesmo arquivo e diferencia cada parcela.
+- Foram adicionados testes unitários para colisão por ocorrência, reimportação e parcelas distintas.
+
+### Fila offline do fluxo principal — cobertura ampliada
+
+- Histórico sincronizado é salvo em snapshot local por usuário para consulta sem rede.
+- Ao falhar o carregamento remoto, o app tenta restaurar o último snapshot e reaplicar a fila pendente.
+- Edição, exclusão e status podem ser enfileirados quando o app já está offline.
+- Falhas de rede detectadas durante algumas operações também são encaminhadas à fila.
+- O retorno da conexão força nova tentativa de carregamento e sincronização.
+- A fila é idempotente para inserções por UUID, consolida edição em inserções ainda pendentes e mantém operações não confirmadas.
+
+Riscos/limites remanescentes:
+- Os snapshots financeiros ficam no `localStorage` do navegador, associados ao usuário, sem criptografia adicional no app. Proteger o aparelho e encerrar sessão em dispositivos compartilhados continua importante.
+- O app ainda não implementa sincronização offline equivalente para o módulo Mapa das Dívidas. CRUD, pagamento, reordenação e importação de parcelas dependem de conexão.
+- Não existe resolução de conflitos entre dois dispositivos editando o mesmo lançamento simultaneamente.
+- O fluxo de autenticação ainda depende de uma sessão Supabase restaurável no dispositivo; offline não equivale a login offline garantido.
+
+### Migration — melhoria de performance incluída
+
+- A migration também cria `app_change_requests_user_id_idx` para cobrir a FK que o advisor apontou sem índice.
+- Índices classificados como não utilizados não foram removidos; falta avaliar planos de execução e estatísticas em carga representativa.
+
+### Validação automatizada
+
+GitHub Actions run `43779170489` terminou com sucesso. Passaram:
+- sintaxe de todos os scripts inline;
+- `debt.js`, `pagination.js`, `offline-queue.js` e `debt-identity.js`;
+- testes unitários de paginação, fila offline, contratos estáticos da migration, manifesto e chaves CSV;
+- XML do SVG maskable;
+- JSON do manifesto;
+- sintaxe do Service Worker.
+
+Isso continua sendo CI estático/unitário. Não substitui teste de navegador, integração autenticada ou teste real de banco.
+
+### Estado confirmado do Supabase de produção (read-only)
+
+- `transactions`: 121 linhas; RLS habilitada.
+- `card_debt_installments`: 13 linhas; RLS habilitada.
+- `app_change_requests`: RLS habilitada.
+- `transactions.source_key` continua ausente.
+- A migration `20261115235900_atomic_card_debt_operations.sql` não aparece no histórico de migrations aplicado.
+- Nenhuma escrita, DDL ou alteração de configuração foi executada no banco de produção.
+- Advisors atuais: leaked password protection desativada (WARN), uma FK sem índice (agora coberta pela migration ainda pendente) e três índices sem uso observado.
+
+### Bloqueios restantes para afirmar entrega completa
+
+1. **Homologação de banco:** não há branch de desenvolvimento Supabase disponível no projeto. Criar um pode gerar custo e requer escolha da organização e aprovação do valor; não criei ambiente pago nem rodei a migration na produção.
+2. **Módulo de dívidas offline:** permanece online-only.
+3. **Teste real de navegador/dispositivo:** instalação, login, recuperação de sessão, sincronização, atualização/rollback do Service Worker e fluxo de dívidas ainda precisam de E2E.
+4. **Auth:** leaked password protection depende do plano Pro ou superior e da configuração de Auth no Dashboard. A integração disponível não oferece ação segura para alterar essa configuração.
+5. **Ícone:** a arte maskable SVG dedicada e a safe zone estão implementadas; validação visual em launchers Android de fabricantes diferentes ainda pendente.
+6. **Publicação:** nenhuma alteração foi mesclada em `main` ou implantada no GitHub Pages.
+
+A branch de hardening permanece isolada e pronta para a próxima rodada de homologação; a nota de qualidade não deve ser declarada 9,5/10 enquanto esses bloqueios não forem resolvidos.
