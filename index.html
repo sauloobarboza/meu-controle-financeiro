@@ -1099,15 +1099,15 @@ async function confirmAllReview(){
  entries.forEach(e=>{if(ids.includes(e.id))e.needs_review=false});render();setMessage('Itens revisados.','success');
 }
 async function syncOfflineQueue(){
- if(!currentUser)return;const key='aurora_offline_queue_'+currentUser.id;let queue=readOfflineQueue(currentUser.id);if(!queue.length)return;
+ if(!currentUser)return;const key='aurora_offline_queue_'+currentUser.id;let queue=readOfflineQueue(currentUser.id);if(!queue.length){if(navigator.onLine)window.auroraOfflineMode=false;return}
  entries=window.AuroraOfflineQueue.apply(queue,entries);
  if(!navigator.onLine){render();return}
  const result=await window.AuroraOfflineQueue.sync(queue,supabaseClient,currentUser.id);
  writeOfflineQueue(currentUser.id,result.remaining);
  const savedById=new Map((result.saved||[]).map(row=>[row.id,row]));
  entries=entries.map(e=>{const saved=savedById.get(e.id);return saved?{id:saved.id,type:saved.type,description:saved.description,amount:Number(saved.amount),category:saved.category,date:saved.transaction_date,status:saved.status,series_id:saved.series_id,needs_review:!!saved.needs_review,sort_order:Number(saved.sort_order||0),created_at:saved.created_at||null,offline:false}:e});
- if(result.error){console.warn('Fila offline permanece no aparelho:',result.error);setMessage('Algumas alterações continuam aguardando sincronização.','info');}
- else{entries=entries.map(e=>({...e,offline:false}));setMessage('Alterações offline sincronizadas.','success')}
+ if(result.error){window.auroraOfflineMode=true;console.warn('Fila offline permanece no aparelho:',result.error);setMessage('Algumas alterações continuam aguardando sincronização.','info');}
+ else{window.auroraOfflineMode=false;entries=entries.map(e=>({...e,offline:false}));setMessage('Alterações offline sincronizadas.','success')}
  render();
 }
 function setupAuroraNavigation(){
