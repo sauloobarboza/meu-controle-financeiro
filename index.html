@@ -626,6 +626,7 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0" defer crossorigin="anonymous"></script>
 <script src="./pagination.js?v=1"></script>
+<script src="./offline-queue.js?v=1"></script>
 <script>
 'use strict';
 const SUPABASE_URL='https://dqhyiggxcxczdcopdyec.supabase.co';
@@ -800,8 +801,9 @@ async function saveOpeningBalance(){
 }
 async function updateEntryStatus(id,button){
  const entry=entries.find(e=>e.id===id);if(!entry||!currentUser)return;
+ if(!navigator.onLine){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,id,{status:'paid',needs_review:false});writeOfflineQueue(currentUser.id,queue);entry.status='paid';entry.needs_review=false;entry.offline=true;render();setMessage('Situação salva neste aparelho e será sincronizada quando a internet voltar.','success');return}
  button.disabled=true;button.textContent='Atualizando...';
- try{const {error}=await supabaseClient.from('transactions').update({status:'paid'}).eq('id',id).eq('user_id',currentUser.id);if(error)throw error;entry.status='paid';entry.needs_review=false;render();setMessage(entry.type==='income'?'Recebimento confirmado.':'Conta marcada como paga.','success')}
+ try{const {error}=await supabaseClient.from('transactions').update({status:'paid',needs_review:false}).eq('id',id).eq('user_id',currentUser.id);if(error)throw error;entry.status='paid';entry.needs_review=false;render();setMessage(entry.type==='income'?'Recebimento confirmado.':'Conta marcada como paga.','success')}
  catch(error){button.disabled=false;button.textContent='Marcar pago';setMessage('Não foi possível atualizar a situação: '+friendlyError(error),'error',error)}
 }
 async function loadEntries(userId){
@@ -843,6 +845,8 @@ function saveUndo(record){
  }catch(error){setMessage('Não foi possível desfazer: '+friendlyError(error),'error',error)}};
  if(undoTimer)clearTimeout(undoTimer);undoTimer=setTimeout(()=>{toast.hidden=true;undoRecord=null},6000);
 }
+function readOfflineQueue(userId){try{return JSON.parse(localStorage.getItem('aurora_offline_queue_'+userId)||'[]')}catch{return []}}
+function writeOfflineQueue(userId,queue){localStorage.setItem('aurora_offline_queue_'+userId,JSON.stringify(queue))}
 async function saveEntry(event){
  event.preventDefault();if(saveInProgress)return;if(!currentUser){setMessage('Sua sessão expirou. Entre novamente.','error');return}
  const amount=Calc.round(Number($('amount').value)),date=$('date').value||localDateString(),category=$('category').value||'Outros',description=$('description').value.trim()||category,paid=$('entryPaid').checked;
@@ -854,9 +858,10 @@ async function saveEntry(event){
    const old=entries.find(e=>e.id===editingEntryId);if(!old)throw new Error('Lançamento não encontrado.');
    const futureScope=!!old.series_id&&$('editScope').value==='future',targets=futureScope?entries.filter(e=>e.series_id===old.series_id&&e.date>=old.date):[old];
    const updates=targets.map(e=>{const suffix=e.description.match(/\s\(\d+\/\d+\)$/)?.[0]||'',payload={description:description+suffix,amount,category,status:e.id===old.id?status:'pending',needs_review:needsReview};if(e.id===old.id){payload.transaction_date=date;if(date!==old.date)payload.sort_order=entries.filter(x=>x.date===date&&x.id!==e.id).reduce((m,x)=>Math.max(m,Number(x.sort_order||0)),-1)+1}else if(futureScope){const [oy,om]=old.date.split('-').map(Number),[ey,em]=e.date.split('-').map(Number),offset=(ey-oy)*12+(em-om);payload.transaction_date=makeSeriesDate(date,offset)}return {id:e.id,payload}});
-   const {error}=await supabaseClient.rpc('apply_transaction_batch',{p_creates:[],p_updates:updates});if(error)throw error;
-   entries.forEach(e=>{const update=updates.find(x=>x.id===e.id);if(update)Object.assign(e,{description:update.payload.description,amount,category,date:update.payload.transaction_date||e.date,sort_order:update.payload.sort_order??e.sort_order,status:update.payload.status,needs_review:needsReview})});
-   $('modal').classList.remove('open');render();setMessage('Lançamento atualizado.','success');
+   if(!navigator.onLine){let queue=readOfflineQueue(currentUser.id);updates.forEach(u=>{queue=window.AuroraOfflineQueue.enqueueUpdate(queue,currentUser.id,u.id,u.payload)});writeOfflineQueue(currentUser.id,queue);}
+   else{const {error}=await supabaseClient.rpc('apply_transaction_batch',{p_creates:[],p_updates:updates});if(error)throw error;}
+   entries.forEach(e=>{const update=updates.find(x=>x.id===e.id);if(update)Object.assign(e,{description:update.payload.description,amount,category,date:update.payload.transaction_date||e.date,sort_order:update.payload.sort_order??e.sort_order,status:update.payload.status,needs_review:needsReview,offline:!navigator.onLine||e.offline})});
+   $('modal').classList.remove('open');render();setMessage(navigator.onLine?'Lançamento atualizado.':'Alteração salva neste aparelho e será sincronizada quando a internet voltar.', 'success');
   }else{
    const mode=$('seriesMode').value;let count=1;if(mode==='installments')count=Math.min(36,Math.max(2,Number($('seriesCount').value)||12));if(mode==='repeat'){const [sy,sm]=date.slice(0,7).split('-').map(Number),[ey,em]=$('seriesUntil').value.split('-').map(Number);count=Math.min(36,Math.max(2,(ey-sy)*12+(em-sm)+1||12))}const seriesId=mode==='none'?null:crypto.randomUUID(),rows=[];
    for(let i=0;i<count;i++){const rowDate=makeSeriesDate(date,i),suffix=mode==='installments'?' ('+(i+1)+'/'+count+')':'';rows.push({id:crypto.randomUUID(),user_id:currentUser.id,type:currentType,description:description+suffix,amount,category,transaction_date:rowDate,status:i===0?status:'pending',series_id:seriesId,needs_review:needsReview,sort_order:entries.filter(e=>e.date===rowDate).reduce((m,e)=>Math.max(m,Number(e.sort_order||0)),-1)+1})}pendingRowsForOffline=rows;
@@ -880,10 +885,12 @@ async function deleteEntry(id,button){
  if(!currentUser||!id)return;const entry=entries.find(e=>e.id===id);if(!entry)return;if(button)button.disabled=true;
  const editScope=$('editScope'),editModal=$('modal'),futureScope=!!editModal?.classList.contains('open')&&editingEntryId===id&&!!entry.series_id&&editScope?.value==='future',targets=futureScope?entries.filter(e=>e.series_id===entry.series_id&&e.date>=entry.date):[entry];
  try{
+  const ids=targets.map(e=>e.id);
+  if(!navigator.onLine){let queue=readOfflineQueue(currentUser.id);queue=window.AuroraOfflineQueue.enqueueDelete(queue,currentUser.id,ids);writeOfflineQueue(currentUser.id,queue);entries=entries.filter(e=>!ids.includes(e.id));$('modal').classList.remove('open');render();setMessage('Exclusão salva neste aparelho e será sincronizada quando a internet voltar.','success');return}
   let query=supabaseClient.from('transactions').delete().eq('user_id',currentUser.id);
   if(futureScope)query=query.eq('series_id',entry.series_id).gte('transaction_date',entry.date);else query=query.eq('id',id);
   const {error}=await query;if(error)throw error;
-  const ids=targets.map(e=>e.id);entries=entries.filter(e=>!ids.includes(e.id));
+  entries=entries.filter(e=>!ids.includes(e.id));
   const rows=targets.map(e=>({id:e.id,user_id:currentUser.id,type:e.type,description:e.description,amount:e.amount,category:e.category,transaction_date:e.date,status:e.status,series_id:e.series_id,needs_review:e.needs_review}));
   saveUndo({kind:'deleteMany',rows,message:targets.length>1?targets.length+' lançamentos da série excluídos.':'Lançamento excluído.'});
   $('modal').classList.remove('open');render();setMessage('Excluído. Você pode desfazer em 6 segundos.','success');
@@ -1088,12 +1095,16 @@ async function confirmAllReview(){
  entries.forEach(e=>{if(ids.includes(e.id))e.needs_review=false});render();setMessage('Itens revisados.','success');
 }
 async function syncOfflineQueue(){
- if(!currentUser)return;const key='aurora_offline_queue_'+currentUser.id;let queue=[];try{queue=JSON.parse(localStorage.getItem(key)||'[]')}catch{return}if(!queue.length)return;
- const localRows=queue.map(r=>({id:r.id,type:r.type,description:r.description,amount:Number(r.amount),category:r.category,date:r.transaction_date,status:r.status,series_id:r.series_id,needs_review:!!r.needs_review,offline:true}));localRows.forEach(row=>{if(!entries.some(e=>e.id===row.id))entries.unshift(row)});if(!navigator.onLine){render();return}
- const {data,error}=await supabaseClient.from('transactions').upsert(queue,{onConflict:'id'}).select('id,type,description,amount,category,transaction_date,status,series_id,needs_review');
- if(error){console.warn('Fila offline permanece no aparelho:',error);return}
- const sent=new Set((data||[]).map(x=>x.id));localStorage.setItem(key,JSON.stringify(queue.filter(x=>!sent.has(x.id))));
- entries=entries.map(e=>{const saved=(data||[]).find(x=>x.id===e.id);return saved?{...e,offline:false}:e});setMessage('Lançamentos offline sincronizados.','success');render();
+ if(!currentUser)return;const key='aurora_offline_queue_'+currentUser.id;let queue=readOfflineQueue(currentUser.id);if(!queue.length)return;
+ entries=window.AuroraOfflineQueue.apply(queue,entries);
+ if(!navigator.onLine){render();return}
+ const result=await window.AuroraOfflineQueue.sync(queue,supabaseClient,currentUser.id);
+ writeOfflineQueue(currentUser.id,result.remaining);
+ const savedById=new Map((result.saved||[]).map(row=>[row.id,row]));
+ entries=entries.map(e=>{const saved=savedById.get(e.id);return saved?{id:saved.id,type:saved.type,description:saved.description,amount:Number(saved.amount),category:saved.category,date:saved.transaction_date,status:saved.status,series_id:saved.series_id,needs_review:!!saved.needs_review,sort_order:Number(saved.sort_order||0),created_at:saved.created_at||null,offline:false}:e});
+ if(result.error){console.warn('Fila offline permanece no aparelho:',result.error);setMessage('Algumas alterações continuam aguardando sincronização.','info');}
+ else{entries=entries.map(e=>({...e,offline:false}));setMessage('Alterações offline sincronizadas.','success')}
+ render();
 }
 function setupAuroraNavigation(){
  const nav=$('auroraBottomNav');if(nav)nav.addEventListener('click',event=>{const b=event.target.closest('[data-screen-target]');if(b)setScreen(b.dataset.screenTarget)});
