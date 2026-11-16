@@ -8,6 +8,6 @@ test('PWA declares a dedicated SVG maskable icon',()=>{
  assert.equal(icon.src,'icons/icon-maskable.svg');
  assert.equal(icon.type,'image/svg+xml');
  const svg=fs.readFileSync(icon.src,'utf8');
- assert.match(svg,/<svg[\\s\\S]*viewBox="0 0 512 512"/);
+ assert.match(svg,/<svg[\s\S]*viewBox="0 0 512 512"/);
  assert.match(svg,/<rect width="512" height="512"/);
 });
