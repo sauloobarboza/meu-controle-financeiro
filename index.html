@@ -1249,10 +1249,16 @@ function renderProjection(){
  const accountOrder=['nubank saulo','nubank empréstimo','internet','luz','mercado pago','nubank amanda','emp. merc. pag.','aluguel','seguro','água','gás'];
  const accountPriority=value=>{const name=String(value||'').trim().toLocaleLowerCase('pt-BR');const index=accountOrder.indexOf(name);return index<0?accountOrder.length:index};
  for(const [key,items] of groups){
-  const chronologicalItems=items.slice().sort((a,b)=>a.date.localeCompare(b.date)||Number(a.sort_order||0)-Number(b.sort_order||0)||(Date.parse(a.created_at||'')||0)-(Date.parse(b.created_at||'')||0)||String(a.id).localeCompare(String(b.id)));
-  const balancesById=new Map();
-  chronologicalItems.forEach(e=>{if(e.date>=referenceDate)running=Math.round((running+(e.type==='income'?1:-1)*Number(e.amount||0))*100)/100;balancesById.set(e.id,running)});
   const displayItems=items.slice().sort((a,b)=>accountPriority(a.description)-accountPriority(b.description)||Number(a.sort_order||0)-Number(b.sort_order||0)||(Date.parse(a.created_at||'')||0)-(Date.parse(b.created_at||'')||0)||String(a.id).localeCompare(String(b.id)));
+  const balancesById=new Map();
+  displayItems.forEach(e=>{
+   if(e.date>=referenceDate){
+    const expense=e.type==='expense'?Number(e.amount||0):0;
+    const income=e.type==='income'?Number(e.amount||0):0;
+    running=Math.round((running-expense+income)*100)/100;
+   }
+   balancesById.set(e.id,running);
+  });
   const visibleItems=displayItems.filter(matches);
   const [year,month]=key.split('-').map(Number);
   const label=new Date(year,month-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());
