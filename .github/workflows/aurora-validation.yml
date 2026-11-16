@@ -12,6 +12,7 @@ on:
       - "debt.js"
       - "pagination.js"
       - "offline-queue.js"
+      - "debt-identity.js"
       - "tests/**"
       - "supabase/migrations/**"
       - "icons/*.png"
@@ -45,6 +46,8 @@ jobs:
         run: node --check pagination.js
       - name: Validate offline queue module
         run: node --check offline-queue.js
+      - name: Validate debt identity module
+        run: node --check debt-identity.js
       - name: Run unit tests
         run: node --test tests/*.test.js
       - name: Validate maskable SVG XML
