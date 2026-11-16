@@ -111,3 +111,54 @@ Não fazer merge nem aplicar migration em produção até:
 - teste de regressão dos cálculos;
 - teste offline/online e atualização do service worker;
 - aprovação explícita do proprietário para a publicação.
+
+
+## Atualização — rodada adicional de engenharia (2026-11-16)
+
+### Paginação do histórico
+
+- Extraída para `pagination.js` a consulta paginada de `transactions`.
+- Cada página usa `range()` com até 1.000 registros.
+- Ordenação determinística por `transaction_date`, `created_at` e `id`, todos descendentes.
+- `loadEntries` aguarda todas as páginas antes de calcular/renderizar o histórico, preservando o conjunto completo de lançamentos.
+- O módulo foi adicionado ao shell do Service Worker.
+
+### Fila offline de alterações do fluxo principal
+
+- Criado `offline-queue.js` para enfileirar operações de edição, exclusão e status.
+- Edição de lançamento ainda não sincronizado é consolidada no próprio item de inserção, evitando duplicação.
+- Exclusão de item ainda não sincronizado remove a inserção pendente em vez de enviar uma exclusão sem necessidade.
+- Operações de atualização e exclusão são processadas em FIFO e removidas da fila somente após resposta sem erro do backend.
+- Falhas mantêm as operações pendentes no armazenamento local.
+- O módulo e os testes foram incluídos no shell e no workflow.
+
+Limitações ainda existentes:
+- O módulo de dívidas (parcelas, pagamentos, reordenação e importação CSV) ainda não tem fila offline equivalente.
+- Se a conexão cair durante uma operação que começou enquanto `navigator.onLine` ainda indicava conexão, a operação pode exigir nova tentativa manual; a fila cobre operações iniciadas já em modo offline.
+- O armazenamento local depende da disponibilidade de `localStorage`; não é um banco local transacional nem oferece resolução automática de conflitos entre múltiplos dispositivos.
+- Não há teste end-to-end real em navegador ou dispositivo móvel nesta rodada.
+
+### Testes automatizados adicionados
+
+- `tests/pagination.test.js`: mais de 2.000 linhas simuladas, offsets, ordenação determinística, resultado vazio, propagação de erro e limite de página.
+- `tests/offline-queue.test.js`: consolidação de updates, cancelamento de insert ainda não sincronizado, exclusão, replay local, sincronização FIFO e retenção após erro.
+- Workflow executa `node --test tests/*.test.js` e valida sintaxe dos módulos.
+
+### Estado das execuções
+
+- Run `43778755765`: sucesso, validação de paginação e testes unitários iniciais.
+- Run `43778785351`: sucesso, validação das proteções nulas na migration.
+- Run `43778889827`: os passos de sintaxe, módulos, testes unitários e manifest foram concluídos com sucesso na última consulta; confirmar conclusão final do job antes de considerar o run integralmente concluído.
+- Run `43778789556`: verificar conclusão final do job após bump do cache.
+
+### Itens ainda bloqueantes para publicação
+
+1. Migration SQL ainda não executada em ambiente isolado; schema de produção permanece incompatível com o novo módulo de dívidas.
+2. Fila offline do módulo de dívidas ainda pendente.
+3. Testes de integração/RLS/grants/concorrência e rollback pendentes.
+4. Teste de navegador e Android, inclusive atualização/rollback do Service Worker, pendente.
+5. Proteção de senha vazada precisa ser habilitada pela configuração de Auth no Dashboard; não há ação disponível nesta integração para alterar essa configuração com segurança.
+6. Arte maskable ainda precisa ser redesenhada e validada em safe zone.
+7. Advisor de índices precisa ser reavaliado com planos de execução antes de qualquer DDL.
+
+A branch continua isolada; não houve deploy, merge ou escrita no banco de produção.
