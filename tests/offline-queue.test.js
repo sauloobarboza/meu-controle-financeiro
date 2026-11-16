@@ -33,3 +33,11 @@ test('keeps pending operations when a server update fails',async()=>{
  const q=[{__auroraOp:'update',id:'a',payload:{status:'paid'}}];
  const result=await sync(q,client,'u');assert.equal(result.remaining.length,1);assert.match(result.error.message,/offline/);
 });
+
+test('saves and restores an offline snapshot per user',()=>{
+ const map=new Map(),storage={setItem:(k,v)=>map.set(k,v),getItem:k=>map.get(k)};
+ assert.equal(require('../offline-queue.js').saveSnapshot(storage,'u',[{id:'x'}],123.45),true);
+ const snap=require('../offline-queue.js').restoreSnapshot(storage,'u');
+ assert.equal(snap.openingBalance,123.45);assert.equal(snap.entries[0].id,'x');
+ assert.equal(require('../offline-queue.js').restoreSnapshot(storage,'other'),null);
+});
