@@ -236,3 +236,17 @@ Isso continua sendo CI estático/unitário. Não substitui teste de navegador, i
 6. **Publicação:** nenhuma alteração foi mesclada em `main` ou implantada no GitHub Pages.
 
 A branch de hardening permanece isolada e pronta para a próxima rodada de homologação; a nota de qualidade não deve ser declarada 9,5/10 enquanto esses bloqueios não forem resolvidos.
+
+
+## Decisão de compatibilidade com produção — 2026-11-16
+
+A publicação foi reorientada para funcionar sem qualquer alteração no schema do Supabase.
+
+- A migration experimental `20261115235900_atomic_card_debt_operations.sql` foi removida desta branch e não será aplicada.
+- O módulo `debt.js` foi alinhado ao fluxo CRUD já existente na versão principal: leitura e escrita direta em `card_debt_installments`, atualização de `transactions` para projeção dos pagamentos e importação por `upsert` usando a restrição única já existente `(user_id, source_key)`.
+- Foram removidas chamadas às RPCs que só existiriam após a migration: atualização, pagamento, exclusão, reordenação e importação.
+- A identidade determinística de CSV foi mantida e usa a coluna `source_key` já existente na tabela de parcelas.
+- A inspeção read-only confirmou que `transactions` não possui `source_key`, que `card_debt_installments` possui `source_key` e índice único `(user_id, source_key)`, e que as políticas RLS da tabela de parcelas limitam operações ao próprio `auth.uid()`.
+- Nenhuma escrita, DDL, migration ou alteração de configuração foi feita no Supabase de produção.
+
+Limites: as operações de parcelas continuam dependendo de conexão. A atualização de parcela e a projeção financeira são duas escritas separadas via Data API, não uma transação única no banco; em caso de falha entre elas, a mensagem de erro orienta nova tentativa e é necessário validar a consistência. Não declarar ausência total de erros até os testes de integração autenticada e E2E em navegador.
