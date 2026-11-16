@@ -20,6 +20,10 @@ where source_key is null
 create unique index if not exists transactions_user_source_key_uidx
   on public.transactions (user_id, source_key);
 
+-- Supports per-user lookups and efficient FK maintenance for change requests.
+create index if not exists app_change_requests_user_id_idx
+  on public.app_change_requests (user_id);
+
 create or replace function public.sync_card_debt_projection(
   p_user_id uuid,
   p_card text,
