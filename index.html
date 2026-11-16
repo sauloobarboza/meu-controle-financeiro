@@ -535,6 +535,41 @@ body{background:var(--aurora-bg);color:var(--aurora-ink);padding-bottom:100px}
  .aurora-spreadsheet.entry-hidden td.balance-cell .balance-arrow{font-size:17px!important}
 }
 
+
+/* Reflow completo da projeção quando a coluna Entrada é ocultada. */
+.aurora-spreadsheet.entry-hidden{
+ min-width:0!important;
+ width:100%!important;
+ table-layout:fixed!important;
+}
+.spreadsheet-scroll.entry-hidden{overflow-x:hidden!important;overscroll-behavior-x:auto}
+.aurora-spreadsheet.entry-hidden thead tr:first-child th:first-child{width:44%!important}
+.aurora-spreadsheet.entry-hidden thead tr:first-child th:nth-child(2){width:26%!important}
+.aurora-spreadsheet.entry-hidden thead tr:first-child th:nth-child(4){width:30%!important}
+.aurora-spreadsheet.entry-hidden .month-column-head th:first-child{width:44%!important}
+.aurora-spreadsheet.entry-hidden .month-column-head th:nth-child(2){width:26%!important}
+.aurora-spreadsheet.entry-hidden .month-column-head th:nth-child(3){width:30%!important}
+.aurora-spreadsheet.entry-hidden td.account-cell{width:44%!important;max-width:44%!important}
+.aurora-spreadsheet.entry-hidden td.expense-cell{width:26%!important;max-width:26%!important}
+.aurora-spreadsheet.entry-hidden td.balance-cell{width:30%!important;max-width:30%!important}
+.aurora-spreadsheet.entry-hidden th,
+.aurora-spreadsheet.entry-hidden td{box-sizing:border-box;padding:11px 8px!important}
+.aurora-spreadsheet.entry-hidden .account-input,
+.aurora-spreadsheet.entry-hidden .money-input{min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important}
+.aurora-spreadsheet.entry-hidden .month-divider td{width:100%!important}
+.aurora-spreadsheet.entry-hidden .month-column-head th:last-child{display:none!important}
+.aurora-spreadsheet.entry-hidden .spreadsheet-empty{width:100%!important;text-align:center!important}
+@media(max-width:600px){
+ .aurora-spreadsheet.entry-hidden th,
+ .aurora-spreadsheet.entry-hidden td{padding:9px 5px!important}
+ .aurora-spreadsheet.entry-hidden td.account-cell{width:42%!important;max-width:42%!important}
+ .aurora-spreadsheet.entry-hidden td.expense-cell{width:27%!important;max-width:27%!important}
+ .aurora-spreadsheet.entry-hidden td.balance-cell{width:31%!important;max-width:31%!important}
+ .aurora-spreadsheet.entry-hidden .month-column-head th:first-child{width:42%!important}
+ .aurora-spreadsheet.entry-hidden .month-column-head th:nth-child(2){width:27%!important}
+ .aurora-spreadsheet.entry-hidden .month-column-head th:nth-child(3){width:31%!important}
+}
+
 </style>
 </head>
 <body>
@@ -1216,7 +1251,7 @@ function renderProjection(){
   const [year,month]=key.split('-').map(Number);
   const label=new Date(year,month-1,1,12).toLocaleDateString('pt-BR',{month:'long',year:'numeric'}).replace(/^./,c=>c.toUpperCase());
   if(visibleItems.length){
-   html+='<tr class="month-divider"><td colspan="5"><div class="month-divider-main"><strong>'+safe(label)+'</strong></div></td></tr>';
+   html+='<tr class="month-divider"><td colspan="'+(projectionEntryHidden?3:5)+'"><div class="month-divider-main"><strong>'+safe(label)+'</strong></div></td></tr>';
    html+='<tr class="month-column-head"><th scope="col">Conta</th><th scope="col" class="right">Valor</th>'+(projectionEntryHidden?'':'<th scope="col" class="right">Entrada</th>')+'<th scope="col" class="right">Acumulado</th><th scope="col" aria-label="Reorganizar"></th></tr>';
   }
   for(const e of displayItems){
@@ -1226,10 +1261,10 @@ function renderProjection(){
   }
   if(items.length)monthBalances.set(key,running);
  }
- if(!rows.length)html+='<tr><td colspan="5" class="spreadsheet-empty">Nenhum lançamento ainda. Toque em “Nova conta” ou “Entrada” para começar.</td></tr>';
- else if(query&&!matchCount)html+='<tr><td colspan="5" class="spreadsheet-empty">Nenhuma conta encontrada para “'+safe($('projectionSearch').value.trim())+'”.</td></tr>';
+ if(!rows.length)html+='<tr><td colspan="'+(projectionEntryHidden?3:5)+'" class="spreadsheet-empty">Nenhum lançamento ainda. Toque em “Nova conta” ou “Entrada” para começar.</td></tr>';
+ else if(query&&!matchCount)html+='<tr><td colspan="'+(projectionEntryHidden?3:5)+'" class="spreadsheet-empty">Nenhuma conta encontrada para “'+safe($('projectionSearch').value.trim())+'”.</td></tr>';
  body.innerHTML=html;
- const spreadsheet=document.querySelector('.aurora-spreadsheet');if(spreadsheet)spreadsheet.classList.toggle('entry-hidden',projectionEntryHidden);
+ const spreadsheet=document.querySelector('.aurora-spreadsheet');if(spreadsheet)spreadsheet.classList.toggle('entry-hidden',projectionEntryHidden);const spreadsheetScroll=document.querySelector('.spreadsheet-scroll');if(spreadsheetScroll)spreadsheetScroll.classList.toggle('entry-hidden',projectionEntryHidden);
  const toggle=$('toggleProjectionEntry');if(toggle){toggle.textContent=projectionEntryHidden?'Exibir Entrada':'Ocultar Entrada';toggle.setAttribute('aria-pressed',String(projectionEntryHidden));}
  if(count){count.hidden=!query;count.textContent=query?matchCount+' resultado(s) encontrado(s)':''}
  const choice=$('projectionMonthChoice');
